@@ -2,7 +2,7 @@ program racedata;
 
 uses
   Forms,
-  main in 'main.pas' {Form1};
+  main in 'main.pas' {MainForm};
 
 {$R *.res}
 
@@ -10,6 +10,6 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.Title := 'Хронометраж';
-  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TMainForm, MainForm);
   Application.Run;
 end.
