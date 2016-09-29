@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, sSkinManager, StdCtrls, Buttons, sBitBtn, ComCtrls, ExtCtrls, sPanel,
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
-  sCheckListBox, sCheckBox, sScrollBar;
+  sCheckListBox, sCheckBox, sScrollBar, Menus;
 
 const
   PLATENUMBERS_COUNT = 50;
@@ -77,6 +77,8 @@ type
     sLabel12: TsLabel;
     sBitBtn16: TsBitBtn;
     sEdit8: TsEdit;
+    sBitBtn19: TsBitBtn;
+    PopupMenu1: TPopupMenu;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -99,10 +101,16 @@ type
     procedure sCheckBox1Click(Sender: TObject);
     procedure sBitBtn18Click(Sender: TObject);
     procedure sBitBtn15Click(Sender: TObject);
+    procedure sBitBtn16Click(Sender: TObject);
+    procedure sEdit8Change(Sender: TObject);
+    procedure sBitBtn19Click(Sender: TObject);
+    procedure sEdit8KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sListBox1DblClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
+    procedure SelectAthlet(Sender: TObject);
   end;
 
 var
@@ -229,6 +237,19 @@ begin
   sEdit6.Clear;
   sEdit6.Clear;
   DateTimePicker2.Date := Now;
+  sEdit5.ReadOnly := false;
+  sEdit6.ReadOnly := false;
+  sEdit7.ReadOnly := false;
+  sEdit8.Hide;
+  sBitBtn19.Hide;
+end;
+
+procedure TMainForm.sBitBtn16Click(Sender: TObject);
+begin
+  sEdit8.Text := '';
+  sEdit8.Show;
+  sBitBtn19.Show;
+  sEdit8.SetFocus;
 end;
 
 procedure TMainForm.sBitBtn18Click(Sender: TObject);
@@ -236,75 +257,138 @@ var
   i, EVENT_ID, ATHLET_ID, RACE_ID, REG_ID : integer;
   SEX : string;
 begin
-  EVENT_ID := sCheckListBox1.Tag;
-  with TIBSQL.Create(nil) do try
+  if (sEdit5.Text <> '') and (sComboBox2.Text <> '') then begin
+    EVENT_ID := sCheckListBox1.Tag;
+    with TIBSQL.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      // добавляем (выбираем) участника. признак (новый/неновый) - sEdit5.Tag
+      if sEdit5.Tag = 0 then begin
+        // если новый участник
+        if sCheckBox1.Checked then SEX := 'М' else SEX := 'Ж';
+        // получаем ATHLET_ID
+        with TIBQuery.Create(nil) do try
+          Database := DBase;
+          Transaction := DBTran;
+          SQL.Text := 'select max(athlet_id) from athletes;';
+          Open;
+          FetchAll;
+          ATHLET_ID := Fields[0].AsInteger + 1;
+        finally
+          Free;
+        end;
+        SQL.Text := 'insert into athletes(athlet_id,name,date_born,sex,team,city) values('
+          + IntToStr(ATHLET_ID) + ',''' + sEdit5.Text + ''','''
+          + FormatDateTime('dd/mm/yyyy', DateTimePicker2.DateTime) + ''',''' + SEX + ''','''
+          + sEdit6.Text + ''',''' + sEdit7.Text + ''');';
+        ExecQuery;
+      end
+      else begin
+        // если участник выбран через поиск
+        ATHLET_ID := sEdit5.Tag;
+      end;
+      // выбираем гонки для регистрации
+      for i := 0 to sCheckListBox1.Count - 1 do if sCheckListBox1.Checked[i] then begin
+        // извлекаем RACE_ID
+        with tIBQuery.Create(nil) do try
+          Database := DBase;
+          Transaction := DBTran;
+          SQL.Text := 'select race_id,name,track_length,laps from races where event_id='
+            + IntToStr(EVENT_ID) + ';';
+          Open;
+          FetchAll;
+          First;
+          while not(EOF) and (sCheckListBox1.Items.Strings[i] <> Fields[1].AsString) do begin
+            Next;
+          end;
+          RACE_ID := Fields[0].AsInteger;
+        finally
+          Free;
+        end;
+        // регистрируем на гонку
+        Close;
+        // получаем REG_ID
+        with TIBQuery.Create(nil) do try
+          Database := DBase;
+          Transaction := DBTran;
+          SQL.Text := 'select max(reg_id) from registry;';
+          Open;
+          FetchAll;
+          REG_ID := Fields[0].AsInteger + 1;
+        finally
+          Free;
+        end;
+        SQL.Text := 'insert into registry(reg_id,platenumber,athlet_id,race_id) values('
+          + IntToStr(REG_ID) + ',' + sComboBox2.Text + ','
+          + IntToStr(ATHLET_ID) + ',' + IntToStr(RACE_ID) + ');';
+        ExecQuery;
+      end;
+    finally
+      Free;
+    end;
+    // refresh
+    sComboBox1Change(Self);
+  end
+  else ShowMessage('Пропущены обязательные для заполнения поля');
+end;
+
+procedure TMainForm.SelectAthlet(Sender: TObject);
+var
+  ATHLET_ID : integer;
+begin
+  ATHLET_ID := (Sender as TMenuItem).Tag;
+  // сохраняем ATHLET_ID в sEdit5.Tag для последующего избежания добавления нового учатсника
+  sEdit5.Tag := ATHLET_ID;
+  with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // добавляем (выбираем) участника. признак (новый/неновый) - sEdit5.Tag
-    if sEdit5.Tag = 0 then begin
-      if sCheckBox1.Checked then SEX := 'М' else SEX := 'Ж';
-      // получаем ATHLET_ID
-      with TIBQuery.Create(nil) do try
-        Database := DBase;
-        Transaction := DBTran;
-        SQL.Text := 'select max(athlet_id) from athletes;';
-        Open;
-        FetchAll;
-        ATHLET_ID := Fields[0].AsInteger + 1;
-      finally
-        Free;
-      end;
-      SQL.Text := 'insert into athletes(athlet_id,name,date_born,sex,team,city) values('
-        + IntToStr(ATHLET_ID) + ',''' + sEdit5.Text + ''','''
-        + FormatDateTime('dd/mm/yyyy', DateTimePicker2.DateTime) + ''',''' + SEX + ''','''
-        + sEdit6.Text + ''',''' + sEdit7.Text + ''');';
-      ExecQuery;
-    end
-    else begin
-      ATHLET_ID := sEdit5.Tag;
-      /// TODO
-    end;
-    // выбираем гонки для регистрации
-    for i := 0 to sCheckListBox1.Count - 1 do if sCheckListBox1.Checked[i] then begin
-      // извлдекаем RACE_ID
-      with tIBQuery.Create(nil) do try
-        Database := DBase;
-        Transaction := DBTran;
-        SQL.Text := 'select race_id,name,track_length,laps from races where event_id='
-          + IntToStr(EVENT_ID) + ';';
-        Open;
-        FetchAll;
-        First;
-        while not(EOF) and (sCheckListBox1.Items.Strings[i] <> Fields[1].AsString) do begin
-          Next;
-        end;
-        RACE_ID := Fields[0].AsInteger;
-      finally
-        Free;
-      end;
-      // регистрируем на гонку
-      Close;
-      // получаем REG_ID
-      with TIBQuery.Create(nil) do try
-        Database := DBase;
-        Transaction := DBTran;
-        SQL.Text := 'select max(reg_id) from registry;';
-        Open;
-        FetchAll;
-        REG_ID := Fields[0].AsInteger + 1;
-      finally
-        Free;
-      end;
-      SQL.Text := 'insert into registry(reg_id,platenumber,athlet_id,race_id) values('
-        + IntToStr(REG_ID) + ',' + sComboBox2.Text + ','
-        + IntToStr(ATHLET_ID) + ',' + IntToStr(RACE_ID) + ');';
-      ExecQuery;
-    end;
+    SQL.Text := 'select name,date_born,sex,team,city from athletes where athlet_id='
+      + IntToStr(ATHLET_ID) + ' order by name;';
+    Open;
+    FetchAll;
+    sEdit5.Text := Fields[0].AsString;
+    sEdit6.Text := Fields[3].AsString;
+    sEdit7.Text := Fields[4].AsString;
+    DateTimePicker2.Date := Fields[1].AsDateTime;
+    sCheckBox1.Checked := Fields[2].AsString = 'М';
+    sCheckBox2.Checked := not(sCheckBox1.Checked);
   finally
     Free;
   end;
-  // refresh
-  sComboBox1Change(Self);
+  sEdit5.ReadOnly := true;
+  sEdit6.ReadOnly := true;
+  sEdit7.ReadOnly := true;
+  sEdit8.Hide;
+  sBitBtn19.Hide;
+end;
+
+
+procedure TMainForm.sBitBtn19Click(Sender: TObject);
+var
+  mItem : TMenuItem;
+begin
+  PopupMenu1.Items.Clear;
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select athlet_id,name,date_born,sex,team,city from athletes where name like ''%'
+      + sEdit8.Text + '%'';';
+    Open;
+    FetchAll;
+    while not(EOF) do begin
+      mItem := TMenuItem.Create(Self);
+      mItem.Caption := Fields[1].AsString + ', '
+        + FormatDateTime('dd/mm/yyyy', Fields[2].AsDateTime) + ' (' + Fields[5].AsString + ')';
+      // сохраняем athlet_id в mItem.Tag
+      mItem.Tag := Fields[0].AsInteger;
+      mItem.OnClick := SelectAthlet;
+      PopupMenu1.Items.Add(mItem);
+      Next;
+    end;
+    PopupMenu1.Popup(Left + sEdit8.Left, Top + sPanel1.Height + sEdit5.Top + sEdit5.Height);
+  finally
+    Free;
+  end;
 end;
 
 procedure TMainForm.sBitBtn1Click(Sender: TObject);
@@ -549,16 +633,36 @@ begin
         for j := 0 to sComboBox2.Items.Count - 1 do
           if sComboBox2.Items.Strings[j] = IntToStr(Fields[0].AsInteger)
           then sComboBox2.Items.Delete(j);
-        Caption := IntToStr(Fields[0].AsInteger);
+        Caption := Fields[3].AsString;
+        SubItems.Add(IntToStr(Fields[0].AsInteger));
         SubItems.Add(Fields[1].AsString);
         SubItems.Add(Fields[2].AsString);
-        SubItems.Add(Fields[3].AsString);
       end; // with lItem
       Next;
     end;
   finally
     Free;
   end;
+end;
+
+procedure TMainForm.sEdit8Change(Sender: TObject);
+begin
+  sBitBtn19.Enabled := sEdit8.Text <> '';
+end;
+
+procedure TMainForm.sEdit8KeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = 13 then sBitBtn19Click(Self);
+  if Key = 27 then begin
+    sEdit8.Hide;
+    sBitBtn19.Hide;
+  end;
+end;
+
+procedure TMainForm.sListBox1DblClick(Sender: TObject);
+begin
+  sBitBtn3Click(Self);
 end;
 
 procedure TMainForm.sListBox1Enter(Sender: TObject);
