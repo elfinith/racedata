@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, sSkinManager, StdCtrls, Buttons, sBitBtn, ComCtrls, ExtCtrls, sPanel,
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
-  sCheckListBox, sCheckBox, sScrollBar, Menus;
+  sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList;
 
 const
   PLATENUMBERS_COUNT = 50;
@@ -70,7 +70,6 @@ type
     sLabel9: TsLabel;
     sLabel10: TsLabel;
     DateTimePicker2: TDateTimePicker;
-    sScrollBar1: TsScrollBar;
     sLabel11: TsLabel;
     sEdit6: TsEdit;
     sEdit7: TsEdit;
@@ -79,6 +78,10 @@ type
     sEdit8: TsEdit;
     sBitBtn19: TsBitBtn;
     PopupMenu1: TPopupMenu;
+    sSkinProvider: TsSkinProvider;
+    PopupMenu2: TPopupMenu;
+    N1: TMenuItem;
+    ImageList1: TImageList;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -106,6 +109,8 @@ type
     procedure sBitBtn19Click(Sender: TObject);
     procedure sEdit8KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure sListBox1DblClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure N1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -120,9 +125,88 @@ implementation
 
 {$R *.dfm}
 
+function RusMessageDialog(const Msg: string; DlgType: TMsgDlgType;
+   Buttons: TMsgDlgButtons; Captions: array of string): Integer;
+var
+  aMsgDlg: TForm;
+  i: Integer;
+  dlgButton: TButton;
+  CaptionIndex: Integer;
+begin
+  aMsgDlg := CreateMessageDialog(Msg, DlgType, Buttons);
+  captionIndex := 0;
+  // перебор по объектам в диалоге
+  for i := 0 to aMsgDlg.ComponentCount - 1 do begin
+    // если кнопка
+    if (aMsgDlg.Components[i] is TButton) then begin
+      dlgButton := TButton(aMsgDlg.Components[i]);
+      if CaptionIndex > High(Captions) then Break;
+      // загружаем новый заголовок из нашего массива заголовков
+      dlgButton.Caption := Captions[CaptionIndex];
+      inc(CaptionIndex);
+    end;
+  end;
+  Result := aMsgDlg.ShowModal;
+end;
+
+procedure TMainForm.FormCreate(Sender: TObject);
+begin
+  DBase.DatabaseName := ExtractFilePath(Application.ExeName) + 'DBASE.FDB';
+  try
+    DBase.Connected := True;
+    DBTran.Active := True;
+  except
+    ShowMessage('Ошибка при соединении с БД');
+  end;
+end;
+
 procedure TMainForm.FormShow(Sender: TObject);
 begin
   TabSheet2.Show;
+end;
+
+procedure TMainForm.N1Click(Sender: TObject);
+var
+  strRaceName, strAthletName, strAthletBirthDate : string;
+  EVENT_ID, RACE_ID, ATHLET_ID : integer;
+begin
+  EVENT_ID := sCheckListBox1.Tag;
+  strRaceName := ListView1.Items[ListView1.ItemIndex].Caption;
+  strAthletName := ListView1.Items[ListView1.ItemIndex].SubItems[1];
+  strAthletBirthDate := ListView1.Items[ListView1.ItemIndex].SubItems[2];
+  if RusMessageDialog('Отменить регистрацию ' + strAthletName + ' на ' + strRaceName + '?',
+    mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
+  then begin
+    with TIBQuery.Create(nil) do try
+      // извлекаем RACE_ID
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'select race_id from races where (event_id=' + IntToStr(EVENT_ID)
+        + ') and (name=''' + strRaceName + ''');';
+      Open;
+      FetchAll;
+      RACE_ID := Fields[0].AsInteger;
+      // извлекаем ATHLET_ID
+      Close;
+      SQL.Text := 'select athlet_id from athletes where (name=''' + strAthletName
+        + ''') and (date_born=''' + strAthletBirthDate + ''');';
+      Open;
+      FetchAll;
+      ATHLET_ID := Fields[0].AsInteger;
+    finally
+      Free;
+    end;
+    with TIBSQL.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'delete from registry where (race_id=' + IntToStr(RACE_ID)
+        + ') and (athlet_id=' + intToStr(ATHLET_ID) + ');';
+      ExecQuery;
+    finally
+      Free;
+    end;
+  sComboBox1Change(Self);
+  end;
 end;
 
 procedure TMainForm.sBitBtn10Click(Sender: TObject);
@@ -236,6 +320,8 @@ begin
   sEdit5.Clear;
   sEdit6.Clear;
   sEdit6.Clear;
+  sCheckBox1.Checked := true;
+  sCheckBox2.Checked := false;
   DateTimePicker2.Date := Now;
   sEdit5.ReadOnly := false;
   sEdit6.ReadOnly := false;
@@ -328,6 +414,7 @@ begin
     end;
     // refresh
     sComboBox1Change(Self);
+    sBitBtn15Click(Self);
   end
   else ShowMessage('Пропущены обязательные для заполнения поля');
 end;
@@ -366,6 +453,8 @@ end;
 procedure TMainForm.sBitBtn19Click(Sender: TObject);
 var
   mItem : TMenuItem;
+  ATHLET_ID : integer;
+  isRegistered : boolean;
 begin
   PopupMenu1.Items.Clear;
   with TIBQuery.Create(nil) do try
@@ -376,13 +465,29 @@ begin
     Open;
     FetchAll;
     while not(EOF) do begin
-      mItem := TMenuItem.Create(Self);
-      mItem.Caption := Fields[1].AsString + ', '
-        + FormatDateTime('dd/mm/yyyy', Fields[2].AsDateTime) + ' (' + Fields[5].AsString + ')';
-      // сохраняем athlet_id в mItem.Tag
-      mItem.Tag := Fields[0].AsInteger;
-      mItem.OnClick := SelectAthlet;
-      PopupMenu1.Items.Add(mItem);
+      // поиск среди уже зарегистрированных
+      ATHLET_ID := Fields[0].AsInteger;
+      with TIBQuery.Create(nil) do try
+        Database := DBase;
+        Transaction := DBTran;
+        SQL.Text := 'select * from registry,races where (registry.race_id=races.race_id)'
+          + 'and(athlet_id=' + IntToStr(ATHLET_ID) + ')and(races.event_id='
+          + IntToStr(sCheckListBox1.Tag) + ');';
+        Open;
+        FetchAll;
+        isRegistered := RecordCount > 0;
+      finally
+        Free;
+      end;
+      if not(isRegistered) then begin
+        mItem := TMenuItem.Create(Self);
+        mItem.Caption := Fields[1].AsString + ', '
+          + FormatDateTime('dd/mm/yyyy', Fields[2].AsDateTime) + ' (' + Fields[5].AsString + ')';
+        // сохраняем athlet_id в mItem.Tag
+        mItem.Tag := ATHLET_ID;
+        mItem.OnClick := SelectAthlet;
+        PopupMenu1.Items.Add(mItem);
+      end;
       Next;
     end;
     PopupMenu1.Popup(Left + sEdit8.Left, Top + sPanel1.Height + sEdit5.Top + sEdit5.Height);
