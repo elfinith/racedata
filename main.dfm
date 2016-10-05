@@ -1746,7 +1746,7 @@ object MainForm: TMainForm
         Top = 63
         Width = 824
         Height = 531
-        ActivePage = tsStartRace
+        ActivePage = tsStartPrep
         Anchors = [akLeft, akTop, akRight, akBottom]
         Style = tsButtons
         TabOrder = 2
@@ -1767,7 +1767,7 @@ object MainForm: TMainForm
           object sLabelFX6: TsLabelFX
             Left = 477
             Top = 3
-            Width = 336
+            Width = 62
             Height = 20
             Caption = 'sLabelFX6'
             Angle = 0
@@ -1969,12 +1969,63 @@ object MainForm: TMainForm
           Caption = 'tsStartRace'
           ImageIndex = 1
           TabVisible = False
-          object sLabel15: TsLabel
-            Left = 3
-            Top = 3
-            Width = 50
-            Height = 16
-            Caption = 'sLabel15'
+          object Splitter1: TSplitter
+            Left = 633
+            Top = 0
+            Height = 521
+            Align = alRight
+            ExplicitLeft = 616
+            ExplicitTop = 176
+            ExplicitHeight = 100
+          end
+          object sPanel5: TsPanel
+            Left = 0
+            Top = 0
+            Width = 633
+            Height = 521
+            Align = alClient
+            Alignment = taLeftJustify
+            TabOrder = 0
+            OnResize = sPanel5Resize
+          end
+          object sPanel6: TsPanel
+            Left = 636
+            Top = 0
+            Width = 180
+            Height = 521
+            Align = alRight
+            TabOrder = 1
+            ExplicitLeft = 639
+            ExplicitTop = -6
+            object sLabel15: TsLabel
+              Left = 3
+              Top = 33
+              Width = 50
+              Height = 16
+              Caption = 'sLabel15'
+            end
+            object sBitBtn22: TsBitBtn
+              Left = 1
+              Top = 1
+              Width = 178
+              Height = 33
+              Align = alTop
+              Caption = #1057#1058#1040#1056#1058
+              DoubleBuffered = True
+              ParentDoubleBuffered = False
+              TabOrder = 0
+            end
+            object sBitBtn23: TsBitBtn
+              Left = 1
+              Top = 487
+              Width = 178
+              Height = 33
+              Align = alBottom
+              Caption = #1060#1048#1053#1048#1064
+              DoubleBuffered = True
+              ParentDoubleBuffered = False
+              TabOrder = 1
+            end
           end
         end
       end
@@ -4451,8 +4502,8 @@ object MainForm: TMainForm
     Top = 8
   end
   object PopupMenu1: TPopupMenu
-    Left = 667
-    Top = 85
+    Left = 683
+    Top = 69
   end
   object sSkinProvider: TsSkinProvider
     SkinData.SkinSection = 'FORM'
@@ -4476,7 +4527,7 @@ object MainForm: TMainForm
     Left = 792
     Top = 80
     Bitmap = {
-      494C010101000800440010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101010008004C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000030303100303038F020202DF020202FF020202FF020202FF020202DF0303

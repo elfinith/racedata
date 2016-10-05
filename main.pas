@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, sSkinManager, StdCtrls, Buttons, sBitBtn, ComCtrls, ExtCtrls, sPanel,
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
-  sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList;
+  sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
+  FreeButton;
 
 const
   PLATENUMBERS_COUNT = 50;
@@ -97,6 +98,11 @@ type
     sBitBtn20: TsBitBtn;
     sBitBtn21: TsBitBtn;
     sLabelFX6: TsLabelFX;
+    sPanel5: TsPanel;
+    sPanel6: TsPanel;
+    Splitter1: TSplitter;
+    sBitBtn22: TsBitBtn;
+    sBitBtn23: TsBitBtn;
     sLabel15: TsLabel;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
@@ -132,12 +138,14 @@ type
     procedure sBitBtn20Click(Sender: TObject);
     procedure sComboBox4Change(Sender: TObject);
     procedure sBitBtn21Click(Sender: TObject);
+    procedure sPanel5Resize(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
     RaceNumbers : TStringList;
     procedure SelectAthlet(Sender: TObject);
+    procedure RepaintNumberButtons(Sender: TObject);
   end;
 
 var
@@ -634,8 +642,70 @@ end;
 
 procedure TMainForm.sBitBtn21Click(Sender: TObject);
 begin
+  RepaintNumberButtons(Sender);
   tsStartRace.Show;
-  sLabel15.Caption := RaceNumbers.CommaText;
+end;
+
+procedure TMainForm.RepaintNumberButtons(Sender: TObject);
+var
+  i, iBtnNum, iBtnWidth, iBtnHeight, iRows, iColumns, iFldWidth, iFldHeight, maxBtnSize : integer;
+  k : real;
+  Item : TControl;
+begin
+  // удаление старых кнопок
+  for i := sPanel5.ControlCount - 1 downto 0 do begin
+    Item := sPanel5.Controls[i];
+    Item.Free;
+  end;
+  // вычисление параметров кнопочного поля
+  iFldWidth := sPanel5.Width;
+  iFldHeight := sPanel5.Height;
+  iBtnNum := RaceNumbers.Count;
+  // не баловства ради, отладки для, ебёнть
+  //  iBtnNum := 50;
+
+  // https://toster.ru/q/165393
+  // Считаем максимальную сторону квадрата
+  maxBtnSize := trunc(sqrt(iFldHeight * iFldWidth / iBtnNum));
+  // пробежался в сторону уменьшения i подставляя его в формулу K=(ширина div i)*(высота div i)
+  // пока K не станет равно количеству квадратов
+  i := maxBtnSize;
+  repeat
+    dec(i);
+    iColumns := iFldWidth div i;
+    iRows := iFldHeight div i;
+    k := iColumns * iRows;
+  until (k >= iBtnNum);
+  iBtnHeight := i;
+  iBtnWidth := i;
+
+  // типа отладка
+//  sLabel15.Caption := RaceNumbers.CommaText;
+//  sLabel15.Caption := '[' + IntToStr(iColumns) + 'x' + IntToStr(iRows) + ']';
+
+  // заполняем
+  for i := 0 to iBtnNum - 1 do begin
+    with TFreeButton.Create(sPanel5) do begin
+      Parent := sPanel5;
+      Caption := RaceNumbers.Strings[i];
+// не баловства ради, отладки для, ебёнть
+//      Caption := IntToStr(i + 1);
+      Width := iBtnWidth;
+      Height := iBtnHeight;
+      Left := (i mod iColumns) * iBtnWidth;
+      Top := (i div iColumns) * iBtnHeight;
+      DrawColor := clCream;
+      DrawLight := false;
+      DrawDropShadow := false;
+      with Font do begin
+        Size := iBtnHeight div 3;
+        Style := [fsBold];
+        Color := clBlack;
+        Name := 'Century Gothic';
+      end;
+      Show;
+    end;
+  end;
 end;
 
 procedure TMainForm.sBitBtn2Click(Sender: TObject);
@@ -1011,6 +1081,11 @@ procedure TMainForm.sListBox1Enter(Sender: TObject);
 begin
   sBitBtn3.Enabled := true;
   sBitBtn14.Enabled := true;
+end;
+
+procedure TMainForm.sPanel5Resize(Sender: TObject);
+begin
+  RepaintNumberButtons(Sender);
 end;
 
 procedure TMainForm.tsRegistrationShow(Sender: TObject);
