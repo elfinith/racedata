@@ -1746,7 +1746,7 @@ object MainForm: TMainForm
         Top = 63
         Width = 824
         Height = 531
-        ActivePage = tsStartPrep
+        ActivePage = tsStartRace
         Anchors = [akLeft, akTop, akRight, akBottom]
         Style = tsButtons
         TabOrder = 2
@@ -1970,7 +1970,7 @@ object MainForm: TMainForm
           ImageIndex = 1
           TabVisible = False
           object Splitter1: TSplitter
-            Left = 633
+            Left = 474
             Top = 0
             Height = 521
             Align = alRight
@@ -1981,50 +1981,124 @@ object MainForm: TMainForm
           object sPanel5: TsPanel
             Left = 0
             Top = 0
-            Width = 633
+            Width = 474
             Height = 521
             Align = alClient
             Alignment = taLeftJustify
             TabOrder = 0
             OnResize = sPanel5Resize
+            ExplicitWidth = 597
           end
           object sPanel6: TsPanel
-            Left = 636
+            Left = 477
             Top = 0
-            Width = 180
+            Width = 339
             Height = 521
             Align = alRight
             TabOrder = 1
-            ExplicitLeft = 639
-            ExplicitTop = -6
-            object sLabel15: TsLabel
-              Left = 3
-              Top = 33
-              Width = 50
-              Height = 16
-              Caption = 'sLabel15'
-            end
             object sBitBtn22: TsBitBtn
               Left = 1
               Top = 1
-              Width = 178
+              Width = 337
               Height = 33
               Align = alTop
               Caption = #1057#1058#1040#1056#1058
               DoubleBuffered = True
               ParentDoubleBuffered = False
               TabOrder = 0
+              OnClick = sBitBtn22Click
+              ExplicitWidth = 214
             end
             object sBitBtn23: TsBitBtn
               Left = 1
               Top = 487
-              Width = 178
+              Width = 337
               Height = 33
               Align = alBottom
               Caption = #1060#1048#1053#1048#1064
               DoubleBuffered = True
               ParentDoubleBuffered = False
               TabOrder = 1
+              ExplicitWidth = 214
+            end
+            object sBitBtn24: TsBitBtn
+              Left = 1
+              Top = 38
+              Width = 27
+              Height = 25
+              DoubleBuffered = True
+              Glyph.Data = {
+                36040000424D3604000000000000360000002800000010000000100000000100
+                200000000000000400000000000000000000000000000000000000000000DBDB
+                DB300000000000000000DBDBDB40DBDBDBAFDBDBDBFFDBDBDBFFDBDBDBFFDBDB
+                DBFFDBDBDBAFDBDBDB400000000000000000000000000000000000000000DDDD
+                DDFFDDDDDD8FDDDDDD8FDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDD
+                DDFFDDDDDDFFDDDDDDFFDDDDDD8F00000000000000000000000000000000DFDF
+                DFFFDFDFDFFFDFDFDFFFDFDFDFFFDFDFDFDFDEDEDE60DEDEDE40DEDEDE40DEDE
+                DE60DFDFDFDFDFDFDFFFDFDFDFFFE0E0E08F000000000000000000000000E2E2
+                E2FFE2E2E2FFE2E2E2FFE2E2E2FFE2E2E28F0000000000000000000000000000
+                0000E1E1E110E1E1E19FE2E2E2FFE2E2E2FFE2E2E2400000000000000000E4E4
+                E4FFE4E4E4FFE4E4E4FFE4E4E4FFE4E4E4FFE4E4E4AF00000000000000000000
+                000000000000E3E3E310E4E4E4DFE4E4E4FFE4E4E4AF0000000000000000E7E7
+                E7FFE7E7E7FFE7E7E7FFE6E6E6DFE6E6E680E6E6E62000000000000000000000
+                00000000000000000000E6E6E660E7E7E7FFE7E7E7FF0000000000000000E9E9
+                E9EFE8E8E89FE8E8E84000000000000000000000000000000000000000000000
+                00000000000000000000E8E8E820E9E9E9EFE9E9E9CF00000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                000000000000000000000000000000000000000000000000000000000000F0F0
+                F0CFF0F0F0EFF1F1F12000000000000000000000000000000000000000000000
+                00000000000000000000F1F1F140F0F0F09FF0F0F0EF0000000000000000F2F2
+                F2FFF2F2F2FFF2F2F2600000000000000000000000000000000000000000F3F3
+                F320F3F3F380F2F2F2DFF2F2F2FFF2F2F2FFF2F2F2FF0000000000000000F4F4
+                F4AFF5F5F5FFF5F5F5DFF5F5F51000000000000000000000000000000000F4F4
+                F4AFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FF0000000000000000F7F7
+                F740F7F7F7FFF7F7F7FFF7F7F79FF8F8F8100000000000000000000000000000
+                0000F7F7F78FF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FF00000000000000000000
+                0000F9F9F98FF9F9F9FFF9F9F9FFF9F9F9DFFAFAFA60FAFAFA40FAFAFA40FAFA
+                FA60F9F9F9DFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FF00000000000000000000
+                000000000000FBFBFB8FFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFC
+                FCFFFCFCFCFFFCFCFCFFFBFBFB8FFBFBFB8FFCFCFCFF00000000000000000000
+                00000000000000000000FDFDFD40FEFEFEAFFEFEFEFFFEFEFEFFFEFEFEFFFEFE
+                FEFFFEFEFEAFFDFDFD400000000000000000FDFDFD3000000000}
+              ParentDoubleBuffered = False
+              TabOrder = 2
+              OnClick = sBitBtn24Click
+            end
+            object ListView2: TListView
+              Left = 1
+              Top = 67
+              Width = 337
+              Height = 420
+              Align = alBottom
+              Anchors = [akLeft, akTop, akRight, akBottom]
+              Columns = <
+                item
+                  Caption = #1042#1088#1077#1084#1103
+                  Width = 90
+                end
+                item
+                  Caption = #8470
+                  Width = 30
+                end
+                item
+                  Caption = #1059#1095#1072#1089#1090#1085#1080#1082
+                  Width = 150
+                end
+                item
+                  Caption = #1050
+                  Width = 20
+                end
+                item
+                  Caption = #1055
+                  Width = 20
+                end>
+              GridLines = True
+              RowSelect = True
+              TabOrder = 3
+              ViewStyle = vsReport
+              ExplicitTop = 68
             end
           end
         end
@@ -4527,7 +4601,7 @@ object MainForm: TMainForm
     Left = 792
     Top = 80
     Bitmap = {
-      494C0101010008004C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010101000800580010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000030303100303038F020202DF020202FF020202FF020202FF020202DF0303

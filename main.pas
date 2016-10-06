@@ -103,7 +103,8 @@ type
     Splitter1: TSplitter;
     sBitBtn22: TsBitBtn;
     sBitBtn23: TsBitBtn;
-    sLabel15: TsLabel;
+    sBitBtn24: TsBitBtn;
+    ListView2: TListView;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -139,6 +140,8 @@ type
     procedure sComboBox4Change(Sender: TObject);
     procedure sBitBtn21Click(Sender: TObject);
     procedure sPanel5Resize(Sender: TObject);
+    procedure sBitBtn22Click(Sender: TObject);
+    procedure sBitBtn24Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -146,6 +149,8 @@ type
     RaceNumbers : TStringList;
     procedure SelectAthlet(Sender: TObject);
     procedure RepaintNumberButtons(Sender: TObject);
+    procedure OnPlateNumberClick(Sender: TObject);
+    procedure RefreshRacePanel;
   end;
 
 var
@@ -348,7 +353,6 @@ end;
 procedure TMainForm.sBitBtn14Click(Sender: TObject);
 var
   i, EVENT_ID : integer;
-
 begin
   if tsRegistration.Visible then begin
     // Если прееход с регистрации
@@ -646,6 +650,153 @@ begin
   tsStartRace.Show;
 end;
 
+procedure TMainForm.sBitBtn22Click(Sender: TObject);
+var
+  RACE_ID, LAST_TN_ID : integer;
+begin
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select max(tn_id) from timenotes;';
+    Open;
+    LAST_TN_ID := Fields[0].AsInteger;
+  finally
+    Free;
+  end;
+  RACE_ID := sCheckListBox2.Tag;
+  // фигарим в базу номер "0" - признак старта заезда
+  with TIBSQL.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
+      + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ',0,'''
+      + FormatDateTime('hh:mm:ss.zzz', Now()) + ''');';
+    ExecQuery;
+    sBitBtn22.Enabled := false;
+  finally
+    Free;
+  end;
+end;
+
+procedure TMainForm.sBitBtn24Click(Sender: TObject);
+begin
+  RefreshRacePanel;
+end;
+
+procedure TMainForm.RefreshRacePanel;
+var
+  i, j, iPosCnt, RACE_ID, TN_ID, PLATENUMBER : integer;
+  strTIME_START : string;
+  TIME_START, TIMENOTE, RACETIME : TDateTime;
+  fs: TFormatSettings;
+  lItem : TListItem;
+begin
+  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, fs);
+  with fs do begin
+    TimeSeparator := ':';
+    DecimalSeparator:='.';
+    ShortTimeFormat := 'hh:mm:ss.zzz';
+  end;
+  ListView2.Clear;
+  // берём RACE_ID из sPanel5.Tag
+  RACE_ID := sPanel5.Tag;
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    // время старта
+    SQL.Text := 'select timenote from timenotes where (platenumber = 0) '
+      + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
+    Open;
+    if RecordCount > 0 then begin
+      sBitBtn22.Enabled := false;
+      strTIME_START := Fields[0].AsString;
+      TIME_START := StrToTime(strTIME_START, fs);
+      sBitBtn22.Caption := 'Время старта: ' + strTIME_START;
+    end
+    else begin
+      sBitBtn22.Enabled := true;
+      sBitBtn22.Caption := 'СТАРТ';
+    end;
+
+    // времена засечек
+    Close;
+    SQL.Text := 'select timenotes.tn_id, athletes.name, timenotes.platenumber, '
+      + 'timenotes.timenote from athletes, registry, timenotes where (athletes.athlet_id = '
+      + 'registry.athlet_id) and (registry.platenumber = timenotes.platenumber) and '
+      + '(registry.race_id = timenotes.race_id) and (timenotes.race_id = ' + IntToStr(RACE_ID)
+      + ') order by timenotes.timenote;';
+    Open;
+    while not(EOF) do begin
+      TN_ID := Fields[0].AsInteger;
+      PLATENUMBER := Fields[2].AsInteger;
+      TIMENOTE := StrToTime(Fields[3].AsString, fs);
+      RACETIME := TIMENOTE - TIME_START;
+      lItem := ListView2.Items.Add;
+      with lItem do begin
+        Caption := FormatDateTime('hh:mm:ss.zzz',RACETIME);
+        SubItems.Add(IntToStr(PLATENUMBER));
+        SubItems.Add(Fields[1].AsString);
+        // считаем круги
+        with TIBQuery.Create(nil) do try
+          Database := DBase;
+          Transaction := DBTran;
+          SQL.Text := 'select count(tn_id) from timenotes where '
+            + '(tn_id < ' + IntToStr(TN_ID) + ') and (platenumber=' + IntToStr(PLATENUMBER)
+            + ') and (race_id=' + IntToStr(RACE_ID) + ');';
+          Open;
+          SubItems.Add(IntToStr(Fields[0].AsInteger + 1));
+        finally
+          Free;
+        end;
+      end;
+      Next;
+    end;
+    // проставляем позиции
+    if ListView2.Items.Count <> 0 then begin
+      iPosCnt := 1;
+      ListView2.Items.Item[0].SubItems.Add('1');
+      for i := 1 to ListView2.Items.Count - 1 do begin
+        iPosCnt := 0;
+        for j := i downto 0 do begin
+          if ListView2.Items.Item[i].SubItems.Strings[2] = ListView2.Items.Item[j].SubItems.Strings[2]
+          then inc(iPosCnt);
+        end;
+        ListView2.Items.Item[i].SubItems.Add(intToStr(iPosCnt));
+      end;
+    end;
+  finally
+    Free;
+  end;
+end;
+
+procedure TMainForm.OnPlateNumberClick(Sender: TObject);
+var
+  PLATENUMBER, RACE_ID, LAST_TN_ID : integer;
+begin
+  PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
+  RACE_ID := TFreeButton(Sender).Tag;
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select max(tn_id) from timenotes;';
+    Open;
+    LAST_TN_ID := Fields[0].AsInteger;
+  finally
+    Free;
+  end;
+  with TIBSQL.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
+      + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ',' + IntToStr(PLATENUMBER)
+      + ',''' + FormatDateTime('hh:mm:ss.zzz', Now()) + ''');';
+    ExecQuery;
+  finally
+    Free;
+  end;
+  RefreshRacePanel;
+end;
+
 procedure TMainForm.RepaintNumberButtons(Sender: TObject);
 var
   i, iBtnNum, iBtnWidth, iBtnHeight, iRows, iColumns, iFldWidth, iFldHeight, maxBtnSize : integer;
@@ -703,6 +854,9 @@ begin
         Color := clBlack;
         Name := 'Century Gothic';
       end;
+      // сохраняем RACE_ID в Tag кнопки
+      Tag := sCheckListBox2.Tag;
+      onClick := OnPlateNumberClick;
       Show;
     end;
   end;
@@ -1053,8 +1207,9 @@ begin
     sBitBtn20.Enabled := true;
     sBitBtn21.Enabled := false;
   end;
-  // сохраняем race_id в sCheckListBox2.Tag
+  // сохраняем race_id в sCheckListBox2.Tag и sPanel5.Tag
   sCheckListBox2.Tag := RACE_ID;
+  sPanel5.Tag := RACE_ID;
 end;
 
 procedure TMainForm.sEdit8Change(Sender: TObject);
