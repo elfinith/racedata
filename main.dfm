@@ -8,14 +8,15 @@ object MainForm: TMainForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
-  Font.Name = 'Tahoma'
+  Font.Name = 'Century Gothic'
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  WindowState = wsMaximized
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 17
   object sPanel1: TsPanel
     Left = 0
     Top = 0
@@ -30,11 +31,6 @@ object MainForm: TMainForm
       Height = 33
       Caption = #1057#1086#1088#1077#1074#1085#1086#1074#1072#1085#1080#1103
       DoubleBuffered = True
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
       Glyph.Data = {
         36090000424D3609000000000000360000002800000018000000180000000100
         2000000000000009000000000000000000000000000000000000DBDBDB10DADA
@@ -111,7 +107,6 @@ object MainForm: TMainForm
         0000000000000000000000000000000000000000000000000000FEFEFE50FFFF
         FFFFFFFFFFFFFFFFFFFFFEFEFECF000000000000000000000000}
       ParentDoubleBuffered = False
-      ParentFont = False
       TabOrder = 0
       OnClick = sBitBtn2Click
     end
@@ -296,11 +291,6 @@ object MainForm: TMainForm
       Caption = #1057#1090#1072#1088#1090
       DoubleBuffered = True
       Enabled = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Tahoma'
-      Font.Style = []
       Glyph.Data = {
         36090000424D3609000000000000360000002800000018000000180000000100
         2000000000000009000000000000000000000000000000000000000000000000
@@ -377,7 +367,6 @@ object MainForm: TMainForm
         FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000000000000000000000000000
         0000000000000000000000000000000000000000000000000000}
       ParentDoubleBuffered = False
-      ParentFont = False
       TabOrder = 3
       OnClick = sBitBtn14Click
     end
@@ -465,6 +454,7 @@ object MainForm: TMainForm
         0000000000000000000000000000000000000000000000000000}
       ParentDoubleBuffered = False
       TabOrder = 4
+      OnClick = sBitBtn17Click
     end
   end
   object PageControl1: TPageControl
@@ -472,7 +462,7 @@ object MainForm: TMainForm
     Top = 49
     Width = 832
     Height = 604
-    ActivePage = tsStart
+    ActivePage = tsSettings
     Align = alClient
     OwnerDraw = True
     Style = tsButtons
@@ -487,8 +477,8 @@ object MainForm: TMainForm
       object sLabelFX3: TsLabelFX
         Left = 3
         Top = 3
-        Width = 83
-        Height = 20
+        Width = 93
+        Height = 21
         Caption = #1052#1077#1088#1086#1087#1088#1080#1103#1090#1080#1077
         Angle = 0
         Shadow.OffsetKeeper.LeftTop = 0
@@ -497,29 +487,29 @@ object MainForm: TMainForm
       object sLabel6: TsLabel
         Left = 3
         Top = 157
-        Width = 43
-        Height = 16
+        Width = 48
+        Height = 17
         Caption = #1047#1072#1077#1079#1076#1099
       end
       object sLabel7: TsLabel
         Left = 3
         Top = 264
-        Width = 104
-        Height = 16
+        Width = 120
+        Height = 17
         Caption = #1057#1090#1072#1088#1090#1086#1074#1099#1081' '#1085#1086#1084#1077#1088
       end
       object sLabel8: TsLabel
         Left = 3
         Top = 69
-        Width = 147
-        Height = 16
-        Caption = #1059#1095#1072#1089#1090#1085#1080#1082' ('#1060#1072#1084#1080#1083#1080#1103' '#1048#1084#1103')'
+        Width = 59
+        Height = 17
+        Caption = #1059#1095#1072#1089#1090#1085#1080#1082
       end
       object sLabelFX4: TsLabelFX
         Left = 3
         Top = 336
-        Width = 114
-        Height = 20
+        Width = 131
+        Height = 21
         Caption = #1047#1072#1088#1077#1075#1080#1089#1090#1088#1080#1088#1086#1074#1072#1085#1099
         Angle = 0
         Shadow.OffsetKeeper.LeftTop = 0
@@ -528,35 +518,35 @@ object MainForm: TMainForm
       object sLabel9: TsLabel
         Left = 163
         Top = 97
-        Width = 22
-        Height = 16
+        Width = 25
+        Height = 17
         Caption = #1055#1086#1083
       end
       object sLabel10: TsLabel
         Left = 163
         Top = 127
-        Width = 92
-        Height = 16
+        Width = 102
+        Height = 17
         Caption = #1044#1072#1090#1072' '#1088#1086#1078#1076#1077#1085#1080#1103
       end
       object sLabel11: TsLabel
         Left = 504
         Top = 69
-        Width = 50
-        Height = 16
+        Width = 62
+        Height = 17
         Caption = #1050#1086#1084#1072#1085#1076#1072
       end
       object sLabel12: TsLabel
         Left = 504
         Top = 99
-        Width = 35
-        Height = 16
+        Width = 41
+        Height = 17
         Caption = #1043#1086#1088#1086#1076
       end
       object sBitBtn15: TsBitBtn
         Left = 163
         Top = 30
-        Width = 136
+        Width = 153
         Height = 30
         Caption = #1053#1086#1074#1099#1081' '#1091#1095#1072#1089#1090#1085#1080#1082
         DoubleBuffered = True
@@ -605,18 +595,13 @@ object MainForm: TMainForm
         Width = 312
         Height = 97
         BorderStyle = bsSingle
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
+        Color = clWhite
         Items.Strings = (
           '1'
           '2'
           '3'
           '4'
           '5')
-        ParentFont = False
         TabOrder = 1
         SkinData.SkinSection = 'EDIT'
       end
@@ -624,18 +609,12 @@ object MainForm: TMainForm
         Left = 163
         Top = 1
         Width = 658
-        Height = 24
+        Height = 25
         Alignment = taLeftJustify
         VerticalAlignment = taAlignTop
         Style = csDropDownList
         Color = 5920848
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
         ItemIndex = -1
-        ParentFont = False
         TabOrder = 2
         OnChange = sComboBox1Change
       end
@@ -643,30 +622,24 @@ object MainForm: TMainForm
         Left = 163
         Top = 261
         Width = 110
-        Height = 24
+        Height = 25
         Alignment = taLeftJustify
         VerticalAlignment = taAlignTop
         Style = csDropDownList
         Color = 5920848
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
         ItemIndex = -1
-        ParentFont = False
         TabOrder = 3
       end
       object sEdit5: TsEdit
         Left = 163
         Top = 66
         Width = 312
-        Height = 24
+        Height = 25
         Color = clWhite
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
         Font.Height = -13
-        Font.Name = 'Tahoma'
+        Font.Name = 'Century Gothic'
         Font.Style = []
         ParentFont = False
         TabOrder = 4
@@ -674,8 +647,8 @@ object MainForm: TMainForm
       object sCheckBox1: TsCheckBox
         Left = 289
         Top = 96
-        Width = 85
-        Height = 20
+        Width = 88
+        Height = 21
         Caption = #1052#1091#1078#1095#1080#1085#1072
         Checked = True
         State = cbChecked
@@ -687,8 +660,8 @@ object MainForm: TMainForm
       object sCheckBox2: TsCheckBox
         Left = 386
         Top = 96
-        Width = 89
-        Height = 20
+        Width = 97
+        Height = 21
         Caption = #1046#1077#1085#1097#1080#1085#1072
         TabOrder = 6
         OnClick = sCheckBox2Click
@@ -698,7 +671,7 @@ object MainForm: TMainForm
       object sBitBtn18: TsBitBtn
         Left = 163
         Top = 291
-        Width = 153
+        Width = 312
         Height = 30
         Caption = #1047#1072#1088#1077#1075#1080#1089#1090#1088#1080#1088#1086#1074#1072#1090#1100
         DoubleBuffered = True
@@ -793,16 +766,18 @@ object MainForm: TMainForm
             Width = 180
           end
           item
+            Alignment = taCenter
             Caption = #1057#1090#1072#1088#1090#1086#1074#1099#1081' '#8470
-            Width = 100
+            Width = 120
           end
           item
-            Caption = #1060#1072#1084#1080#1083#1080#1103' '#1048#1084#1103
+            Caption = #1059#1095#1072#1089#1090#1085#1080#1082
             Width = 200
           end
           item
+            Alignment = taCenter
             Caption = #1044#1072#1090#1072' '#1088#1086#1078#1076#1077#1085#1080#1103
-            Width = 110
+            Width = 150
           end>
         GridLines = True
         Items.ItemData = {
@@ -824,7 +799,7 @@ object MainForm: TMainForm
         Left = 289
         Top = 122
         Width = 186
-        Height = 24
+        Height = 25
         Date = 42641.665972847220000000
         Time = 42641.665972847220000000
         TabOrder = 9
@@ -833,34 +808,22 @@ object MainForm: TMainForm
         Left = 576
         Top = 66
         Width = 245
-        Height = 24
+        Height = 25
         Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
         TabOrder = 10
       end
       object sEdit7: TsEdit
         Left = 576
         Top = 96
         Width = 245
-        Height = 24
+        Height = 25
         Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
         TabOrder = 11
       end
       object sBitBtn16: TsBitBtn
-        Left = 305
+        Left = 322
         Top = 30
-        Width = 136
+        Width = 153
         Height = 30
         Caption = #1055#1086#1080#1089#1082
         DoubleBuffered = True
@@ -904,24 +867,18 @@ object MainForm: TMainForm
         OnClick = sBitBtn16Click
       end
       object sEdit8: TsEdit
-        Left = 447
+        Left = 481
         Top = 33
-        Width = 170
-        Height = 24
+        Width = 153
+        Height = 25
         Color = clWhite
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
         TabOrder = 13
         Visible = False
         OnChange = sEdit8Change
         OnKeyUp = sEdit8KeyUp
       end
       object sBitBtn19: TsBitBtn
-        Left = 623
+        Left = 640
         Top = 30
         Width = 34
         Height = 30
@@ -1019,8 +976,8 @@ object MainForm: TMainForm
       object sLabelFX1: TsLabelFX
         Left = 3
         Top = 3
-        Width = 124
-        Height = 20
+        Width = 138
+        Height = 21
         Caption = '['#1076#1072#1090#1072'] '#1052#1077#1088#1086#1087#1088#1080#1103#1090#1080#1077
         Angle = 0
         Shadow.OffsetKeeper.LeftTop = 0
@@ -1032,18 +989,13 @@ object MainForm: TMainForm
         Width = 702
         Height = 118
         Anchors = [akLeft, akTop, akRight, akBottom]
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
+        Color = clWhite
         Items.Strings = (
           '123123'
           '13'
           '21'
           '321'
           '3213')
-        ParentFont = False
         TabOrder = 0
         OnDblClick = sListBox1DblClick
         OnEnter = sListBox1Enter
@@ -1110,27 +1062,27 @@ object MainForm: TMainForm
         object sLabel2: TsLabel
           Left = 8
           Top = 14
-          Width = 79
-          Height = 16
+          Width = 89
+          Height = 17
           Caption = #1052#1077#1088#1086#1087#1088#1080#1103#1090#1080#1077
         end
         object sLabel1: TsLabel
           Left = 470
           Top = 15
-          Width = 103
-          Height = 16
+          Width = 115
+          Height = 17
           Caption = #1044#1072#1090#1072' '#1087#1088#1086#1074#1077#1076#1077#1085#1080#1103
         end
         object sEdit1: TsEdit
           Left = 104
           Top = 12
           Width = 345
-          Height = 24
+          Height = 25
           Color = clWhite
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
           Font.Height = -13
-          Font.Name = 'Tahoma'
+          Font.Name = 'Century Gothic'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -1139,7 +1091,7 @@ object MainForm: TMainForm
           Left = 592
           Top = 13
           Width = 110
-          Height = 24
+          Height = 25
           Date = 42639.648766053240000000
           Time = 42639.648766053240000000
           TabOrder = 1
@@ -1252,8 +1204,8 @@ object MainForm: TMainForm
           object sLabelFX2: TsLabelFX
             Left = 8
             Top = 10
-            Width = 47
-            Height = 20
+            Width = 52
+            Height = 21
             Caption = #1047#1072#1077#1079#1076#1099
             Angle = 0
             Shadow.OffsetKeeper.LeftTop = 0
@@ -1410,7 +1362,7 @@ object MainForm: TMainForm
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clBlack
             Font.Height = -13
-            Font.Name = 'Tahoma'
+            Font.Name = 'Century Gothic'
             Font.Style = []
             ParentFont = False
             TabOrder = 3
@@ -1427,48 +1379,42 @@ object MainForm: TMainForm
             object sLabel5: TsLabel
               Left = 11
               Top = 98
-              Width = 110
-              Height = 16
+              Width = 120
+              Height = 17
               Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1082#1088#1091#1075#1086#1074
             end
             object sLabel4: TsLabel
               Left = 11
               Top = 68
-              Width = 88
-              Height = 16
+              Width = 101
+              Height = 17
               Caption = #1044#1083#1080#1085#1072' '#1082#1088#1091#1075#1072', '#1084
             end
             object sLabel3: TsLabel
               Left = 10
               Top = 10
-              Width = 100
-              Height = 16
+              Width = 113
+              Height = 17
               Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1079#1072#1077#1079#1076#1072
             end
             object sEdit4: TsEdit
               Left = 192
               Top = 95
               Width = 38
-              Height = 24
+              Height = 25
               Color = clWhite
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clBlack
-              Font.Height = -13
-              Font.Name = 'Tahoma'
-              Font.Style = []
-              ParentFont = False
               TabOrder = 0
             end
             object sEdit2: TsEdit
               Left = 9
               Top = 35
               Width = 221
-              Height = 24
+              Height = 25
               Color = clWhite
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clBlack
               Font.Height = -13
-              Font.Name = 'Tahoma'
+              Font.Name = 'Century Gothic'
               Font.Style = []
               ParentFont = False
               TabOrder = 1
@@ -1477,14 +1423,8 @@ object MainForm: TMainForm
               Left = 165
               Top = 65
               Width = 65
-              Height = 24
+              Height = 25
               Color = clWhite
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clBlack
-              Font.Height = -13
-              Font.Name = 'Tahoma'
-              Font.Style = []
-              ParentFont = False
               TabOrder = 2
             end
             object sBitBtn13: TsBitBtn
@@ -1687,8 +1627,8 @@ object MainForm: TMainForm
       object sLabelFX5: TsLabelFX
         Left = 3
         Top = 6
-        Width = 83
-        Height = 20
+        Width = 93
+        Height = 21
         Caption = #1052#1077#1088#1086#1087#1088#1080#1103#1090#1080#1077
         Angle = 0
         Shadow.OffsetKeeper.LeftTop = 0
@@ -1697,27 +1637,21 @@ object MainForm: TMainForm
       object sLabel13: TsLabel
         Left = 3
         Top = 36
-        Width = 34
-        Height = 16
+        Width = 39
+        Height = 17
         Caption = #1047#1072#1077#1079#1076
       end
       object sComboBox3: TsComboBox
         Left = 104
         Top = 3
         Width = 717
-        Height = 24
+        Height = 25
         Anchors = [akLeft, akTop, akRight]
         Alignment = taLeftJustify
         VerticalAlignment = taAlignTop
         Style = csDropDownList
         Color = 5920848
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
         ItemIndex = -1
-        ParentFont = False
         TabOrder = 0
         OnChange = sComboBox3Change
       end
@@ -1725,19 +1659,13 @@ object MainForm: TMainForm
         Left = 104
         Top = 33
         Width = 717
-        Height = 24
+        Height = 25
         Anchors = [akLeft, akTop, akRight]
         Alignment = taLeftJustify
         VerticalAlignment = taAlignTop
         Style = csDropDownList
         Color = 5920848
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWhite
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = []
         ItemIndex = -1
-        ParentFont = False
         TabOrder = 1
         OnChange = sComboBox4Change
       end
@@ -1760,15 +1688,15 @@ object MainForm: TMainForm
           object sLabel14: TsLabel
             Left = 3
             Top = 3
-            Width = 60
-            Height = 16
+            Width = 67
+            Height = 17
             Caption = #1059#1095#1072#1089#1090#1085#1080#1082#1080
           end
           object sLabelFX6: TsLabelFX
             Left = 477
             Top = 3
-            Width = 62
-            Height = 20
+            Width = 65
+            Height = 21
             Caption = 'sLabelFX6'
             Angle = 0
             Shadow.OffsetKeeper.LeftTop = 0
@@ -1985,9 +1913,9 @@ object MainForm: TMainForm
             Height = 521
             Align = alClient
             Alignment = taLeftJustify
+            BevelOuter = bvNone
             TabOrder = 0
             OnResize = sPanel5Resize
-            ExplicitWidth = 597
           end
           object sPanel6: TsPanel
             Left = 477
@@ -1995,37 +1923,73 @@ object MainForm: TMainForm
             Width = 339
             Height = 521
             Align = alRight
+            BevelOuter = bvNone
             TabOrder = 1
+            object sTimerLabel: TsLabel
+              Left = 0
+              Top = 33
+              Width = 339
+              Height = 26
+              Align = alClient
+              Alignment = taCenter
+              AutoSize = False
+              Caption = '00:00:00.00'
+              ParentFont = False
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -21
+              Font.Name = 'Century Gothic'
+              Font.Style = []
+              ExplicitLeft = 3
+              ExplicitTop = 37
+              ExplicitWidth = 334
+            end
             object sBitBtn22: TsBitBtn
-              Left = 1
-              Top = 1
-              Width = 337
+              Left = 0
+              Top = 0
+              Width = 339
               Height = 33
               Align = alTop
               Caption = #1057#1058#1040#1056#1058
               DoubleBuffered = True
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Century Gothic'
+              Font.Style = [fsBold]
               ParentDoubleBuffered = False
+              ParentFont = False
               TabOrder = 0
               OnClick = sBitBtn22Click
-              ExplicitWidth = 214
+              ExplicitLeft = 3
+              ExplicitTop = -1
             end
             object sBitBtn23: TsBitBtn
-              Left = 1
-              Top = 487
-              Width = 337
+              Left = 0
+              Top = 488
+              Width = 339
               Height = 33
               Align = alBottom
               Caption = #1060#1048#1053#1048#1064
               DoubleBuffered = True
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -16
+              Font.Name = 'Century Gothic'
+              Font.Style = [fsBold]
               ParentDoubleBuffered = False
+              ParentFont = False
               TabOrder = 1
-              ExplicitWidth = 214
+              OnClick = sBitBtn23Click
+              ExplicitLeft = 1
+              ExplicitTop = 487
+              ExplicitWidth = 337
             end
             object sBitBtn24: TsBitBtn
-              Left = 1
-              Top = 38
+              Left = 2
+              Top = 36
               Width = 27
-              Height = 25
+              Height = 18
               DoubleBuffered = True
               Glyph.Data = {
                 36040000424D3604000000000000360000002800000010000000100000000100
@@ -2064,21 +2028,24 @@ object MainForm: TMainForm
                 FEFFFEFEFEAFFDFDFD400000000000000000FDFDFD3000000000}
               ParentDoubleBuffered = False
               TabOrder = 2
+              Visible = False
               OnClick = sBitBtn24Click
             end
             object ListView2: TListView
-              Left = 1
-              Top = 67
-              Width = 337
-              Height = 420
+              Left = 0
+              Top = 59
+              Width = 339
+              Height = 429
               Align = alBottom
               Anchors = [akLeft, akTop, akRight, akBottom]
+              BorderStyle = bsNone
               Columns = <
                 item
                   Caption = #1042#1088#1077#1084#1103
                   Width = 90
                 end
                 item
+                  Alignment = taCenter
                   Caption = #8470
                   Width = 30
                 end
@@ -2087,21 +2054,73 @@ object MainForm: TMainForm
                   Width = 150
                 end
                 item
+                  Alignment = taCenter
                   Caption = #1050
                   Width = 20
                 end
                 item
+                  Alignment = taCenter
                   Caption = #1055
                   Width = 20
+                end
+                item
+                  Alignment = taCenter
+                  Caption = #1054
+                  Width = 30
                 end>
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -13
+              Font.Name = 'Century Gothic'
+              Font.Style = []
               GridLines = True
+              HotTrackStyles = [htHandPoint, htUnderlineHot]
+              ReadOnly = True
               RowSelect = True
+              ParentColor = True
+              ParentFont = False
               TabOrder = 3
               ViewStyle = vsReport
-              ExplicitTop = 68
+              OnCustomDraw = ListView2CustomDraw
+              OnCustomDrawItem = ListView2CustomDrawItem
+              OnCustomDrawSubItem = ListView2CustomDrawSubItem
+              ExplicitTop = 60
             end
           end
         end
+        object tsRaceResults: TTabSheet
+          Caption = 'tsRaceResults'
+          ImageIndex = 2
+          TabVisible = False
+          ExplicitTop = 30
+          ExplicitHeight = 497
+        end
+      end
+    end
+    object tsAthletes: TTabSheet
+      Caption = 'tsAthletes'
+      ImageIndex = 3
+      TabVisible = False
+      ExplicitLeft = 8
+      ExplicitTop = 31
+      ExplicitHeight = 569
+    end
+    object tsSettings: TTabSheet
+      Caption = 'tsSettings'
+      ImageIndex = 4
+      TabVisible = False
+      ExplicitTop = 31
+      ExplicitHeight = 569
+      object sBitBtn25: TsBitBtn
+        Left = 3
+        Top = 3
+        Width = 313
+        Height = 25
+        Caption = #1054#1095#1080#1089#1090#1080#1090#1100' '#1076#1072#1085#1085#1099#1077' '#1074#1089#1077#1093' '#1079#1072#1077#1079#1076#1086#1074
+        DoubleBuffered = True
+        ParentDoubleBuffered = False
+        TabOrder = 0
+        OnClick = sBitBtn25Click
       end
     end
   end
@@ -4576,13 +4595,14 @@ object MainForm: TMainForm
     Top = 8
   end
   object PopupMenu1: TPopupMenu
-    Left = 683
-    Top = 69
+    OwnerDraw = True
+    Left = 707
+    Top = 61
   end
   object sSkinProvider: TsSkinProvider
     SkinData.SkinSection = 'FORM'
     TitleButtons = <>
-    Left = 688
+    Left = 696
     Top = 8
   end
   object PopupMenu2: TPopupMenu
@@ -4598,10 +4618,10 @@ object MainForm: TMainForm
   end
   object ImageList1: TImageList
     DrawingStyle = dsTransparent
-    Left = 792
-    Top = 80
+    Left = 760
+    Top = 64
     Bitmap = {
-      494C010101000800580010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101010008005C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000030303100303038F020202DF020202FF020202FF020202FF020202DF0303
@@ -4739,5 +4759,12 @@ object MainForm: TMainForm
       81000000000000008000000000000000C001000000000000E003000000000000
       F007000000000000FFFF00000000000000000000000000000000000000000000
       000000000000}
+  end
+  object Timer: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = TimerTimer
+    Left = 792
+    Top = 160
   end
 end

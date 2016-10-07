@@ -11,9 +11,26 @@ uses
 
 const
   PLATENUMBERS_COUNT = 50;
+  strPLATENUMBER_FONT_NAME = 'Century Gothic';
+  strTIMENOTE_FORMAT = 'hh:mm:ss.zzz';
+  strDB_CONNECTION_ERROR = 'Ошибка при соединении с БД';
   strRACE_STATUS_STARTED = 'В процессе';
   strRACE_STATUS_FINISHED = 'Завершено';
+  strREQUIRED_FIELDS_MISSING = 'Пропущены обязательные для заполнения поля';
+  strUNABLE_TO_DELETE_STARTED_RACE = 'Невозможно удалить уже начатый заезд';
+  strUNABLE_TO_DELETE_STARTED_EVENT = 'Невозможно удалить мероприятие с проведёнными заездами';
+  strREADY_TO_RACE = 'Готовы к старту';
+  strRACE_FINISHED = 'Гонка закончена';
+  strPRERACE_CHECK_REQUIRED = 'Требуется предстартовая проверка';
 
+  // розовый (св-т)
+  clLinen = TColor($faf0e6);
+  clMistyRose = TColor($ffe4e1);
+  // голубой (св-т)
+  clAliceBlue = TColor($f0f8ff);
+  clLavender = TColor($e6e6fa);
+  // серый
+  clGainsboro = TColor($dcdcdc);
 
 type
   TMainForm = class(TForm)
@@ -105,6 +122,12 @@ type
     sBitBtn23: TsBitBtn;
     sBitBtn24: TsBitBtn;
     ListView2: TListView;
+    tsRaceResults: TTabSheet;
+    tsAthletes: TTabSheet;
+    tsSettings: TTabSheet;
+    sTimerLabel: TsLabel;
+    Timer: TTimer;
+    sBitBtn25: TsBitBtn;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -142,19 +165,34 @@ type
     procedure sPanel5Resize(Sender: TObject);
     procedure sBitBtn22Click(Sender: TObject);
     procedure sBitBtn24Click(Sender: TObject);
+    procedure ListView2CustomDraw(Sender: TCustomListView; const ARect: TRect;
+      var DefaultDraw: Boolean);
+    procedure ListView2CustomDrawItem(Sender: TCustomListView; Item: TListItem;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure ListView2CustomDrawSubItem(Sender: TCustomListView;
+      Item: TListItem; SubItem: Integer; State: TCustomDrawState;
+      var DefaultDraw: Boolean);
+    procedure sBitBtn23Click(Sender: TObject);
+    procedure sBitBtn17Click(Sender: TObject);
+    procedure TimerTimer(Sender: TObject);
+    procedure sBitBtn25Click(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
+    fs: TFormatSettings;
     RaceNumbers : TStringList;
+    TIME_START : TDateTime;
     procedure SelectAthlet(Sender: TObject);
     procedure RepaintNumberButtons(Sender: TObject);
     procedure OnPlateNumberClick(Sender: TObject);
     procedure RefreshRacePanel;
+
   end;
 
 var
   MainForm: TMainForm;
+  function ScrollBarVisible(Handle : HWnd; Style : Longint) : Boolean;
 
 implementation
 
@@ -191,14 +229,73 @@ begin
     DBase.Connected := True;
     DBTran.Active := True;
   except
-    ShowMessage('Ошибка при соединении с БД');
+    ShowMessage(strDB_CONNECTION_ERROR);
   end;
   RaceNumbers := TStringList.Create;
+  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, fs);
+  with fs do begin
+    TimeSeparator := ':';
+    DecimalSeparator:='.';
+    ShortTimeFormat := strTIMENOTE_FORMAT;
+  end;
 end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 begin
   tsEvent.Show;
+end;
+
+procedure TMainForm.ListView2CustomDraw(Sender: TCustomListView;
+  const ARect: TRect; var DefaultDraw: Boolean);
+begin
+  with ListView2.Canvas do begin
+//    Brush.Color := clLinen;
+//    FillRect(ARect);
+  end;
+end;
+
+procedure TMainForm.ListView2CustomDrawItem(Sender: TCustomListView;
+  Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  with Sender.Canvas do begin
+    if (StrToInt(Item.SubItems.Strings[2]) mod 2) = 0 then begin
+      if (Item.Index mod 2) = 0 then Brush.Color := clMistyRose
+      else Brush.Color := clLinen;
+    end
+    else begin
+      if (Item.Index mod 2) = 0 then Brush.Color := clLavender
+      else Brush.Color := clAliceBlue;
+    end;
+    if Item.SubItems.Count = 5 then Brush.Color := clGainsboro;
+
+    if Item.SubItems.Strings[3] = '1' then begin
+      Font.Style := [fsBold, fsUnderline];
+    end
+    else if Item.SubItems.Strings[3] = '2' then Font.Style := [fsUnderline]
+    else if Item.SubItems.Strings[3] <> '3' then Font.Color := $808080;
+  end;
+end;
+
+procedure TMainForm.ListView2CustomDrawSubItem(Sender: TCustomListView;
+  Item: TListItem; SubItem: Integer; State: TCustomDrawState;
+  var DefaultDraw: Boolean);
+begin
+  with Sender.Canvas do begin
+    if (StrToInt(Item.SubItems.Strings[2]) mod 2) = 0 then begin
+      if (Item.Index mod 2) = 0 then Brush.Color := clMistyRose
+      else Brush.Color := clLinen;
+    end
+    else begin
+      if (Item.Index mod 2) = 0 then Brush.Color := clLavender
+      else Brush.Color := clAliceBlue;
+    end;
+    if Item.SubItems.Count = 5 then Brush.Color := clGainsboro;
+    if Item.SubItems.Strings[3] = '1' then begin
+      Font.Style := [fsBold, fsUnderline];
+    end
+    else if Item.SubItems.Strings[3] = '2' then Font.Style := [fsUnderline]
+    else if Item.SubItems.Strings[3] <> '3' then Font.Color := $808080;
+  end;
 end;
 
 procedure TMainForm.N1Click(Sender: TObject);
@@ -306,7 +403,7 @@ begin
       Free;
     end;
     SQL.Text := 'delete from races where race_id=' + IntToStr(RACE_ID) + ';';
-    if bClear then ExecQuery else ShowMessage('Невозможно удалить уже начатый заезд.');
+    if bClear then ExecQuery else ShowMessage(strUNABLE_TO_DELETE_STARTED_RACE);
   finally
     Free;
   end;
@@ -407,9 +504,6 @@ begin
       sComboBox4.Items.Add(Fields[3].AsString);
       Next;
     end;
-
-//    sComboBox3.Text := Fields[0].AsString;
-
   finally
     Free;
   end;
@@ -444,6 +538,16 @@ begin
   sEdit8.Show;
   sBitBtn19.Show;
   sEdit8.SetFocus;
+end;
+
+procedure TMainForm.sBitBtn17Click(Sender: TObject);
+begin
+  sBitBtn1.Font.Style := [];
+  sBitBtn2.Font.Style := [];
+  sBitBtn3.Font.Style := [];
+  sBitBtn14.Font.Style := [];
+  sBitBtn17.Font.Style := [fsBold];
+  tsSettings.Show;
 end;
 
 procedure TMainForm.sBitBtn18Click(Sender: TObject);
@@ -524,7 +628,7 @@ begin
     sComboBox1Change(Self);
     sBitBtn15Click(Self);
   end
-  else ShowMessage('Пропущены обязательные для заполнения поля');
+  else ShowMessage(strREQUIRED_FIELDS_MISSING);
 end;
 
 procedure TMainForm.SelectAthlet(Sender: TObject);
@@ -569,7 +673,7 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select athlet_id,name,date_born,sex,team,city from athletes where name like ''%'
-      + sEdit8.Text + '%'';';
+      + sEdit8.Text + '%'' order by name;';
     Open;
     FetchAll;
     while not(EOF) do begin
@@ -611,7 +715,7 @@ begin
   sBitBtn3.Font.Style := [];
   sBitBtn14.Font.Style := [];
   sBitBtn17.Font.Style := [];
-  tsStart.Show;
+  tsAthletes.Show;
 end;
 
 procedure TMainForm.sBitBtn20Click(Sender: TObject);
@@ -641,13 +745,14 @@ begin
     Free;
   end;
   sCheckListBox2.Enabled := false;
-  sLabelFX6.Caption := 'Готовы к старту заезда';
+  sLabelFX6.Caption := strREADY_TO_RACE;
 end;
 
 procedure TMainForm.sBitBtn21Click(Sender: TObject);
 begin
   RepaintNumberButtons(Sender);
   tsStartRace.Show;
+  RefreshRacePanel;
 end;
 
 procedure TMainForm.sBitBtn22Click(Sender: TObject);
@@ -664,18 +769,42 @@ begin
     Free;
   end;
   RACE_ID := sCheckListBox2.Tag;
+  TIME_START := Now();
   // фигарим в базу номер "0" - признак старта заезда
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
       + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ',0,'''
-      + FormatDateTime('hh:mm:ss.zzz', Now()) + ''');';
+      + FormatDateTime(strTIMENOTE_FORMAT, TIME_START) + ''');';
     ExecQuery;
     sBitBtn22.Enabled := false;
+
+    Timer.Enabled := true;
   finally
     Free;
   end;
+end;
+
+procedure TMainForm.sBitBtn23Click(Sender: TObject);
+var
+  i : integer;
+  Item : TControl;
+begin
+{
+  for i := sPanel5.ControlCount - 1 downto 0 do begin
+    Item := sPanel5.Controls[i];
+    TFreeButton(Item).Hide;
+  end;
+}
+  if RusMessageDialog('Завершить гонку и перейти к итоговой таблице?',
+    mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
+  then begin
+    sBitBtn22.Enabled := true;
+    Timer.Enabled := false;
+    tsRaceResults.Show
+  end;
+
 end;
 
 procedure TMainForm.sBitBtn24Click(Sender: TObject);
@@ -683,20 +812,31 @@ begin
   RefreshRacePanel;
 end;
 
+procedure TMainForm.sBitBtn25Click(Sender: TObject);
+begin
+  // зачитка данных ВСЕХ заездов
+  with TIBSQL.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    // все гонки в процессе прееводим в нестартованные
+    SQL.Text := 'update races set status='''' where status=''' + strRACE_STATUS_STARTED + ''';';
+    ExecQuery;
+    Close;
+    // вычищаем все временные отметки
+    SQL.Text := 'delete from timenotes;';
+    ExecQuery;
+  finally
+    Free;
+  end;
+end;
+
 procedure TMainForm.RefreshRacePanel;
 var
-  i, j, iPosCnt, RACE_ID, TN_ID, PLATENUMBER : integer;
+  i, j, k, iPosCnt, iLapsOffset, iPanelWidth, ScrollBarWidth, RACE_ID, TN_ID, PLATENUMBER : integer;
+  TIMENOTE, RACETIME : TDateTime;
   strTIME_START : string;
-  TIME_START, TIMENOTE, RACETIME : TDateTime;
-  fs: TFormatSettings;
   lItem : TListItem;
 begin
-  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, fs);
-  with fs do begin
-    TimeSeparator := ':';
-    DecimalSeparator:='.';
-    ShortTimeFormat := 'hh:mm:ss.zzz';
-  end;
   ListView2.Clear;
   // берём RACE_ID из sPanel5.Tag
   RACE_ID := sPanel5.Tag;
@@ -712,6 +852,7 @@ begin
       strTIME_START := Fields[0].AsString;
       TIME_START := StrToTime(strTIME_START, fs);
       sBitBtn22.Caption := 'Время старта: ' + strTIME_START;
+      Timer.Enabled := true;
     end
     else begin
       sBitBtn22.Enabled := true;
@@ -733,7 +874,8 @@ begin
       RACETIME := TIMENOTE - TIME_START;
       lItem := ListView2.Items.Add;
       with lItem do begin
-        Caption := FormatDateTime('hh:mm:ss.zzz',RACETIME);
+        // отсекаем тысячные, чтоб не захламлять
+        Caption := Copy(FormatDateTime(strTIMENOTE_FORMAT, RACETIME), 1, 11);
         SubItems.Add(IntToStr(PLATENUMBER));
         SubItems.Add(Fields[1].AsString);
         // считаем круги
@@ -752,49 +894,78 @@ begin
       Next;
     end;
     // проставляем позиции
-    if ListView2.Items.Count <> 0 then begin
-      iPosCnt := 1;
-      ListView2.Items.Item[0].SubItems.Add('1');
-      for i := 1 to ListView2.Items.Count - 1 do begin
-        iPosCnt := 0;
-        for j := i downto 0 do begin
-          if ListView2.Items.Item[i].SubItems.Strings[2] = ListView2.Items.Item[j].SubItems.Strings[2]
-          then inc(iPosCnt);
+    with ListView2.Items do begin
+      if Count <> 0 then begin
+        iPosCnt := 1;
+        Item[0].SubItems.Add('1');
+        for i := 1 to Count - 1 do begin
+          iPosCnt := 0;
+          iLapsOffset := 0;
+          // преебираем всех кто прошёл ранее
+          for j := i downto 0 do begin
+            // находим позицию на основании числа уже прошедших в этом круге
+            if Item[i].SubItems.Strings[2] = Item[j].SubItems.Strings[2] then inc(iPosCnt);
+            // находим максимальную разницу в кругах из уже ранее отметившихся
+            k := StrToInt(Item[j].SubItems.Strings[2]) - StrToInt(Item[i].SubItems.Strings[2]);
+            if iLapsOffset < k then iLapsOffset := k;
+          end;
+          Item[i].SubItems.Add(intToStr(iPosCnt));
+          if iLapsOffset > 0 then Item[i].SubItems.Add('-' + IntToStr(iLapsOffset));
         end;
-        ListView2.Items.Item[i].SubItems.Add(intToStr(iPosCnt));
       end;
+    end; // with ListView2.Items
+    // выравнивание ширины колонок, подгонка ширины панели по колонкам
+    iPanelWidth := 0;
+    for i := 0 to ListView2.Columns.Count - 2 do begin
+      ListView2.Columns[i].Width := ColumnHeaderWidth;
+      iPanelWidth := iPanelWidth + ListView2.Columns[i].Width;
     end;
+    iPanelWidth := iPanelWidth + ListView2.Columns[ListView2.Columns.Count - 1].Width;
+    if ScrollBarVisible(ListView2.Handle, WS_VSCROLL) then
+      ScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL)
+    else ScrollBarWidth := 0;
+    sPanel6.Width := iPanelWidth + ScrollBarWidth + ListView2.Columns.Count;
+    // прокрутка в конец
+    SendMessage(ListView2.Handle, WM_VSCROLL, SB_BOTTOM, 0);
   finally
     Free;
   end;
+end;
+
+function ScrollBarVisible(Handle : HWnd; Style : Longint) : Boolean;
+begin
+  Result := (GetWindowLong(Handle, GWL_STYLE) and Style) <> 0;
 end;
 
 procedure TMainForm.OnPlateNumberClick(Sender: TObject);
 var
   PLATENUMBER, RACE_ID, LAST_TN_ID : integer;
 begin
-  PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
-  RACE_ID := TFreeButton(Sender).Tag;
-  with TIBQuery.Create(nil) do try
-    Database := DBase;
-    Transaction := DBTran;
-    SQL.Text := 'select max(tn_id) from timenotes;';
-    Open;
-    LAST_TN_ID := Fields[0].AsInteger;
-  finally
-    Free;
+  // проверяем стартовал ли заезд
+  if not(sBitBtn22.Enabled) then begin
+    PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
+    RACE_ID := TFreeButton(Sender).Tag;
+    with TIBQuery.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'select max(tn_id) from timenotes;';
+      Open;
+      LAST_TN_ID := Fields[0].AsInteger;
+    finally
+      Free;
+    end;
+    with TIBSQL.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
+        + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ',' + IntToStr(PLATENUMBER)
+        + ',''' + FormatDateTime(strTIMENOTE_FORMAT, Now()) + ''');';
+      ExecQuery;
+    finally
+      Free;
+    end;
+    RefreshRacePanel;
   end;
-  with TIBSQL.Create(nil) do try
-    Database := DBase;
-    Transaction := DBTran;
-    SQL.Text := 'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
-      + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ',' + IntToStr(PLATENUMBER)
-      + ',''' + FormatDateTime('hh:mm:ss.zzz', Now()) + ''');';
-    ExecQuery;
-  finally
-    Free;
-  end;
-  RefreshRacePanel;
 end;
 
 procedure TMainForm.RepaintNumberButtons(Sender: TObject);
@@ -812,9 +983,6 @@ begin
   iFldWidth := sPanel5.Width;
   iFldHeight := sPanel5.Height;
   iBtnNum := RaceNumbers.Count;
-  // не баловства ради, отладки для, ебёнть
-  //  iBtnNum := 50;
-
   // https://toster.ru/q/165393
   // Считаем максимальную сторону квадрата
   maxBtnSize := trunc(sqrt(iFldHeight * iFldWidth / iBtnNum));
@@ -829,18 +997,11 @@ begin
   until (k >= iBtnNum);
   iBtnHeight := i;
   iBtnWidth := i;
-
-  // типа отладка
-//  sLabel15.Caption := RaceNumbers.CommaText;
-//  sLabel15.Caption := '[' + IntToStr(iColumns) + 'x' + IntToStr(iRows) + ']';
-
   // заполняем
   for i := 0 to iBtnNum - 1 do begin
     with TFreeButton.Create(sPanel5) do begin
       Parent := sPanel5;
       Caption := RaceNumbers.Strings[i];
-// не баловства ради, отладки для, ебёнть
-//      Caption := IntToStr(i + 1);
       Width := iBtnWidth;
       Height := iBtnHeight;
       Left := (i mod iColumns) * iBtnWidth;
@@ -852,7 +1013,7 @@ begin
         Size := iBtnHeight div 3;
         Style := [fsBold];
         Color := clBlack;
-        Name := 'Century Gothic';
+        Name := strPLATENUMBER_FONT_NAME;
       end;
       // сохраняем RACE_ID в Tag кнопки
       Tag := sCheckListBox2.Tag;
@@ -970,7 +1131,7 @@ begin
       SQL.Text := 'delete from events where event_id=' + IntToStr(EVENT_ID) + ';';
       ExecQuery;
     end
-    else ShowMessage('Невозможно удалить мероприятие с проведёнными заездами');
+    else ShowMessage(strUNABLE_TO_DELETE_STARTED_EVENT);
   finally
     Free;
   end;
@@ -1190,19 +1351,19 @@ begin
   end;
   // проверка статуса гонки
   if STATUS = strRACE_STATUS_STARTED then begin
-    sLabelFX6.Caption := 'Готовы к старту';
+    sLabelFX6.Caption := strREADY_TO_RACE;
     sCheckListBox2.Enabled := false;
     sBitBtn20.Enabled := false;
     sBitBtn21.Enabled := true;
   end;
   if STATUS = strRACE_STATUS_FINISHED then begin
-    sLabelFX6.Caption := 'Гонка закончена';
+    sLabelFX6.Caption := strRACE_FINISHED;
     sCheckListBox2.Enabled := false;
     sBitBtn20.Enabled := false;
     sBitBtn21.Enabled := false;
   end;
   if STATUS = '' then begin
-    sLabelFX6.Caption := 'Требуется предстартовая проверка';
+    sLabelFX6.Caption := strPRERACE_CHECK_REQUIRED;
     sCheckListBox2.Enabled := true;
     sBitBtn20.Enabled := true;
     sBitBtn21.Enabled := false;
@@ -1240,7 +1401,13 @@ end;
 
 procedure TMainForm.sPanel5Resize(Sender: TObject);
 begin
-  RepaintNumberButtons(Sender);
+  if (PageControl2.ActivePage = tsStartRace) and (PageControl1.ActivePage = tsStart)
+  then RepaintNumberButtons(Sender);
+end;
+
+procedure TMainForm.TimerTimer(Sender: TObject);
+begin
+  sTimerLabel.Caption := Copy(FormatDateTime(strTIMENOTE_FORMAT, Now() - TIME_START), 1, 11);
 end;
 
 procedure TMainForm.tsRegistrationShow(Sender: TObject);
@@ -1279,5 +1446,7 @@ begin
     Free;
   end;
 end;
+
+
 
 end.
