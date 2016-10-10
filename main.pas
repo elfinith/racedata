@@ -7,7 +7,7 @@ uses
   Dialogs, sSkinManager, StdCtrls, Buttons, sBitBtn, ComCtrls, ExtCtrls, sPanel,
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
-  FreeButton;
+  FreeButton, acTitleBar;
 
 const
   PLATENUMBERS_COUNT = 50;
@@ -22,6 +22,7 @@ const
   strREADY_TO_RACE = 'Готовы к старту';
   strRACE_FINISHED = 'Гонка закончена';
   strPRERACE_CHECK_REQUIRED = 'Требуется предстартовая проверка';
+  strINVALID_TIMENOTE_DATA = 'Неверные данные о временной отметке';
 
   // розовый (св-т)
   clLinen = TColor($faf0e6);
@@ -109,7 +110,7 @@ type
     sLabel13: TsLabel;
     PageControl2: TPageControl;
     tsStartPrep: TTabSheet;
-    tsStartRace: TTabSheet;
+    tsRacePanel: TTabSheet;
     sCheckListBox2: TsCheckListBox;
     sLabel14: TsLabel;
     sBitBtn20: TsBitBtn;
@@ -128,6 +129,15 @@ type
     sTimerLabel: TsLabel;
     Timer: TTimer;
     sBitBtn25: TsBitBtn;
+    pmRPMenu: TPopupMenu;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    sPanel7: TsPanel;
+    sBitBtn26: TsBitBtn;
+    sBitBtn27: TsBitBtn;
+    N4: TMenuItem;
+    sEdit10: TsEdit;
+    sComboBox5: TsComboBox;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -176,6 +186,11 @@ type
     procedure sBitBtn17Click(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
     procedure sBitBtn25Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure sBitBtn27Click(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure N4Click(Sender: TObject);
+    procedure sBitBtn26Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -242,6 +257,7 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 begin
+
   tsEvent.Show;
 end;
 
@@ -340,6 +356,65 @@ begin
     end;
   sComboBox1Change(Self);
   end;
+end;
+
+procedure TMainForm.N2Click(Sender: TObject);
+var
+  TN_ID : integer;
+begin
+  TN_ID := Integer(ListView2.Items[ListView2.ItemIndex].Data);
+  with TIBSQL.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'delete from timenotes where tn_id=' + IntToStr(TN_ID) + ';';
+    ExecQuery;
+  finally
+    Free;
+  end;
+  RefreshRacePanel;
+end;
+
+procedure TMainForm.N3Click(Sender: TObject);
+var
+  i, TN_ID : integer;
+begin
+  // вычисляем новый TN_ID
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select max(tn_id) from timenotes;';
+    Open;
+    TN_ID := Fields[0].AsInteger + 1;
+  finally
+    Free;
+  end;
+  // подставляем текущее время (чтоб было удобнее менять)
+  sEdit10.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT, Now() - TIME_START),1,11);
+  // сохраняем TN_ID в sPanel7.Tag
+  sPanel7.Tag := TN_ID;
+  // номера
+  sComboBox5.Clear;
+  for i := 0 to RaceNumbers.Count - 1 do sComboBox5.Items.Add(RaceNumbers[i]);
+  sEdit10.Enabled := true;
+  sComboBox5.DroppedDown := false;
+  sPanel7.Show;
+end;
+
+procedure TMainForm.N4Click(Sender: TObject);
+var
+  i : integer;
+begin
+  // сохраняем TN_ID в sPanel7.Tag
+  sPanel7.Tag := Integer(ListView2.Items[ListView2.ItemIndex].Data);
+  // номера
+  sComboBox5.Clear;
+  for i := 0 to RaceNumbers.Count - 1 do sComboBox5.Items.Add(RaceNumbers[i]);
+  sComboBox5.Text := ListView2.Items[ListView2.ItemIndex].SubItems.Strings[0];
+  sEdit10.Text := ListView2.Items[ListView2.ItemIndex].Caption;
+  sEdit10.Enabled := false;
+  sPanel7.Show;
+  sComboBox5.SetFocus;
+  sComboBox5.DroppedDown := true;
 end;
 
 procedure TMainForm.sBitBtn10Click(Sender: TObject);
@@ -554,8 +629,14 @@ procedure TMainForm.sBitBtn18Click(Sender: TObject);
 var
   i, EVENT_ID, ATHLET_ID, RACE_ID, REG_ID : integer;
   SEX : string;
+  bRacesSelected : boolean;
 begin
-  if (sEdit5.Text <> '') and (sComboBox2.Text <> '') then begin
+  bRacesSelected := false;
+  // сначала смотрим выбраны ли вообще заезды
+  for i := 0 to sCheckListBox1.Items.Count - 1 do
+    if sCheckListBox1.Checked[i] then bRacesSelected := true;
+  // проверяем заполнение обязательных полей
+  if (sEdit5.Text <> '') and (sComboBox2.Text <> '') and bRacesSelected then begin
     EVENT_ID := sCheckListBox1.Tag;
     with TIBSQL.Create(nil) do try
       Database := DBase;
@@ -751,7 +832,7 @@ end;
 procedure TMainForm.sBitBtn21Click(Sender: TObject);
 begin
   RepaintNumberButtons(Sender);
-  tsStartRace.Show;
+  tsRacePanel.Show;
   RefreshRacePanel;
 end;
 
@@ -788,7 +869,7 @@ end;
 
 procedure TMainForm.sBitBtn23Click(Sender: TObject);
 var
-  i : integer;
+  i, RACE_ID : integer;
   Item : TControl;
 begin
 {
@@ -800,11 +881,21 @@ begin
   if RusMessageDialog('Завершить гонку и перейти к итоговой таблице?',
     mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
   then begin
+    // забираем RACE_ID из sPanel5.Tag
+    RACE_ID := sPanel5.Tag;
     sBitBtn22.Enabled := true;
     Timer.Enabled := false;
-    tsRaceResults.Show
+    with tIBSQL.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'update races set status=''' +
+        strRACE_STATUS_FINISHED + ''' where race_id=' + IntToStr(RACE_ID) + ';';
+      ExecQuery;
+    finally
+      Free;
+    end;
+    tsRaceResults.Show;
   end;
-
 end;
 
 procedure TMainForm.sBitBtn24Click(Sender: TObject);
@@ -818,8 +909,12 @@ begin
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // все гонки в процессе прееводим в нестартованные
+    // все гонки в процессе переводим в нестартованные
     SQL.Text := 'update races set status='''' where status=''' + strRACE_STATUS_STARTED + ''';';
+    ExecQuery;
+    Close;
+    // все завершённые гонки в переводим в нестартованные
+    SQL.Text := 'update races set status='''' where status=''' + strRACE_STATUS_FINISHED + ''';';
     ExecQuery;
     Close;
     // вычищаем все временные отметки
@@ -828,6 +923,53 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TMainForm.sBitBtn26Click(Sender: TObject);
+var
+  i, TN_ID, RACE_ID : integer;
+  strTIMENOTE, StrAbsTime : string;
+  bValidData : boolean;
+begin
+  // берём TN_ID из sPanel7.Tag
+  TN_ID := sPanel7.Tag;
+  // берём RACE_ID из sPanel5.Tag
+  RACE_ID := sPanel5.Tag;
+  // проверяем корректность данных
+  bValidData := false;
+  for i := 0 to RaceNumbers.Count - 1 do
+    if RaceNumbers.Strings[i] = sComboBox5.Text then bValidData := true;
+  strTIMENOTE := sEdit10.Text;
+  if (strTIMENOTE[3] <> ':') or (strTIMENOTE[6] <> ':') or (strTIMENOTE[9] <> '.')
+  then bValidData := false;
+  // если ОК, пишем в базу
+  if bValidData then begin
+    with TIBSQL.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      // признак добавления/изменения - sEdit10.Enabled
+      if sEdit10.Enabled then begin
+        // вычисляем и пишем абсолютное время (время старта + время отметки )
+        strAbsTime := FormatDateTime(strTIMENOTE_FORMAT, TIME_START + StrToTime(strTIMENOTE, fs));
+        SQL.Text := 'insert into timenotes(tn_id,platenumber,race_id,timenote) values('
+          + IntToStr(TN_ID) + ',' + sComboBox5.Text + ',' + IntToStr(RACE_ID) + ','''
+          + strAbsTime + ''');'
+      end
+      else SQL.Text := 'update timenotes set platenumber=' + sComboBox5.Text
+        + ' where TN_ID=' + IntToStr(TN_ID) + ';';
+      ExecQuery;
+    finally
+      Free;
+    end;
+    RefreshRacePanel;
+    sPanel7.Hide;
+  end
+  else ShowMessage(strINVALID_TIMENOTE_DATA);
+end;
+
+procedure TMainForm.sBitBtn27Click(Sender: TObject);
+begin
+  sPanel7.Hide;
 end;
 
 procedure TMainForm.RefreshRacePanel;
@@ -851,7 +993,7 @@ begin
       sBitBtn22.Enabled := false;
       strTIME_START := Fields[0].AsString;
       TIME_START := StrToTime(strTIME_START, fs);
-      sBitBtn22.Caption := 'Время старта: ' + strTIME_START;
+      sBitBtn22.Caption := 'Время старта: ' + Copy(strTIME_START, 1, 11);
       Timer.Enabled := true;
     end
     else begin
@@ -874,6 +1016,8 @@ begin
       RACETIME := TIMENOTE - TIME_START;
       lItem := ListView2.Items.Add;
       with lItem do begin
+        // сохраняем TN_ID в Item.Data
+        Data := Pointer(TN_ID);
         // отсекаем тысячные, чтоб не захламлять
         Caption := Copy(FormatDateTime(strTIMENOTE_FORMAT, RACETIME), 1, 11);
         SubItems.Add(IntToStr(PLATENUMBER));
@@ -1401,7 +1545,7 @@ end;
 
 procedure TMainForm.sPanel5Resize(Sender: TObject);
 begin
-  if (PageControl2.ActivePage = tsStartRace) and (PageControl1.ActivePage = tsStart)
+  if (PageControl2.ActivePage = tsRacePanel) and (PageControl1.ActivePage = tsStart)
   then RepaintNumberButtons(Sender);
 end;
 
@@ -1446,7 +1590,5 @@ begin
     Free;
   end;
 end;
-
-
 
 end.
