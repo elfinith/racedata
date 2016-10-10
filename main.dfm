@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = #1061#1088#1077#1085#1086#1084#1077#1090#1088
-  ClientHeight = 653
+  ClientHeight = 716
   ClientWidth = 832
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -462,7 +462,7 @@ object MainForm: TMainForm
     Left = 0
     Top = 49
     Width = 832
-    Height = 604
+    Height = 667
     ActivePage = tsStart
     Align = alClient
     OwnerDraw = True
@@ -474,7 +474,7 @@ object MainForm: TMainForm
       OnShow = tsRegistrationShow
       DesignSize = (
         824
-        594)
+        657)
       object sLabelFX3: TsLabelFX
         Left = 3
         Top = 3
@@ -770,7 +770,7 @@ object MainForm: TMainForm
         Left = 163
         Top = 336
         Width = 658
-        Height = 255
+        Height = 318
         Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
@@ -984,7 +984,7 @@ object MainForm: TMainForm
       OnShow = tsEventShow
       DesignSize = (
         824
-        594)
+        657)
       object sLabelFX1: TsLabelFX
         Left = 3
         Top = 3
@@ -999,14 +999,21 @@ object MainForm: TMainForm
         Left = 3
         Top = 29
         Width = 702
-        Height = 118
+        Height = 110
         Anchors = [akLeft, akTop, akRight, akBottom]
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Century Gothic'
+        Font.Style = []
         Items.Strings = (
           '123123'
           '13'
           '21'
           '321'
           '3213')
+        ParentFont = False
         TabOrder = 0
         OnDblClick = sListBox1DblClick
         OnEnter = sListBox1Enter
@@ -1061,15 +1068,15 @@ object MainForm: TMainForm
       end
       object sPanel2: TsPanel
         Left = 3
-        Top = 159
+        Top = 143
         Width = 818
-        Height = 432
+        Height = 511
         Anchors = [akLeft, akRight, akBottom]
         TabOrder = 2
         Visible = False
         DesignSize = (
           818
-          432)
+          511)
         object sLabel2: TsLabel
           Left = 8
           Top = 14
@@ -1205,13 +1212,13 @@ object MainForm: TMainForm
           Left = 8
           Top = 44
           Width = 694
-          Height = 381
+          Height = 460
           Anchors = [akLeft, akTop, akRight, akBottom]
           TabOrder = 4
           Visible = False
           DesignSize = (
             694
-            381)
+            460)
           object sLabelFX2: TsLabelFX
             Left = 8
             Top = 10
@@ -1223,8 +1230,8 @@ object MainForm: TMainForm
             Shadow.OffsetKeeper.RightBottom = 4
           end
           object sBitBtn11: TsBitBtn
-            Left = 346
-            Top = 113
+            Left = 591
+            Top = 6
             Width = 95
             Height = 30
             Anchors = [akTop, akRight]
@@ -1270,8 +1277,8 @@ object MainForm: TMainForm
             OnClick = sBitBtn11Click
           end
           object sBitBtn10: TsBitBtn
-            Left = 346
-            Top = 77
+            Left = 490
+            Top = 6
             Width = 95
             Height = 30
             Anchors = [akTop, akRight]
@@ -1317,8 +1324,8 @@ object MainForm: TMainForm
             OnClick = sBitBtn10Click
           end
           object sBitBtn9: TsBitBtn
-            Left = 346
-            Top = 41
+            Left = 390
+            Top = 6
             Width = 95
             Height = 30
             Anchors = [akTop, akRight]
@@ -1364,11 +1371,11 @@ object MainForm: TMainForm
             OnClick = sBitBtn9Click
           end
           object sListBox2: TsListBox
-            Left = 3
-            Top = 36
-            Width = 337
-            Height = 333
-            Anchors = [akLeft, akTop, akRight, akBottom]
+            Left = 7
+            Top = 41
+            Width = 282
+            Height = 412
+            Anchors = [akLeft, akTop, akBottom]
             Color = clWhite
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clBlack
@@ -1380,23 +1387,26 @@ object MainForm: TMainForm
             SkinData.SkinSection = 'EDIT'
           end
           object sPanel3: TsPanel
-            Left = 448
-            Top = 38
-            Width = 239
-            Height = 210
-            Anchors = [akTop, akRight]
+            Left = 295
+            Top = 42
+            Width = 391
+            Height = 412
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 4
             Visible = False
+            DesignSize = (
+              391
+              412)
             object sLabel5: TsLabel
-              Left = 11
-              Top = 98
-              Width = 120
+              Left = 240
+              Top = 75
+              Width = 43
               Height = 17
-              Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1082#1088#1091#1075#1086#1074
+              Caption = #1050#1088#1091#1075#1086#1074
             end
             object sLabel4: TsLabel
               Left = 11
-              Top = 68
+              Top = 76
               Width = 101
               Height = 17
               Caption = #1044#1083#1080#1085#1072' '#1082#1088#1091#1075#1072', '#1084
@@ -1408,19 +1418,36 @@ object MainForm: TMainForm
               Height = 17
               Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1079#1072#1077#1079#1076#1072
             end
+            object sLabelFX7: TsLabelFX
+              Left = 10
+              Top = 118
+              Width = 139
+              Height = 21
+              Caption = #1047#1072#1095#1105#1090#1085#1099#1077' '#1087#1086#1076#1075#1088#1091#1087#1087#1099
+              Angle = 0
+              Shadow.OffsetKeeper.LeftTop = 0
+              Shadow.OffsetKeeper.RightBottom = 4
+            end
             object sEdit4: TsEdit
-              Left = 192
-              Top = 95
+              Left = 290
+              Top = 72
               Width = 38
               Height = 25
               Color = clWhite
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'Century Gothic'
+              Font.Style = []
+              ParentFont = False
               TabOrder = 0
             end
             object sEdit2: TsEdit
               Left = 9
-              Top = 35
-              Width = 221
+              Top = 43
+              Width = 375
               Height = 25
+              Anchors = [akLeft, akTop, akRight]
               Color = clWhite
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clBlack
@@ -1431,18 +1458,25 @@ object MainForm: TMainForm
               TabOrder = 1
             end
             object sEdit3: TsEdit
-              Left = 165
-              Top = 65
+              Left = 133
+              Top = 72
               Width = 65
               Height = 25
               Color = clWhite
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'Century Gothic'
+              Font.Style = []
+              ParentFont = False
               TabOrder = 2
             end
             object sBitBtn13: TsBitBtn
-              Left = 134
-              Top = 173
+              Left = 288
+              Top = 6
               Width = 96
               Height = 29
+              Anchors = [akTop, akRight]
               Caption = #1047#1072#1082#1088#1099#1090#1100
               DoubleBuffered = True
               Glyph.Data = {
@@ -1485,10 +1519,11 @@ object MainForm: TMainForm
               OnClick = sBitBtn13Click
             end
             object sBitBtn12: TsBitBtn
-              Left = 134
-              Top = 138
+              Left = 186
+              Top = 6
               Width = 96
               Height = 29
+              Anchors = [akTop, akRight]
               Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
               DoubleBuffered = True
               Glyph.Data = {
@@ -1529,6 +1564,247 @@ object MainForm: TMainForm
               ParentDoubleBuffered = False
               TabOrder = 4
               OnClick = sBitBtn12Click
+            end
+            object lvCompGroups: TListView
+              Left = 8
+              Top = 149
+              Width = 273
+              Height = 255
+              Anchors = [akLeft, akTop, akRight, akBottom]
+              Columns = <
+                item
+                  Caption = #1055#1086#1083
+                  Width = 40
+                end
+                item
+                  Alignment = taCenter
+                  Caption = #1042#1086#1079#1088#1072#1089#1090' '#1086#1090
+                  Width = 90
+                end
+                item
+                  Alignment = taCenter
+                  Caption = #1042#1086#1079#1088#1072#1089#1090' '#1076#1086
+                  Width = 90
+                end>
+              GridLines = True
+              ReadOnly = True
+              RowSelect = True
+              TabOrder = 5
+              ViewStyle = vsReport
+            end
+            object sBitBtn28: TsBitBtn
+              Left = 188
+              Top = 115
+              Width = 94
+              Height = 27
+              Anchors = [akTop, akRight]
+              Caption = #1057#1086#1079#1076#1072#1090#1100
+              DoubleBuffered = True
+              Glyph.Data = {
+                36040000424D3604000000000000360000002800000010000000100000000100
+                2000000000000004000000000000000000000000000000000000000000000000
+                0000DBDBDBEFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDB
+                DBFFDBDBDBFFDBDBDBFFDBDBDBEF000000000000000000000000000000000000
+                0000DDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDD
+                DDFFDDDDDDFFDDDDDDFFDDDDDDFF000000000000000000000000000000000000
+                0000E0E0E0FFE0E0E0FFE0E0E0FFE0E0E0FFE0E0E0FFE0E0E0FFE0E0E0FFE0E0
+                E0FFE0E0E0FFE0E0E0FFE0E0E0FF000000000000000000000000000000000000
+                0000E2E2E2FFE2E2E2FFE2E2E2FFE2E2E2FFE2E2E2FFE2E2E2FFE2E2E2FFE2E2
+                E2FFE2E2E2FFE2E2E2FFE2E2E2FF000000000000000000000000000000000000
+                0000E4E4E4FFE4E4E4FFE4E4E4FFE4E4E4FFE4E4E4FFE4E4E4FFE4E4E4FFE4E4
+                E4FFE4E4E4FFE4E4E4FFE4E4E4FF000000000000000000000000000000000000
+                0000E7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7
+                E7FFE7E7E7FFE7E7E7FFE7E7E7FF000000000000000000000000000000000000
+                0000E9E9E9FFE9E9E9FFE9E9E9FFE9E9E9FFE9E9E9FFE9E9E9FFE9E9E9FFE9E9
+                E9FFE9E9E9FFE9E9E9FFE9E9E9FF000000000000000000000000000000000000
+                0000ECECECFFECECECFFECECECFFECECECFFECECECFFECECECFFECECECFFECEC
+                ECFFECECECFFEBEBEBBFECECECFF000000000000000000000000000000000000
+                0000EEEEEEFFEEEEEEFFEEEEEEFFEEEEEEFFEEEEEEFFEEEEEEFFEEEEEECFEEEE
+                EECFEEEEEE4000000000EEEEEE40000000000000000000000000000000000000
+                0000F0F0F0FFF0F0F0FFF0F0F0FFF0F0F0FFF0F0F0FFF0F0F0CF000000000000
+                000000000000F1F1F18000000000000000000000000000000000000000000000
+                0000F3F3F3FFF3F3F3FFF3F3F3FFF3F3F3FFF3F3F3FFF3F3F3CF00000000F3F3
+                F38FF4F4F440F3F3F3FFF4F4F440F3F3F38F0000000000000000000000000000
+                0000F5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5EFF4F4F44000000000F5F5
+                F540F5F5F5FFF5F5F5BFF5F5F5FFF5F5F5400000000000000000000000000000
+                0000F8F8F8FFF8F8F8FFF8F8F8FFF8F8F8FFF8F8F8BF00000000F8F8F880F8F8
+                F8FFF8F8F8BFF8F8F840F8F8F8BFF8F8F8FFF8F8F88000000000000000000000
+                0000FAFAFAEFFAFAFAFFFAFAFAFFFAFAFAFFFAFAFAEFFBFBFB4000000000FBFB
+                FB40FAFAFAFFFAFAFABFFAFAFAFFFBFBFB400000000000000000000000000000
+                000000000000000000000000000000000000000000000000000000000000FCFC
+                FC8FFBFBFB40FCFCFCFFFBFBFB40FCFCFC8F0000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                000000000000FEFEFE8000000000000000000000000000000000}
+              ParentDoubleBuffered = False
+              TabOrder = 6
+              OnClick = sBitBtn28Click
+            end
+            object sBitBtn29: TsBitBtn
+              Left = 288
+              Top = 115
+              Width = 96
+              Height = 28
+              Anchors = [akTop, akRight]
+              Caption = #1059#1076#1072#1083#1080#1090#1100
+              DoubleBuffered = True
+              Glyph.Data = {
+                36040000424D3604000000000000360000002800000010000000100000000100
+                2000000000000004000000000000000000000000000000000000000000000000
+                0000DBDBDBEFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDB
+                DBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBFFDBDBDBEF00000000000000000000
+                0000DDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDD
+                DDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFFDDDDDDFF00000000000000000000
+                0000DFDFDFFFDFDFDFFFDEDEDE60DFDFDFFFDEDEDE60DFDFDFFFDEDEDE60DFDF
+                DFFFDEDEDE60DFDFDFFFDEDEDE60DFDFDFFFDFDFDFFF00000000000000000000
+                0000E2E2E2FFE2E2E2FF00000000E2E2E2FF00000000E2E2E2FF00000000E2E2
+                E2FF00000000E2E2E2FF00000000E2E2E2FFE2E2E2FF00000000000000000000
+                0000E4E4E4FFE4E4E4FF00000000E4E4E4FF00000000E4E4E4FF00000000E4E4
+                E4FF00000000E4E4E4FF00000000E4E4E4FFE4E4E4FF00000000000000000000
+                0000E7E7E7FFE7E7E7FF00000000E7E7E7FF00000000E7E7E7FF00000000E7E7
+                E7FF00000000E7E7E7FF00000000E7E7E7FFE7E7E7FF00000000000000000000
+                0000E9E9E9FFE9E9E9FF00000000E9E9E9FF00000000E9E9E9FF00000000E9E9
+                E9FF00000000E9E9E9FF00000000E9E9E9FFE9E9E9FF00000000000000000000
+                0000EBEBEBFFEBEBEBFF00000000EBEBEBFF00000000EBEBEBFF00000000EBEB
+                EBFF00000000EBEBEBFF00000000EBEBEBFFEBEBEBFF00000000000000000000
+                0000EEEEEEFFEEEEEEFF00000000EEEEEEFF00000000EEEEEEFF00000000EEEE
+                EEFF00000000EEEEEEFF00000000EEEEEEFFEEEEEEFF00000000000000000000
+                0000F0F0F0FFF0F0F0FF00000000F0F0F0FF00000000F0F0F0FF00000000F0F0
+                F0FF00000000F0F0F0FF00000000F0F0F0FFF0F0F0FF00000000000000000000
+                0000F2F2F2FFF2F2F2FFF3F3F360F2F2F2FFF3F3F360F2F2F2FFF3F3F360F2F2
+                F2FFF3F3F360F2F2F2FFF3F3F360F2F2F2FFF2F2F2FF00000000000000000000
+                0000F5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5
+                F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FFF5F5F5FF0000000000000000F7F7
+                F7EFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7
+                F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7FFF7F7F7EFFAFAFA10F9F9
+                F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9
+                F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFF9F9F9FFFBFBFB10FCFC
+                FCEFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFC
+                FCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCEF000000000000
+                0000FDFDFD10FDFDFD40FEFEFEBFFEFEFEFFFEFEFEFFFEFEFEFFFEFEFEFFFEFE
+                FEFFFEFEFEFFFEFEFEFFFEFEFEAFFDFDFD400000000000000000}
+              ParentDoubleBuffered = False
+              TabOrder = 7
+              OnClick = sBitBtn29Click
+            end
+            object sPanel9: TsPanel
+              Left = 283
+              Top = 149
+              Width = 101
+              Height = 255
+              Anchors = [akTop, akRight]
+              BevelOuter = bvNone
+              TabOrder = 8
+              Visible = False
+              object sLabel15: TsLabel
+                Left = 6
+                Top = 159
+                Width = 57
+                Height = 17
+                Caption = #1042#1086#1079#1088#1072#1089#1090':'
+              end
+              object sLabel16: TsLabel
+                Left = 6
+                Top = 84
+                Width = 29
+                Height = 17
+                Caption = #1055#1086#1083':'
+              end
+              object sCheckBox6: TsCheckBox
+                Left = 6
+                Top = 214
+                Width = 50
+                Height = 21
+                Caption = #1044#1086
+                TabOrder = 0
+                OnClick = sCheckBox6Click
+                ImgChecked = 0
+                ImgUnchecked = 0
+              end
+              object sEdit11: TsEdit
+                Left = 54
+                Top = 212
+                Width = 41
+                Height = 25
+                Color = clWhite
+                Enabled = False
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -13
+                Font.Name = 'Century Gothic'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 1
+              end
+              object sEdit9: TsEdit
+                Left = 54
+                Top = 181
+                Width = 41
+                Height = 25
+                Color = clWhite
+                Enabled = False
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -13
+                Font.Name = 'Century Gothic'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 2
+              end
+              object sCheckBox5: TsCheckBox
+                Left = 6
+                Top = 183
+                Width = 47
+                Height = 21
+                Caption = #1054#1090
+                TabOrder = 3
+                OnClick = sCheckBox5Click
+                ImgChecked = 0
+                ImgUnchecked = 0
+              end
+              object sCheckBox4: TsCheckBox
+                Left = 7
+                Top = 131
+                Width = 97
+                Height = 21
+                Caption = #1046#1077#1085#1097#1080#1085#1099
+                TabOrder = 4
+                OnClick = sCheckBox4Click
+                ImgChecked = 0
+                ImgUnchecked = 0
+              end
+              object sCheckBox3: TsCheckBox
+                Left = 7
+                Top = 104
+                Width = 88
+                Height = 21
+                Caption = #1052#1091#1078#1095#1080#1085#1099
+                TabOrder = 5
+                OnClick = sCheckBox3Click
+                ImgChecked = 0
+                ImgUnchecked = 0
+              end
+              object sBitBtn30: TsBitBtn
+                Left = 5
+                Top = 0
+                Width = 96
+                Height = 28
+                Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100
+                DoubleBuffered = True
+                ParentDoubleBuffered = False
+                TabOrder = 6
+                OnClick = sBitBtn30Click
+              end
+              object sBitBtn31: TsBitBtn
+                Left = 5
+                Top = 34
+                Width = 96
+                Height = 28
+                Caption = #1047#1072#1082#1088#1099#1090#1100
+                DoubleBuffered = True
+                ParentDoubleBuffered = False
+                TabOrder = 7
+                OnClick = sBitBtn31Click
+              end
             end
           end
         end
@@ -1634,7 +1910,7 @@ object MainForm: TMainForm
       TabVisible = False
       DesignSize = (
         824
-        594)
+        657)
       object sLabelFX5: TsLabelFX
         Left = 3
         Top = 6
@@ -1696,8 +1972,8 @@ object MainForm: TMainForm
         Left = 0
         Top = 63
         Width = 824
-        Height = 531
-        ActivePage = tsRacePanel
+        Height = 594
+        ActivePage = tsRaceResults
         Anchors = [akLeft, akTop, akRight, akBottom]
         Style = tsButtons
         TabOrder = 2
@@ -1707,7 +1983,7 @@ object MainForm: TMainForm
           TabVisible = False
           DesignSize = (
             816
-            521)
+            584)
           object sLabel14: TsLabel
             Left = 3
             Top = 3
@@ -1729,7 +2005,7 @@ object MainForm: TMainForm
             Left = 100
             Top = 3
             Width = 371
-            Height = 518
+            Height = 581
             Anchors = [akLeft, akTop, akBottom]
             BorderStyle = bsSingle
             Color = clWhite
@@ -1915,6 +2191,93 @@ object MainForm: TMainForm
             TabOrder = 2
             OnClick = sBitBtn21Click
           end
+          object sBitBtn32: TsBitBtn
+            Left = 477
+            Top = 102
+            Width = 153
+            Height = 32
+            Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090#1099
+            DoubleBuffered = True
+            Enabled = False
+            Glyph.Data = {
+              36090000424D3609000000000000360000002800000018000000180000000100
+              2000000000000009000000000000000000000000000000000000000000000000
+              000000000000DADADA40DCDCDCCFDEDEDE9FE0E0E080E2E2E280E4E4E4BFE6E6
+              E6EFE8E8E820000000000000000000000000F1F1F18FF3F3F3BFF5F5F5BFF7F7
+              F7BFFAFAFABFFBFBFB6000000000000000000000000000000000000000000000
+              00000000000000000000DCDCDCDFDEDEDEFFE0E0E0FFE2E2E2FFE4E4E4FFE7E7
+              E7FFE8E8E88F0000000000000000F0F0F030F1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFFAFAFAFFFBFBFB6000000000000000000000000000000000000000000000
+              00000000000000000000DDDDDD80DEDEDEFFE0E0E0FFE2E2E2FFE4E4E4FFE7E7
+              E7FFE8E8E8DF0000000000000000EFEFEF8FF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFFAFAFAFFFBFBFB2000000000000000000000000000000000000000000000
+              00000000000000000000DDDDDD20DEDEDEFFE0E0E0FFE2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEAEAEA3000000000EFEFEFCFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFF9F9F9DF0000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000DEDEDEBFE0E0E0FFE2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEAEAEA8000000000EFEFEFFFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFF9F9F99F0000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000DFDFDF60E0E0E0FFE2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEAEAEABFEDEDED40EFEFEFFFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFF9F9F9600000000000000000000000000000000000000000000000000000
+              0000000000000000000000000000DFDFDF10E0E0E0EFE2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEBEBEBFFEDEDED60EFEFEFFFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFF9F9F9200000000000000000000000000000000000000000000000000000
+              000000000000000000000000000000000000E0E0E09FE2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEBEBEBFFEDEDEDDFEFEFEFFFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7DF000000000000000000000000000000000000000000000000000000000000
+              000000000000000000000000000000000000E1E1E140E2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEBEBEBFFEDEDEDFFEFEFEFFFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F79F000000000000000000000000000000000000000000000000000000000000
+              000000000000000000000000000000000000E1E1E160E2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEBEBEBFFEDEDEDFFEFEFEFFFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F78F000000000000000000000000000000000000000000000000000000000000
+              000000000000DADADA50DCDCDCAFDEDEDE80E0E0E0FFE2E2E2FFE4E4E4FFE7E7
+              E7FFE8E8E8EFEBEBEBBFEDEDEDBFEFEFEFEFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFFAFAFA80FCFCFCAFFDFDFD70000000000000000000000000000000000000
+              000000000000DADADAFFDCDCDCFFDEDEDEFFE0E0E0FFE2E2E2FFE4E4E4FFE6E6
+              E68000000000000000000000000000000000F1F1F180F3F3F3FFF5F5F5FFF7F7
+              F7FFFAFAFAFFFCFCFCFFFEFEFEFFFFFFFF300000000000000000000000000000
+              000000000000DADADACFDCDCDCFFDEDEDEFFE0E0E0FFE2E2E2FFE4E4E4800000
+              00000000000000000000000000000000000000000000F4F4F480F5F5F5FFF7F7
+              F7FFFAFAFAFFFCFCFCFFFDFDFDEFFFFFFF100000000000000000000000000000
+              000000000000DADADA10DCDCDCBFDEDEDEFFE0E0E0FFE2E2E2EF000000000000
+              0000000000000000000000000000000000000000000000000000F5F5F5EFF7F7
+              F7FFFAFAFAFFFBFBFBCFFDFDFD10000000000000000000000000000000000000
+              00000000000000000000DCDCDC8FDEDEDEFFE0E0E0FFE2E2E2BF000000000000
+              0000000000000000000000000000000000000000000000000000F5F5F5BFF7F7
+              F7FFFAFAFAFFFBFBFB8000000000000000000000000000000000000000000000
+              00000000000000000000DCDCDC8FDEDEDEFFE0E0E0FFE2E2E2BF000000000000
+              0000000000000000000000000000000000000000000000000000F5F5F5BFF7F7
+              F7FFFAFAFAFFFBFBFB8000000000000000000000000000000000000000000000
+              000000000000DADADA10DCDCDCCFDEDEDEFFE0E0E0FFE2E2E2EF000000000000
+              0000000000000000000000000000000000000000000000000000F5F5F5EFF7F7
+              F7FFFAFAFAFFFBFBFBCFFDFDFD30000000000000000000000000000000000000
+              000000000000DADADADFDCDCDCFFDEDEDEFFE0E0E0FFE2E2E2FFE4E4E4800000
+              00000000000000000000000000000000000000000000F4F4F480F5F5F5FFF7F7
+              F7FFFAFAFAFFFCFCFCFFFDFDFDEFFFFFFF100000000000000000000000000000
+              000000000000DADADAFFDCDCDCFFDEDEDEFFE0E0E0FFE2E2E2FFE4E4E4FFE6E6
+              E68000000000000000000000000000000000F1F1F180F3F3F3FFF5F5F5FFF7F7
+              F7FFFAFAFAFFFCFCFCFFFEFEFEFFFFFFFF200000000000000000000000000000
+              000000000000DADADA50DCDCDC80DEDEDE80E0E0E0FFE2E2E2FFE4E4E4FFE7E7
+              E7FFE8E8E8EFEBEBEBBFEDEDEDBFEFEFEFEFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F7FFFAFAFA70FCFCFC80FDFDFD50000000000000000000000000000000000000
+              000000000000000000000000000000000000E1E1E160E2E2E2FFE4E4E4FFE7E7
+              E7FFE9E9E9FFEBEBEBFFEDEDEDFFEFEFEFFFF1F1F1FFF3F3F3FFF5F5F5FFF7F7
+              F760000000000000000000000000000000000000000000000000000000000000
+              00000000000000000000000000000000000000000000E3E3E380E4E4E4FFE7E7
+              E7FFE9E9E9FFEBEBEBFFEDEDEDFFEFEFEFFFF1F1F1FFF3F3F3FFF5F5F5800000
+              0000000000000000000000000000000000000000000000000000000000000000
+              00000000000000000000000000000000000000000000E3E3E380E4E4E4FFE7E7
+              E7FFE8E8E8CFEBEBEB80EDEDED80EFEFEFBFF1F1F1FFF3F3F3FFF5F5F5AF0000
+              0000000000000000000000000000000000000000000000000000000000000000
+              00000000000000000000000000000000000000000000E3E3E350E4E4E4FFE6E6
+              E6EFE8E8E8200000000000000000F0F0F010F1F1F1CFF3F3F3FFF4F4F4500000
+              0000000000000000000000000000000000000000000000000000}
+            ParentDoubleBuffered = False
+            TabOrder = 3
+            OnClick = sBitBtn32Click
+          end
         end
         object tsRacePanel: TTabSheet
           Caption = 'tsRacePanel'
@@ -1923,7 +2286,7 @@ object MainForm: TMainForm
           object Splitter1: TSplitter
             Left = 474
             Top = 0
-            Height = 521
+            Height = 584
             Align = alRight
             ExplicitLeft = 616
             ExplicitTop = 176
@@ -1933,7 +2296,7 @@ object MainForm: TMainForm
             Left = 0
             Top = 0
             Width = 474
-            Height = 521
+            Height = 584
             Align = alClient
             Alignment = taLeftJustify
             BevelOuter = bvNone
@@ -1944,7 +2307,7 @@ object MainForm: TMainForm
             Left = 477
             Top = 0
             Width = 339
-            Height = 521
+            Height = 584
             Align = alRight
             BevelOuter = bvNone
             TabOrder = 1
@@ -1984,7 +2347,7 @@ object MainForm: TMainForm
             end
             object sBitBtn23: TsBitBtn
               Left = 0
-              Top = 488
+              Top = 551
               Width = 339
               Height = 33
               Align = alBottom
@@ -2050,7 +2413,7 @@ object MainForm: TMainForm
               Left = 0
               Top = 57
               Width = 339
-              Height = 400
+              Height = 463
               Align = alClient
               BorderStyle = bsNone
               Columns = <
@@ -2099,18 +2462,15 @@ object MainForm: TMainForm
               OnCustomDraw = ListView2CustomDraw
               OnCustomDrawItem = ListView2CustomDrawItem
               OnCustomDrawSubItem = ListView2CustomDrawSubItem
-              ExplicitTop = 60
-              ExplicitHeight = 395
             end
             object sPanel7: TsPanel
               Left = 0
-              Top = 457
+              Top = 520
               Width = 339
               Height = 31
               Align = alBottom
               TabOrder = 4
               Visible = False
-              ExplicitTop = 59
               DesignSize = (
                 339
                 31)
@@ -2180,6 +2540,75 @@ object MainForm: TMainForm
           Caption = 'tsRaceResults'
           ImageIndex = 2
           TabVisible = False
+          OnShow = tsRaceResultsShow
+          DesignSize = (
+            816
+            584)
+          object sLabel17: TsLabel
+            Left = -1
+            Top = 5
+            Width = 71
+            Height = 17
+            Caption = #1055#1086#1076#1075#1088#1091#1087#1087#1072
+          end
+          object sComboBox6: TsComboBox
+            Left = 100
+            Top = 2
+            Width = 716
+            Height = 25
+            Anchors = [akLeft, akTop, akRight]
+            Alignment = taLeftJustify
+            VerticalAlignment = taAlignTop
+            Style = csDropDownList
+            Color = 5920848
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWhite
+            Font.Height = -13
+            Font.Name = 'Century Gothic'
+            Font.Style = []
+            ItemIndex = -1
+            ParentFont = False
+            TabOrder = 0
+            OnChange = sComboBox6Change
+          end
+          object lvResults: TListView
+            Left = -1
+            Top = 33
+            Width = 631
+            Height = 548
+            Anchors = [akLeft, akTop, akRight]
+            BorderStyle = bsNone
+            Columns = <
+              item
+                Caption = #1052#1077#1089#1090#1086
+                Width = 60
+              end
+              item
+                Caption = #1059#1095#1072#1089#1090#1085#1080#1082
+                Width = 150
+              end
+              item
+                Alignment = taCenter
+                Caption = #8470
+              end
+              item
+                Caption = #1042#1088#1077#1084#1103
+                Width = 100
+              end
+              item
+                Caption = #1043#1086#1088#1086#1076
+                Width = 100
+              end
+              item
+                Caption = #1050#1086#1084#1072#1085#1076#1072
+                Width = 100
+              end>
+            GridLines = True
+            ReadOnly = True
+            RowSelect = True
+            TabOrder = 1
+            ViewStyle = vsReport
+          end
         end
       end
     end
@@ -4702,7 +5131,7 @@ object MainForm: TMainForm
     Left = 760
     Top = 64
     Bitmap = {
-      494C010103000800740010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010103000800780010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000030303100303038F020202DF020202FF020202FF020202FF020202DF0303
