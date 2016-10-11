@@ -7,7 +7,7 @@ uses
   Dialogs, sSkinManager, StdCtrls, Buttons, sBitBtn, ComCtrls, ExtCtrls, sPanel,
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
-  FreeButton, acTitleBar;
+  FreeButton, acTitleBar, DateUtils;
 
 const
   PLATENUMBERS_COUNT = 50;
@@ -162,6 +162,10 @@ type
     sLabel17: TsLabel;
     sBitBtn32: TsBitBtn;
     lvResults: TListView;
+    sEdit12: TsEdit;
+    sLabel18: TsLabel;
+    sBitBtn33: TsBitBtn;
+    sBitBtn34: TsBitBtn;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -477,7 +481,7 @@ begin
     sEdit4.Text := Fields[2].AsString;
     // загрузка зачётов
     Close;
-    SQL.Text := 'select cg_id,sex,agemin,agemax from comp_groups where race_id='
+    SQL.Text := 'select cg_id,sex,agemin,agemax,laps from comp_groups where race_id='
       + IntToStr(sPanel3.Tag) + ';';
     Open;
     FetchAll;
@@ -490,6 +494,8 @@ begin
         if Fields[2].AsInteger > 0 then SubItems.Add(IntToStr(Fields[2].AsInteger))
         else SubItems.Add('-');
         if Fields[3].AsInteger > 0 then SubItems.Add(IntToStr(Fields[3].AsInteger))
+        else SubItems.Add('-');
+        if Fields[4].AsInteger > 0 then SubItems.Add(IntToStr(Fields[4].AsInteger))
         else SubItems.Add('-');
       end;
       Next;
@@ -1051,6 +1057,7 @@ begin
   sEdit9.Clear;
   sEdit11.Enabled := false;
   sEdit11.Clear;
+  sEdit12.Text := sEdit4.Text;
   sPanel9.Show;
   sBitBtn29.Enabled := false;
 end;
@@ -1283,7 +1290,7 @@ end;
 
 procedure TMainForm.sBitBtn30Click(Sender: TObject);
 var
-  CG_ID, RACE_ID, AGEMIN, AGEMAX : integer;
+  CG_ID, RACE_ID, AGEMIN, AGEMAX, LAPS : integer;
   SEX : string;
 begin
   RACE_ID := sPanel3.Tag;
@@ -1302,13 +1309,15 @@ begin
   if sCheckBox4.Checked then SEX := 'Ж';
   if sCheckBox5.Checked then AGEMIN := StrToInt(sEdit9.Text) else AGEMIN := 0;
   if sCheckBox6.Checked then AGEMAX := StrToInt(sEdit11.Text) else AGEMAX := 0;
+  if sEdit12.Text <> '' then LAPS := StrToInt(sEdit12.Text) else LAPS := 0;
+
   // херачим в базу новую зачётную группу
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    SQL.Text := 'insert into comp_groups(cg_id,race_id,sex,agemin,agemax) values('
+    SQL.Text := 'insert into comp_groups(cg_id,race_id,sex,agemin,agemax,laps) values('
       + IntToStr(CG_ID) + ',' + IntToStr(RACE_ID) + ',''' + SEX + ''','
-      + IntToStr(AGEMIN) + ',' + IntToStr(AGEMAX) + ');';
+      + IntToStr(AGEMIN) + ',' + IntToStr(AGEMAX) + ',' + IntToStr(LAPS) + ');';
     ExecQuery;
   finally
     Free;
@@ -1698,13 +1707,15 @@ end;
 
 procedure TMainForm.sComboBox6Change(Sender: TObject);
 var
-  RACE_ID, iPlace, iLeaderLaps, iAthleteLaps, PLATENUMBER : integer;
-  strTIMENOTE, strTIMESTART, strTIMELEADER, strShift : string;
+  i, RACE_ID, iPlace, iLeaderLaps, iAthleteLaps, PLATENUMBER, iAGE, iAGEMIN, iAGEMAX, iLAPS : integer;
+  strTIMENOTE, strTIMESTART, strTIMELEADER, strShift, strSEX : string;
+  bToApplyFilter, bIsFiltered : boolean;
   dtShift : TDateTime;
   lItem : TListItem;
 begin
   // берём RACE_ID из sComboBox6.Tag
   RACE_ID := sComboBox6.Tag;
+  bToApplyFilter := sComboBox6.ItemIndex > 0;
 // пока тест для абсолюта (TODO)
   lvResults.Clear;
   // выборка резултата гонки. номера с количенством кругов и временем по абсолюту
@@ -1716,8 +1727,37 @@ begin
       + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
     Open;
     strTIMESTART := Fields[0].AsString;
+    // параметры фильтрации, если тербуется
+    if bToApplyFilter then begin
+      Close;
+      // изображаем такой-же запрос как и в sComboBox6, пробегаемся по нему до ItemIndex
+      // и находим нужные поля
+      SQL.Text := 'select sex,agemin,agemax,laps from comp_groups where race_id='
+        + IntToStr(RACE_ID) + ' order by sex,agemin;';
+      Open;
+      FetchAll;
+      i := 1;
+      while i < sComboBox6.ItemIndex do begin
+        Next;
+        inc(i);
+      end;
+      strSEX := Fields[0].AsString;
+      iAGEMIN := Fields[1].AsInteger;
+      iAGEMAX := Fields[2].AsInteger;
+      iLAPS := Fields[3].AsInteger;
+    end;
     Close;
-    SQL.Text := 'select platenumber, count(platenumber), max(timenote) from timenotes '
+    // выборка в абсолюте, либо после определённого количества кругов
+    // по зачёту выбранной подгруппы
+    if (bToApplyFilter) and (iLAPS <> 0) then SQL.Text := 'select platenumber, count(platenumber), '
+      + 'max(timenote) from (select platenumber, lap, timenote from (select tn_id, timenote, '
+      + 'platenumber, (select count(*) from timenotes b where (b.tn_id < a.tn_id) and '
+      + '(a.platenumber = b.platenumber) and (race_id = ' + IntToStr(RACE_ID)
+      + ')) + 1 as lap from timenotes a where (race_id = ' + IntToStr(RACE_ID) + ')) where lap <= '
+      + IntToStr(iLAPS) + ' order by timenote) group by platenumber order by count(platenumber) '
+      + 'desc, max(timenote);'
+    // или если абсолют
+    else SQL.Text := 'select platenumber, count(platenumber), max(timenote) from timenotes '
       + 'where race_id = ' + IntToStr(RACE_ID) + ' group by platenumber order by '
       + 'count(platenumber) desc, max(timenote);';
     Open;
@@ -1725,49 +1765,62 @@ begin
     iPlace := 1;
     iLeaderLaps := Fields[1].AsInteger;
     while not(EOF) do begin
-      lItem := lvResults.Items.Add;
-      with lItem do begin
-        PLATENUMBER := Fields[0].AsInteger;
-        iAthleteLaps := Fields[1].AsInteger;
-        strTIMENOTE := Fields[2].AsString;
-        // Отсекаем признак старта заезда
-        if PLATENUMBER <> 0 then begin
-          Caption := IntToStr(iPlace);
-          with TIBQuery.Create(nil) do try
-            Database := DBase;
-            Transaction := DBTran;
-            SQL.Text := 'select name,date_born,sex,team,city from athletes, registry '
-              + 'where (registry.athlet_id = athletes.athlet_id) and (registry.platenumber = '
-              + IntToStr(PLATENUMBER) + ') and (registry.race_id = ' + IntToStr(RACE_ID) + ')';
-            Open;
-            SubItems.Add(Fields[0].AsString);
-            SubItems.Add(IntToStr(PLATENUMBER));
-            if iLeaderLaps - iAthleteLaps = 0 then begin
-              if iPlace = 1 then begin
-                // если первый - время от старта
-                dtShift := StrToTime(strTIMENOTE, fs) - StrToTime(strTIMESTART, fs);
-                strShift := FormatDateTime(strTIMENOTE_FORMAT,  dtShift);
-                strTIMELEADER := strTIMENOTE;
-              end
-              else begin
-                // если не первый - отставание от лидера
-                dtShift := StrToTime(strTIMENOTE, fs) - StrToTime(strTIMELEADER, fs);
-                strShift := '+' + FormatDateTime(strTIMENOTE_FORMAT,  dtShift);
-              end;
-              SubItems.Add(strShift);
-            end
-            else SubItems.Add('+' + IntToStr(iLeaderLaps - iAthleteLaps) + ' кр');
-            SubItems.Add(Fields[4].AsString);
-            SubItems.Add(Fields[3].AsString);
-          finally
-            Free;
+      PLATENUMBER := Fields[0].AsInteger;
+      iAthleteLaps := Fields[1].AsInteger;
+      strTIMENOTE := Fields[2].AsString;
+      // Отсекаем признак старта заезда
+      if PLATENUMBER <> 0 then begin
+        with TIBQuery.Create(nil) do try
+          Database := DBase;
+          Transaction := DBTran;
+          SQL.Text := 'select name,date_born,sex,team,city from athletes, registry '
+            + 'where (registry.athlet_id = athletes.athlet_id) and (registry.platenumber = '
+            + IntToStr(PLATENUMBER) + ') and (registry.race_id = ' + IntToStr(RACE_ID) + ')';
+          Open;
+          bIsFiltered := true;
+          // применяем фильтрацию если необходимо
+          if bToApplyFilter then begin
+            // возраст
+            iAGE := YearsBetween(StrToDate('31.12.'
+              + FormatDateTime('yyyy', Now),fs), Fields[1].AsDateTime);
+            bIsFiltered := iAGEMIN < iAGE;
+            bIsFiltered := bIsFiltered and ((iAGEMAX = 0) or (iAGE < iAGEMAX));
+            // пол
+            bIsFiltered := bIsFiltered and ((strSEX = '') or (strSEX = Fields[2].AsString));
           end;
-          inc(iPlace);
+          // если прошло фильтрацию либо это абсолют, то выводим
+          if bIsFiltered then begin
+            lItem := lvResults.Items.Add;
+            with lItem do begin
+              Caption := IntToStr(iPlace);
+              SubItems.Add(Fields[0].AsString);
+              SubItems.Add(IntToStr(PLATENUMBER));
+              if iLeaderLaps - iAthleteLaps = 0 then begin
+                if iPlace = 1 then begin
+                  // если первый - время от старта
+                  dtShift := StrToTime(strTIMENOTE, fs) - StrToTime(strTIMESTART, fs);
+                  strShift := FormatDateTime(strTIMENOTE_FORMAT, dtShift);
+                  strTIMELEADER := strTIMENOTE;
+                end
+                else begin
+                  // если не первый - отставание от лидера
+                  dtShift := StrToTime(strTIMENOTE, fs) - StrToTime(strTIMELEADER, fs);
+                  strShift := '+' + FormatDateTime(strTIMENOTE_FORMAT, dtShift);
+                end;
+                SubItems.Add(strShift);
+              end
+              else SubItems.Add('+' + IntToStr(iLeaderLaps - iAthleteLaps) + ' кр');
+              SubItems.Add(Fields[4].AsString);
+              SubItems.Add(Fields[3].AsString);
+              inc(iPlace);
+            end;
+          end;
+        finally
+          Free;
         end;
       end;
       Next;
     end;
-
   finally
     Free;
   end;
