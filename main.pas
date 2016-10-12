@@ -113,36 +113,14 @@ type
     sComboBox3: TsComboBox;
     sComboBox4: TsComboBox;
     sLabel13: TsLabel;
-    PageControl2: TPageControl;
-    tsStartPrep: TTabSheet;
-    tsRacePanel: TTabSheet;
-    sCheckListBox2: TsCheckListBox;
-    sLabel14: TsLabel;
-    sBitBtn20: TsBitBtn;
-    sBitBtn21: TsBitBtn;
-    sLabelFX6: TsLabelFX;
-    sPanel5: TsPanel;
-    sPanel6: TsPanel;
-    Splitter1: TSplitter;
-    sBitBtn22: TsBitBtn;
-    sBitBtn23: TsBitBtn;
-    sBitBtn24: TsBitBtn;
-    ListView2: TListView;
-    tsRaceResults: TTabSheet;
     tsAthletes: TTabSheet;
     tsSettings: TTabSheet;
-    sTimerLabel: TsLabel;
     Timer: TTimer;
     sBitBtn25: TsBitBtn;
     pmRPMenu: TPopupMenu;
     N2: TMenuItem;
     N3: TMenuItem;
-    sPanel7: TsPanel;
-    sBitBtn26: TsBitBtn;
-    sBitBtn27: TsBitBtn;
     N4: TMenuItem;
-    sEdit10: TsEdit;
-    sComboBox5: TsComboBox;
     sLabelFX7: TsLabelFX;
     lvCompGroups: TListView;
     sBitBtn28: TsBitBtn;
@@ -158,14 +136,36 @@ type
     sLabel16: TsLabel;
     sBitBtn30: TsBitBtn;
     sBitBtn31: TsBitBtn;
-    sComboBox6: TsComboBox;
-    sLabel17: TsLabel;
-    sBitBtn32: TsBitBtn;
-    lvResults: TListView;
     sEdit12: TsEdit;
     sLabel18: TsLabel;
+    spRace: TsPanel;
+    PageControl2: TPageControl;
+    tsStartPrep: TTabSheet;
+    sLabel14: TsLabel;
+    sLabelFX6: TsLabelFX;
+    sCheckListBox2: TsCheckListBox;
+    sBitBtn20: TsBitBtn;
+    sBitBtn21: TsBitBtn;
+    sBitBtn32: TsBitBtn;
+    tsRacePanel: TTabSheet;
+    spNumbersPanel: TsPanel;
+    tsRaceResults: TTabSheet;
+    sLabel17: TsLabel;
+    sComboBox6: TsComboBox;
+    lvResults: TListView;
     sBitBtn33: TsBitBtn;
     sBitBtn34: TsBitBtn;
+    spRacePanel: TsPanel;
+    sTimerLabel: TsLabel;
+    sBitBtn22: TsBitBtn;
+    sBitBtn23: TsBitBtn;
+    sBitBtn24: TsBitBtn;
+    ListView2: TListView;
+    sPanel7: TsPanel;
+    sBitBtn26: TsBitBtn;
+    sBitBtn27: TsBitBtn;
+    sEdit10: TsEdit;
+    sComboBox5: TsComboBox;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -200,7 +200,7 @@ type
     procedure sBitBtn20Click(Sender: TObject);
     procedure sComboBox4Change(Sender: TObject);
     procedure sBitBtn21Click(Sender: TObject);
-    procedure sPanel5Resize(Sender: TObject);
+    procedure spNumbersPanelResize(Sender: TObject);
     procedure sBitBtn22Click(Sender: TObject);
     procedure sBitBtn24Click(Sender: TObject);
     procedure ListView2CustomDraw(Sender: TCustomListView; const ARect: TRect;
@@ -230,6 +230,8 @@ type
     procedure sBitBtn32Click(Sender: TObject);
     procedure tsRaceResultsShow(Sender: TObject);
     procedure sComboBox6Change(Sender: TObject);
+    procedure tsStartPrepShow(Sender: TObject);
+    procedure tsRacePanelShow(Sender: TObject);
   private
     { Private declarations }
   public
@@ -652,6 +654,13 @@ begin
       sComboBox4.Items.Add(Fields[3].AsString);
       Next;
     end;
+    if sComboBox4.Items.Count > 0 then begin
+      sComboBox4.ItemIndex := 0;
+      spRacePanel.Show;
+      // refresh
+      sComboBox4Change(Self);
+    end
+    else spRacePanel.Hide;
   finally
     Free;
   end;
@@ -904,9 +913,11 @@ end;
 
 procedure TMainForm.sBitBtn21Click(Sender: TObject);
 begin
-  RepaintNumberButtons(Sender);
-  tsRacePanel.Show;
   RefreshRacePanel;
+  tsRacePanel.Show;
+  spRacePanel.Enabled := true;
+  sBitBtn23.Enabled := true;
+  RepaintNumberButtons(Sender);
 end;
 
 procedure TMainForm.sBitBtn22Click(Sender: TObject);
@@ -933,8 +944,22 @@ begin
       + FormatDateTime(strTIMENOTE_FORMAT, TIME_START) + ''');';
     ExecQuery;
     sBitBtn22.Enabled := false;
-
     Timer.Enabled := true;
+  finally
+    Free;
+  end;
+  spRacePanel.Enabled := true;
+  sBitBtn22.Enabled := false;
+  // выводим сколько осталось кругов
+  // и запихиваем в Tag кнопки ФИНИШ
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select laps from races where race_id=' + IntToStr(RACE_ID) + ';';
+    Open;
+    sBitBtn23.Tag := Fields[0].AsInteger;
+    sBitBtn23.Caption := IntToStr(sBitBtn23.Tag) + ' кругов до финиша';
+    sBitBtn23.Enabled := true;
   finally
     Free;
   end;
@@ -946,16 +971,11 @@ var
   strSEX, strAGEMIN, strAGEMAX: string;
   Item : TControl;
 begin
-{
-  for i := sPanel5.ControlCount - 1 downto 0 do begin
-    Item := sPanel5.Controls[i];
-    TFreeButton(Item).Hide;
-  end;
-}
   if RusMessageDialog(strCOMPLETE_RACE, mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
   then begin
-    // забираем RACE_ID из sPanel5.Tag
-    RACE_ID := sPanel5.Tag;
+    Timer.Enabled := false;
+    // забираем RACE_ID из spNumbersPanel.Tag
+    RACE_ID := spNumbersPanel.Tag;
     sBitBtn22.Enabled := true;
     Timer.Enabled := false;
     with tIBSQL.Create(nil) do try
@@ -970,6 +990,7 @@ begin
     // сохраняем RACE_ID в sComboBox6.Tag
     sComboBox6.Tag := RACE_ID;
     tsRaceResults.Show;
+    sBitBtn23.Enabled := false;
   end;
 end;
 
@@ -1008,8 +1029,8 @@ var
 begin
   // берём TN_ID из sPanel7.Tag
   TN_ID := sPanel7.Tag;
-  // берём RACE_ID из sPanel5.Tag
-  RACE_ID := sPanel5.Tag;
+  // берём RACE_ID из spNumbersPanel.Tag
+  RACE_ID := spNumbersPanel.Tag;
   // проверяем корректность данных
   bValidData := false;
   for i := 0 to RaceNumbers.Count - 1 do
@@ -1085,14 +1106,15 @@ end;
 
 procedure TMainForm.RefreshRacePanel;
 var
-  i, j, k, iPosCnt, iLapsOffset, iPanelWidth, ScrollBarWidth, RACE_ID, TN_ID, PLATENUMBER : integer;
+  i, j, k, iPosCnt, iLapsOffset, iPanelWidth, ScrollBarWidth,
+    RACE_ID, TN_ID, PLATENUMBER, iLapsCompleted, iLapsToGo : integer;
   TIMENOTE, RACETIME : TDateTime;
   strTIME_START : string;
   lItem : TListItem;
 begin
   ListView2.Clear;
-  // берём RACE_ID из sPanel5.Tag
-  RACE_ID := sPanel5.Tag;
+  // берём RACE_ID из sspNumbersPanel.Tag
+  RACE_ID := spNumbersPanel.Tag;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1105,7 +1127,7 @@ begin
       strTIME_START := Fields[0].AsString;
       TIME_START := StrToTime(strTIME_START, fs);
       sBitBtn22.Caption := 'Время старта: ' + Copy(strTIME_START, 1, 11);
-      Timer.Enabled := true;
+//      Timer.Enabled := true;
     end
     else begin
       sBitBtn22.Enabled := true;
@@ -1163,6 +1185,9 @@ begin
             // находим максимальную разницу в кругах из уже ранее отметившихся
             k := StrToInt(Item[j].SubItems.Strings[2]) - StrToInt(Item[i].SubItems.Strings[2]);
             if iLapsOffset < k then iLapsOffset := k;
+            // заодно сохраняем текущий круг лидера
+            if iLapsCompleted < StrToInt(Item[j].SubItems.Strings[2]) then
+              iLapsCompleted := StrToInt(Item[j].SubItems.Strings[2]);
           end;
           Item[i].SubItems.Add(intToStr(iPosCnt));
           if iLapsOffset > 0 then Item[i].SubItems.Add('-' + IntToStr(iLapsOffset));
@@ -1179,12 +1204,18 @@ begin
     if ScrollBarVisible(ListView2.Handle, WS_VSCROLL) then
       ScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL)
     else ScrollBarWidth := 0;
-    sPanel6.Width := iPanelWidth + ScrollBarWidth + ListView2.Columns.Count;
+    spRacePanel.Width := iPanelWidth + ScrollBarWidth + ListView2.Columns.Count;
     // прокрутка в конец
     SendMessage(ListView2.Handle, WM_VSCROLL, SB_BOTTOM, 0);
   finally
     Free;
   end;
+  // выводим сколько кругов осталось
+  iLapsToGo := sBitBtn23.Tag - iLapsCompleted;
+  if iLapsToGo > 1 then sBitBtn23.Caption :=
+    IntToStr(sBitBtn23.Tag - iLapsCompleted) + ' кругов до финиша';
+  if iLapsToGo = 1 then sBitBtn23.Caption := 'Последний круг';
+  if iLapsToGo < 1 then sBitBtn23.Caption := 'ФИНИШ';
 end;
 
 function ScrollBarVisible(Handle : HWnd; Style : Longint) : Boolean;
@@ -1230,13 +1261,13 @@ var
   Item : TControl;
 begin
   // удаление старых кнопок
-  for i := sPanel5.ControlCount - 1 downto 0 do begin
-    Item := sPanel5.Controls[i];
+  for i := spNumbersPanel.ControlCount - 1 downto 0 do begin
+    Item := spNumbersPanel.Controls[i];
     Item.Free;
   end;
   // вычисление параметров кнопочного поля
-  iFldWidth := sPanel5.Width;
-  iFldHeight := sPanel5.Height;
+  iFldWidth := spNumbersPanel.Width;
+  iFldHeight := spNumbersPanel.Height;
   iBtnNum := RaceNumbers.Count;
   // https://toster.ru/q/165393
   // Считаем максимальную сторону квадрата
@@ -1254,8 +1285,8 @@ begin
   iBtnWidth := i;
   // заполняем
   for i := 0 to iBtnNum - 1 do begin
-    with TFreeButton.Create(sPanel5) do begin
-      Parent := sPanel5;
+    with TFreeButton.Create(spNumbersPanel) do begin
+      Parent := spNumbersPanel;
       Caption := RaceNumbers.Strings[i];
       Width := iBtnWidth;
       Height := iBtnHeight;
@@ -1337,6 +1368,10 @@ end;
 procedure TMainForm.sBitBtn32Click(Sender: TObject);
 begin
   tsRaceResults.Show;
+  RefreshRacePanel;
+  Timer.Enabled := false;
+  spRacePanel.Enabled := true;
+  sBitBtn23.Enabled := false;
 end;
 
 procedure TMainForm.sBitBtn3Click(Sender: TObject);
@@ -1628,6 +1663,14 @@ begin
       sComboBox4.Items.Add(Fields[3].AsString);
       Next;
     end;
+    if sComboBox4.Items.Count > 0 then begin
+      sComboBox4.ItemIndex := 0;
+      spRacePanel.Show;
+      // refresh
+      sComboBox4Change(Self);
+      RefreshRacePanel;
+    end
+    else spRacePanel.Hide;
   finally
     Free;
   end;
@@ -1684,6 +1727,10 @@ begin
     sBitBtn20.Enabled := false;
     sBitBtn21.Enabled := true;
     sBitBtn32.Enabled := false;
+    sBitBtn22.Enabled := true;
+    sBitBtn23.Enabled := true;
+    spRacePanel.Enabled := false;
+    spRacePanel.Show;
   end;
   if STATUS = strRACE_STATUS_FINISHED then begin
     sLabelFX6.Caption := strRACE_FINISHED;
@@ -1691,6 +1738,11 @@ begin
     sBitBtn20.Enabled := false;
     sBitBtn21.Enabled := false;
     sBitBtn32.Enabled := true;
+    spRacePanel.Enabled := true;
+    sBitBtn22.Enabled := false;
+    sBitBtn23.Enabled := false;
+    Timer.Enabled := false;
+    spRacePanel.Show;
   end;
   if STATUS = '' then begin
     sLabelFX6.Caption := strPRERACE_CHECK_REQUIRED;
@@ -1698,11 +1750,18 @@ begin
     sBitBtn20.Enabled := true;
     sBitBtn21.Enabled := false;
     sBitBtn32.Enabled := false;
+    spRacePanel.Enabled := false;
+    sBitBtn22.Enabled := false;
+    sBitBtn23.Enabled := false;
+    Timer.Enabled := false;
+    spRacePanel.Hide;
   end;
-  // сохраняем race_id в sCheckListBox2.Tag и sPanel5.Tag
+  // сохраняем race_id в sCheckListBox2.Tag и spNumbersPanel.Tag
   sCheckListBox2.Tag := RACE_ID;
-  sPanel5.Tag := RACE_ID;
+  spNumbersPanel.Tag := RACE_ID;
   sComboBox6.Tag := RACE_ID;
+  // refresh
+  RefreshRacePanel;
 end;
 
 procedure TMainForm.sComboBox6Change(Sender: TObject);
@@ -1716,7 +1775,6 @@ begin
   // берём RACE_ID из sComboBox6.Tag
   RACE_ID := sComboBox6.Tag;
   bToApplyFilter := sComboBox6.ItemIndex > 0;
-// пока тест для абсолюта (TODO)
   lvResults.Clear;
   // выборка резултата гонки. номера с количенством кругов и временем по абсолюту
   with TIBQuery.Create(nil) do try
@@ -1824,6 +1882,11 @@ begin
   finally
     Free;
   end;
+  // выравнивание ширины колонок
+  for i := 0 to lvResults.Columns.Count - 2 do begin
+      lvResults.Columns[i].Width := ColumnTextWidth
+  end;
+  lvResults.Columns[lvResults.Columns.Count - 1].Width := ColumnHeaderWidth;
 end;
 
 procedure TMainForm.sEdit8Change(Sender: TObject);
@@ -1852,7 +1915,7 @@ begin
   sBitBtn14.Enabled := true;
 end;
 
-procedure TMainForm.sPanel5Resize(Sender: TObject);
+procedure TMainForm.spNumbersPanelResize(Sender: TObject);
 begin
   if (PageControl2.ActivePage = tsRacePanel) and (PageControl1.ActivePage = tsStart)
   then RepaintNumberButtons(Sender);
@@ -1863,11 +1926,18 @@ begin
   sTimerLabel.Caption := Copy(FormatDateTime(strTIMENOTE_FORMAT, Now() - TIME_START), 1, 11);
 end;
 
+procedure TMainForm.tsRacePanelShow(Sender: TObject);
+begin
+  spRacePanel.Show;
+end;
+
 procedure TMainForm.tsRaceResultsShow(Sender: TObject);
 var
   RACE_ID : integer;
-  strSEX,strAGEMIN, strAGEMAX : string;
+  strSEX, strAGEMIN, strAGEMAX, strLAPS : string;
 begin
+  sBitBtn22.Enabled := false;
+  spRacePanel.Show;
   RACE_ID := sComboBox6.Tag;
   with sComboBox6 do begin
     Clear;
@@ -1875,7 +1945,7 @@ begin
     with TIBQuery.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
-      SQL.Text := 'select sex,agemin,agemax from comp_groups where race_id='
+      SQL.Text := 'select sex,agemin,agemax,laps from comp_groups where race_id='
         + IntToStr(RACE_ID) + ' order by sex,agemin;';
       Open;
       FetchAll;
@@ -1887,7 +1957,9 @@ begin
         else strAGEMIN := ' от ' + IntToStr(Fields[1].AsInteger);
         if Fields[2].AsInteger = 0 then strAGEMAX := ''
         else strAGEMAX := ' до ' + IntToStr(Fields[2].AsInteger);
-        Items.Add(strSEX + strAGEMIN + strAGEMAX);
+        if Fields[3].AsInteger = 0 then strLAPS := ''
+        else strLAPS := ' (' + IntToStr(Fields[3].AsInteger) + ' кр)';
+        Items.Add(strSEX + strAGEMIN + strAGEMAX + strLAPS);
         Next;
       end;
     finally
@@ -1895,6 +1967,8 @@ begin
     end;
     ItemIndex := 0;
   end;
+  // refresh
+  sComboBox6Change(Self);
 end;
 
 procedure TMainForm.tsRegistrationShow(Sender: TObject);
@@ -1913,6 +1987,11 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TMainForm.tsStartPrepShow(Sender: TObject);
+begin
+  spRacePanel.Hide;
 end;
 
 procedure TMainForm.tsEventShow(Sender: TObject);
