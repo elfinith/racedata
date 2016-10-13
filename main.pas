@@ -7,7 +7,8 @@ uses
   Dialogs, sSkinManager, StdCtrls, Buttons, sBitBtn, ComCtrls, ExtCtrls, sPanel,
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
-  FreeButton, acTitleBar, DateUtils;
+  FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
+  sCustomComboEdit, sToolEdit;
 
 const
   PLATENUMBERS_COUNT = 50;
@@ -45,10 +46,10 @@ type
     sBitBtn2: TsBitBtn;
     sBitBtn1: TsBitBtn;
     sBitBtn3: TsBitBtn;
-    PageControl1: TPageControl;
-    tsRegistration: TTabSheet;
-    tsEvent: TTabSheet;
-    tsStart: TTabSheet;
+    PageControl1: TSPageControl;
+    tsRegistration: TSTabSheet;
+    tsEvent: TSTabSheet;
+    tsStart: TSTabSheet;
     sListBox1: TsListBox;
     sBitBtn4: TsBitBtn;
     sLabelFX1: TsLabelFX;
@@ -56,7 +57,7 @@ type
     sEdit1: TsEdit;
     sLabel2: TsLabel;
     sLabel1: TsLabel;
-    DateTimePicker1: TDateTimePicker;
+    DateTimePicker1: TSDateEdit;
     sBitBtn6: TsBitBtn;
     sBitBtn7: TsBitBtn;
     sBitBtn5: TsBitBtn;
@@ -93,10 +94,10 @@ type
     sLabel8: TsLabel;
     sBitBtn18: TsBitBtn;
     sLabelFX4: TsLabelFX;
-    ListView1: TListView;
+    ListView1: TSListView;
     sLabel9: TsLabel;
     sLabel10: TsLabel;
-    DateTimePicker2: TDateTimePicker;
+    DateTimePicker2: TSDateEdit;
     sLabel11: TsLabel;
     sEdit6: TsEdit;
     sEdit7: TsEdit;
@@ -113,8 +114,8 @@ type
     sComboBox3: TsComboBox;
     sComboBox4: TsComboBox;
     sLabel13: TsLabel;
-    tsAthletes: TTabSheet;
-    tsSettings: TTabSheet;
+    tsAthletes: TSTabSheet;
+    tsSettings: TSTabSheet;
     Timer: TTimer;
     sBitBtn25: TsBitBtn;
     pmRPMenu: TPopupMenu;
@@ -122,7 +123,7 @@ type
     N3: TMenuItem;
     N4: TMenuItem;
     sLabelFX7: TsLabelFX;
-    lvCompGroups: TListView;
+    lvCompGroups: TSListView;
     sBitBtn28: TsBitBtn;
     sBitBtn29: TsBitBtn;
     sPanel9: TsPanel;
@@ -139,20 +140,20 @@ type
     sEdit12: TsEdit;
     sLabel18: TsLabel;
     spRace: TsPanel;
-    PageControl2: TPageControl;
-    tsStartPrep: TTabSheet;
+    PageControl2: TSPageControl;
+    tsStartPrep: TSTabSheet;
     sLabel14: TsLabel;
     sLabelFX6: TsLabelFX;
     sCheckListBox2: TsCheckListBox;
     sBitBtn20: TsBitBtn;
     sBitBtn21: TsBitBtn;
     sBitBtn32: TsBitBtn;
-    tsRacePanel: TTabSheet;
+    tsRacePanel: TSTabSheet;
     spNumbersPanel: TsPanel;
-    tsRaceResults: TTabSheet;
+    tsRaceResults: TSTabSheet;
     sLabel17: TsLabel;
     sComboBox6: TsComboBox;
-    lvResults: TListView;
+    lvResults: TSListView;
     sBitBtn33: TsBitBtn;
     sBitBtn34: TsBitBtn;
     spRacePanel: TsPanel;
@@ -160,7 +161,7 @@ type
     sBitBtn22: TsBitBtn;
     sBitBtn23: TsBitBtn;
     sBitBtn24: TsBitBtn;
-    ListView2: TListView;
+    ListView2: TSListView;
     sPanel7: TsPanel;
     sBitBtn26: TsBitBtn;
     sBitBtn27: TsBitBtn;
@@ -239,6 +240,7 @@ type
     fs: TFormatSettings;
     RaceNumbers : TStringList;
     TIME_START : TDateTime;
+    bDoRacePanelRefresh, bDoNBRepaintLater : boolean;
     procedure SelectAthlet(Sender: TObject);
     procedure RepaintNumberButtons(Sender: TObject);
     procedure OnPlateNumberClick(Sender: TObject);
@@ -246,13 +248,34 @@ type
 
   end;
 
+  RPUpdThread = class(TThread)
+  private
+    { Private declarations }
+  protected
+    procedure DoWork;
+    procedure Execute; override;
+  end;
+
 var
   MainForm: TMainForm;
+  rpThread : RPUpdThread;
   function ScrollBarVisible(Handle : HWnd; Style : Longint) : Boolean;
 
 implementation
 
 {$R *.dfm}
+
+procedure RPUpdThread.Execute;
+begin
+  FreeOnTerminate := true;
+  Synchronize(DoWork);
+end;
+
+procedure RPUpdThread.DoWork;
+begin
+  if not(MainForm.bDoRacePanelRefresh) then MainForm.RefreshRacePanel;
+end;
+
 
 function RusMessageDialog(const Msg: string; DlgType: TMsgDlgType;
    Buttons: TMsgDlgButtons; Captions: array of string): Integer;
@@ -740,7 +763,7 @@ begin
         end;
         SQL.Text := 'insert into athletes(athlet_id,name,date_born,sex,team,city) values('
           + IntToStr(ATHLET_ID) + ',''' + sEdit5.Text + ''','''
-          + FormatDateTime('dd/mm/yyyy', DateTimePicker2.DateTime) + ''',''' + SEX + ''','''
+          + FormatDateTime('dd/mm/yyyy', DateTimePicker2.Date) + ''',''' + SEX + ''','''
           + sEdit6.Text + ''',''' + sEdit7.Text + ''');';
         ExecQuery;
       end
@@ -1112,6 +1135,7 @@ var
   strTIME_START : string;
   lItem : TListItem;
 begin
+  bDoRacePanelRefresh := true;
   ListView2.Clear;
   // берём RACE_ID из sspNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
@@ -1216,6 +1240,7 @@ begin
     IntToStr(sBitBtn23.Tag - iLapsCompleted) + ' кругов до финиша';
   if iLapsToGo = 1 then sBitBtn23.Caption := 'Последний круг';
   if iLapsToGo < 1 then sBitBtn23.Caption := 'ФИНИШ';
+  bDoRacePanelRefresh := false;
 end;
 
 function ScrollBarVisible(Handle : HWnd; Style : Longint) : Boolean;
@@ -1250,7 +1275,7 @@ begin
     finally
       Free;
     end;
-    RefreshRacePanel;
+    if not(bDoRacePanelRefresh) then rpThread := RPUpdThread.Create(False);
   end;
 end;
 
@@ -1408,12 +1433,12 @@ begin
     // если создать
     if sPanel2.Tag = 0 then SQL.Text :=
       'insert into events(event_id,event_date,name) values((select max(event_id) from events) + 1,'''
-      + FormatDateTime('dd/mm/yyyy', DateTimePicker1.DateTime) + ''','''
+      + FormatDateTime('dd/mm/yyyy', DateTimePicker1.Date) + ''','''
       + sEdit1.Text + ''')'
     // изменить
     else
       SQL.Text := 'update events set name=''' + sEdit1.Text +  ''',event_date='''
-        + FormatDateTime('dd/mm/yyyy', DateTimePicker1.DateTime) + ''' where event_id='
+        + FormatDateTime('dd/mm/yyyy', DateTimePicker1.Date) + ''' where event_id='
         + IntToStr(sPanel2.Tag) + ';';
     ExecQuery;
     sPanel2.Hide;
@@ -1499,7 +1524,7 @@ begin
       inc(i);
     end;
     sEdit1.Text := Fields[2].AsString;
-    DateTimePicker1.DateTime := Fields[1].AsDateTime;
+    DateTimePicker1.Date := Fields[1].AsDateTime;
     // event_id храним в sPanel2.Tag
     sPanel2.Tag := Fields[0].AsInteger;
     // выбираем заезды
@@ -2014,3 +2039,4 @@ begin
 end;
 
 end.
+
