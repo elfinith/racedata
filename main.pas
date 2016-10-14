@@ -8,12 +8,14 @@ uses
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
-  sCustomComboEdit, sToolEdit;
+  sCustomComboEdit, sToolEdit, acProgressBar;
 
 const
   PLATENUMBERS_COUNT = 50;
+  strTIMER_CAPTION = '00:00:00.00';
   strPLATENUMBER_FONT_NAME = 'Century Gothic';
   strTIMENOTE_FORMAT = 'hh:mm:ss.zzz';
+  strSIMPLEDATEFORMAT = 'dd/mm/yyyy';
   strDB_CONNECTION_ERROR = 'Ошибка при соединении с БД';
   strRACE_STATUS_STARTED = 'В процессе';
   strRACE_STATUS_FINISHED = 'Завершено';
@@ -29,6 +31,8 @@ const
   strCOMP_GROUP_NOT_SELECTED = 'Не выбрана зачётная подгруппа';
   strCOMPLETE_RACE = 'Завершить гонку и перейти к итоговой таблице?';
   strABSOLUTE = 'Абсолютный зачёт';
+  strLAPSTOGO = ' кругов до финиша';
+  strLASTLAP = 'Последний круг';
 
   // розовый (св-т)
   clLinen = TColor($faf0e6);
@@ -167,6 +171,8 @@ type
     sBitBtn27: TsBitBtn;
     sEdit10: TsEdit;
     sComboBox5: TsComboBox;
+    spbResults: TsProgressBar;
+    lvAthletes: TsListView;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -233,6 +239,7 @@ type
     procedure sComboBox6Change(Sender: TObject);
     procedure tsStartPrepShow(Sender: TObject);
     procedure tsRacePanelShow(Sender: TObject);
+    procedure tsAthletesShow(Sender: TObject);
   private
     { Private declarations }
   public
@@ -648,6 +655,27 @@ begin
       Free;
     end;
   end;
+  if tsStart.Visible then begin
+    // если с самой себя
+    with TIBQuery.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'select event_id,event_date,name from events order by event_date;';
+      Open;
+      FetchAll;
+      First;
+      i := 0;
+      while sComboBox3.ItemIndex > i do begin
+        Next;
+        inc(i);
+      end;
+      // event_id храним в sPanel2.Tag
+      EVENT_ID := Fields[0].AsInteger;
+    finally
+      Free;
+    end;
+  end;
+
   // сохраняем event_id в sComboBox4.Tag
   sComboBox4.Tag := EVENT_ID;
   with TIBQuery.Create(nil) do try
@@ -689,6 +717,7 @@ begin
   end;
 
   tsStart.Show;
+  PageControl2.ActivePage := tsStartPrep;
   sBitBtn1.Font.Style := [];
   sBitBtn2.Font.Style := [];
   sBitBtn3.Font.Style := [];
@@ -763,7 +792,7 @@ begin
         end;
         SQL.Text := 'insert into athletes(athlet_id,name,date_born,sex,team,city) values('
           + IntToStr(ATHLET_ID) + ',''' + sEdit5.Text + ''','''
-          + FormatDateTime('dd/mm/yyyy', DateTimePicker2.Date) + ''',''' + SEX + ''','''
+          + FormatDateTime(strSIMPLEDATEFORMAT, DateTimePicker2.Date) + ''',''' + SEX + ''','''
           + sEdit6.Text + ''',''' + sEdit7.Text + ''');';
         ExecQuery;
       end
@@ -880,7 +909,7 @@ begin
       if not(isRegistered) then begin
         mItem := TMenuItem.Create(Self);
         mItem.Caption := Fields[1].AsString + ', '
-          + FormatDateTime('dd/mm/yyyy', Fields[2].AsDateTime) + ' (' + Fields[5].AsString + ')';
+          + FormatDateTime(strSIMPLEDATEFORMAT, Fields[2].AsDateTime) + ' (' + Fields[5].AsString + ')';
         // сохраняем athlet_id в mItem.Tag
         mItem.Tag := ATHLET_ID;
         mItem.OnClick := SelectAthlet;
@@ -981,7 +1010,7 @@ begin
     SQL.Text := 'select laps from races where race_id=' + IntToStr(RACE_ID) + ';';
     Open;
     sBitBtn23.Tag := Fields[0].AsInteger;
-    sBitBtn23.Caption := IntToStr(sBitBtn23.Tag) + ' кругов до финиша';
+    sBitBtn23.Caption := IntToStr(sBitBtn23.Tag) + strLAPSTOGO;
     sBitBtn23.Enabled := true;
   finally
     Free;
@@ -1014,6 +1043,8 @@ begin
     sComboBox6.Tag := RACE_ID;
     tsRaceResults.Show;
     sBitBtn23.Enabled := false;
+    // refresh
+    sComboBox6Change(Self);
   end;
 end;
 
@@ -1237,8 +1268,8 @@ begin
   // выводим сколько кругов осталось
   iLapsToGo := sBitBtn23.Tag - iLapsCompleted;
   if iLapsToGo > 1 then sBitBtn23.Caption :=
-    IntToStr(sBitBtn23.Tag - iLapsCompleted) + ' кругов до финиша';
-  if iLapsToGo = 1 then sBitBtn23.Caption := 'Последний круг';
+    IntToStr(sBitBtn23.Tag - iLapsCompleted) + strLAPSTOGO;
+  if iLapsToGo = 1 then sBitBtn23.Caption := strLASTLAP;
   if iLapsToGo < 1 then sBitBtn23.Caption := 'ФИНИШ';
   bDoRacePanelRefresh := false;
 end;
@@ -1393,10 +1424,12 @@ end;
 procedure TMainForm.sBitBtn32Click(Sender: TObject);
 begin
   tsRaceResults.Show;
-  RefreshRacePanel;
+//  RefreshRacePanel;
   Timer.Enabled := false;
   spRacePanel.Enabled := true;
   sBitBtn23.Enabled := false;
+  // refresh
+  sComboBox6Change(Self);
 end;
 
 procedure TMainForm.sBitBtn3Click(Sender: TObject);
@@ -1433,12 +1466,12 @@ begin
     // если создать
     if sPanel2.Tag = 0 then SQL.Text :=
       'insert into events(event_id,event_date,name) values((select max(event_id) from events) + 1,'''
-      + FormatDateTime('dd/mm/yyyy', DateTimePicker1.Date) + ''','''
+      + FormatDateTime(strSIMPLEDATEFORMAT, DateTimePicker1.Date) + ''','''
       + sEdit1.Text + ''')'
     // изменить
     else
       SQL.Text := 'update events set name=''' + sEdit1.Text +  ''',event_date='''
-        + FormatDateTime('dd/mm/yyyy', DateTimePicker1.Date) + ''' where event_id='
+        + FormatDateTime(strSIMPLEDATEFORMAT, DateTimePicker1.Date) + ''' where event_id='
         + IntToStr(sPanel2.Tag) + ';';
     ExecQuery;
     sPanel2.Hide;
@@ -1786,6 +1819,7 @@ begin
   spNumbersPanel.Tag := RACE_ID;
   sComboBox6.Tag := RACE_ID;
   // refresh
+  sTimerLabel.Caption := strTIMER_CAPTION;
   RefreshRacePanel;
 end;
 
@@ -1797,10 +1831,12 @@ var
   dtShift : TDateTime;
   lItem : TListItem;
 begin
+  lvResults.Hide;
+  spbResults.Show;
   // берём RACE_ID из sComboBox6.Tag
   RACE_ID := sComboBox6.Tag;
   bToApplyFilter := sComboBox6.ItemIndex > 0;
-  lvResults.Clear;
+  lvResults.Items.Clear;
   // выборка резултата гонки. номера с количенством кругов и временем по абсолюту
   with TIBQuery.Create(nil) do try
     Database := DBase;
@@ -1845,6 +1881,8 @@ begin
       + 'count(platenumber) desc, max(timenote);';
     Open;
     FetchAll;
+    spbResults.Position := 0;
+    spbResults.Max := RecordCount;
     iPlace := 1;
     iLeaderLaps := Fields[1].AsInteger;
     while not(EOF) do begin
@@ -1864,8 +1902,8 @@ begin
           // применяем фильтрацию если необходимо
           if bToApplyFilter then begin
             // возраст
-            iAGE := YearsBetween(StrToDate('31.12.'
-              + FormatDateTime('yyyy', Now),fs), Fields[1].AsDateTime);
+            iAGE := YearsBetween(StrToDate('31.12.' + FormatDateTime('yyyy', Now),fs),
+              Fields[1].AsDateTime);
             bIsFiltered := iAGEMIN < iAGE;
             bIsFiltered := bIsFiltered and ((iAGEMAX = 0) or (iAGE < iAGEMAX));
             // пол
@@ -1903,15 +1941,19 @@ begin
         end;
       end;
       Next;
+      spbResults.StepIt;
     end;
   finally
     Free;
   end;
   // выравнивание ширины колонок
-  for i := 0 to lvResults.Columns.Count - 2 do begin
-      lvResults.Columns[i].Width := ColumnTextWidth
+  lvResults.Columns[0].Width := ColumnHeaderWidth;
+  for i := 1 to lvResults.Columns.Count - 2 do begin
+    lvResults.Columns[i].Width := ColumnTextWidth
   end;
   lvResults.Columns[lvResults.Columns.Count - 1].Width := ColumnHeaderWidth;
+  spbResults.Hide;
+  lvResults.Show;
 end;
 
 procedure TMainForm.sEdit8Change(Sender: TObject);
@@ -1965,7 +2007,7 @@ begin
   spRacePanel.Show;
   RACE_ID := sComboBox6.Tag;
   with sComboBox6 do begin
-    Clear;
+    Items.Clear;
     Items.Add(strABSOLUTE);
     with TIBQuery.Create(nil) do try
       Database := DBase;
@@ -1992,8 +2034,6 @@ begin
     end;
     ItemIndex := 0;
   end;
-  // refresh
-  sComboBox6Change(Self);
 end;
 
 procedure TMainForm.tsRegistrationShow(Sender: TObject);
@@ -2019,6 +2059,45 @@ begin
   spRacePanel.Hide;
 end;
 
+procedure TMainForm.tsAthletesShow(Sender: TObject);
+var
+  i, iWidth ,ScrollBarWidth : integer;
+  lItem : TListItem;
+begin
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select athlet_id,name,date_born,team,city from athletes order by name;';
+    Open;
+    FetchAll;
+    lvAthletes.Items.Clear;
+    while not(EOF) do begin
+      lItem := lvAthletes.Items.Add;
+      with lItem do begin
+        Data := Pointer(Fields[0].AsInteger);
+        Caption := Fields[1].AsString;
+        SubItems.Add(FormatDateTime(strSIMPLEDATEFORMAT, Fields[2].AsDateTime));
+        SubItems.Add(Fields[3].AsString);
+        SubItems.Add(Fields[4].AsString);
+      end;
+      Next;
+    end;
+  finally
+    Free;
+  end;
+  // выравниваие ширины колонок
+  iWidth := 0;
+  for i := 0 to lvAthletes.Columns.Count - 2 do begin
+    lvAthletes.Columns[i].Width := ColumnHeaderWidth;
+    iWidth := iWidth + lvAthletes.Columns[i].Width;
+  end;
+  iWidth := iWidth + lvAthletes.Columns[lvAthletes.Columns.Count - 1].Width;
+  if ScrollBarVisible(lvAthletes.Handle, WS_VSCROLL) then
+    ScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL)
+  else ScrollBarWidth := 0;
+  lvAthletes.Width := iWidth + ScrollBarWidth + lvAthletes.Columns.Count;
+end;
+
 procedure TMainForm.tsEventShow(Sender: TObject);
 begin
   with TIBQuery.Create(nil) do try
@@ -2029,7 +2108,7 @@ begin
     FetchAll;
     sListBox1.Clear;
     while not(EOF) do begin
-      sListBox1.Items.Add('[' + FormatDateTime('dd/mm/yyyy',Fields[1].AsDateTime) + '] '
+      sListBox1.Items.Add('[' + FormatDateTime(strSIMPLEDATEFORMAT, Fields[1].AsDateTime) + '] '
         + Fields[2].AsString);
       Next;
     end;
