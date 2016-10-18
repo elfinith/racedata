@@ -183,6 +183,8 @@ type
     sPanel5: TsPanel;
     sLabelFX8: TsLabelFX;
     lvAthRaces: TsListView;
+    sComboBox7: TsComboBox;
+    sLabel19: TsLabel;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -253,6 +255,8 @@ type
     procedure sSkinManagerAfterChange(Sender: TObject);
     procedure lvAthletesSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
+    procedure sComboBox7Change(Sender: TObject);
+    procedure tsSettingsShow(Sender: TObject);
   private
     { Private declarations }
   public
@@ -297,9 +301,12 @@ end;
 
 procedure RPUpdThread.DoWork;
 begin
-  if not(MainForm.bDoRacePanelRefresh) then MainForm.RefreshRacePanel;
+//  if not(MainForm.bDoRacePanelRefresh) then
+  with MainForm do begin
+    RefreshRacePanel;
+    LogIt(llDEBUG, 'RPUpdThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
+  end;
 end;
-
 
 function RusMessageDialog(const Msg: string; DlgType: TMsgDlgType;
    Buttons: TMsgDlgButtons; Captions: array of string): Integer;
@@ -373,8 +380,221 @@ end;
 
 procedure TMainForm.FormShow(Sender: TObject);
 begin
-
   tsEvent.Show;
+end;
+
+procedure TMainForm.OnPlateNumberClick(Sender: TObject);
+var
+  PLATENUMBER, RACE_ID, LAST_TN_ID : integer;
+begin
+  // проверяем стартовал ли заезд
+  if not(sBitBtn22.Enabled) then begin
+    PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
+    RACE_ID := TFreeButton(Sender).Tag;
+    with TIBQuery.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'select max(tn_id) from timenotes;';
+      Open;
+      LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      LAST_TN_ID := Fields[0].AsInteger;
+    finally
+      Free;
+    end;
+    with TIBSQL.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
+        + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ',' + IntToStr(PLATENUMBER)
+        + ',''' + FormatDateTime(strTIMENOTE_FORMAT, Now()) + ''');';
+      ExecQuery;
+      LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    finally
+      Free;
+    end;
+    // если предыдущий поток обновления завершил работу, запускаем новый
+    if not(bDoRacePanelRefresh) then begin
+      // выставляем флаг процесса обновления
+      bDoRacePanelRefresh := true;
+      rpThread := RPUpdThread.Create(False);
+      LogIt(llDEBUG, 'RPUpdThread.Create, ThreadID = ' + IntToStr(rpThread.ThreadID) + #13#10);
+    end;
+  end;
+end;
+
+procedure TMainForm.RefreshRacePanel;
+var
+  i, j, k, iPosCnt, iLapsOffset, iPanelWidth, ScrollBarWidth,
+    RACE_ID, TN_ID, PLATENUMBER, iLapsCompleted, iLapsToGo : integer;
+  TIMENOTE, RACETIME : TDateTime;
+  strTIME_START : string;
+  lItem : TListItem;
+begin
+  ListView2.Clear;
+  // берём RACE_ID из sspNumbersPanel.Tag
+  RACE_ID := spNumbersPanel.Tag;
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    // время старта
+    SQL.Text := 'select timenote from timenotes where (platenumber = 0) '
+      + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
+    Open;
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    if RecordCount > 0 then begin
+      sBitBtn22.Enabled := false;
+      strTIME_START := Fields[0].AsString;
+      TIME_START := StrToTime(strTIME_START, fs);
+      sBitBtn22.Caption := 'Время старта: ' + Copy(strTIME_START, 1, 11);
+//      Timer.Enabled := true;
+    end
+    else begin
+      sBitBtn22.Enabled := true;
+      sBitBtn22.Caption := 'СТАРТ';
+    end;
+    // времена засечек
+    Close;
+    SQL.Text := 'select timenotes.tn_id, athletes.name, timenotes.platenumber, '
+      + 'timenotes.timenote from athletes, registry, timenotes where (athletes.athlet_id = '
+      + 'registry.athlet_id) and (registry.platenumber = timenotes.platenumber) and '
+      + '(registry.race_id = timenotes.race_id) and (timenotes.race_id = ' + IntToStr(RACE_ID)
+      + ') order by timenotes.timenote;';
+    Open;
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    while not(EOF) do begin
+      TN_ID := Fields[0].AsInteger;
+      PLATENUMBER := Fields[2].AsInteger;
+      TIMENOTE := StrToTime(Fields[3].AsString, fs);
+      RACETIME := TIMENOTE - TIME_START;
+      lItem := ListView2.Items.Add;
+      with lItem do begin
+        // сохраняем TN_ID в Item.Data
+        Data := Pointer(TN_ID);
+        // отсекаем тысячные, чтоб не захламлять
+        Caption := Copy(FormatDateTime(strTIMENOTE_FORMAT, RACETIME), 1, 11);
+        SubItems.Add(IntToStr(PLATENUMBER));
+        SubItems.Add(Fields[1].AsString);
+        // считаем круги
+        with TIBQuery.Create(nil) do try
+          Database := DBase;
+          Transaction := DBTran;
+          SQL.Text := 'select count(tn_id) from timenotes where '
+            + '(tn_id < ' + IntToStr(TN_ID) + ') and (platenumber=' + IntToStr(PLATENUMBER)
+            + ') and (race_id=' + IntToStr(RACE_ID) + ');';
+          Open;
+          LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+          SubItems.Add(IntToStr(Fields[0].AsInteger + 1));
+        finally
+          Free;
+        end;
+      end;
+      Next;
+    end;
+    // проставляем позиции
+    with ListView2.Items do begin
+      if Count <> 0 then begin
+        iPosCnt := 1;
+        Item[0].SubItems.Add('1');
+        for i := 1 to Count - 1 do begin
+          iPosCnt := 0;
+          iLapsOffset := 0;
+          // преебираем всех кто прошёл ранее
+          for j := i downto 0 do begin
+            // находим позицию на основании числа уже прошедших в этом круге
+            if Item[i].SubItems.Strings[2] = Item[j].SubItems.Strings[2] then inc(iPosCnt);
+            // находим максимальную разницу в кругах из уже ранее отметившихся
+            k := StrToInt(Item[j].SubItems.Strings[2]) - StrToInt(Item[i].SubItems.Strings[2]);
+            if iLapsOffset < k then iLapsOffset := k;
+            // заодно сохраняем текущий круг лидера
+            if iLapsCompleted < StrToInt(Item[j].SubItems.Strings[2]) then
+              iLapsCompleted := StrToInt(Item[j].SubItems.Strings[2]);
+          end;
+          Item[i].SubItems.Add(intToStr(iPosCnt));
+          if iLapsOffset > 0 then Item[i].SubItems.Add('-' + IntToStr(iLapsOffset));
+        end;
+      end;
+    end; // with ListView2.Items
+    // выравнивание ширины колонок, подгонка ширины панели по колонкам
+    iPanelWidth := 0;
+    for i := 0 to ListView2.Columns.Count - 2 do begin
+      ListView2.Columns[i].Width := ColumnHeaderWidth;
+      iPanelWidth := iPanelWidth + ListView2.Columns[i].Width;
+    end;
+    iPanelWidth := iPanelWidth + ListView2.Columns[ListView2.Columns.Count - 1].Width;
+    if ScrollBarVisible(ListView2.Handle, WS_VSCROLL) then
+      ScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL)
+    else ScrollBarWidth := 0;
+    spRacePanel.Width := iPanelWidth + ScrollBarWidth + ListView2.Columns.Count;
+    // прокрутка в конец
+    SendMessage(ListView2.Handle, WM_VSCROLL, SB_BOTTOM, 0);
+  finally
+    Free;
+  end;
+  // выводим сколько кругов осталось
+  iLapsToGo := sBitBtn23.Tag - iLapsCompleted;
+  if iLapsToGo > 1 then sBitBtn23.Caption :=
+    IntToStr(sBitBtn23.Tag - iLapsCompleted) + strLAPSTOGO;
+  if iLapsToGo = 1 then sBitBtn23.Caption := strLASTLAP;
+  if iLapsToGo < 1 then sBitBtn23.Caption := 'ФИНИШ';
+  // снимаем флаг процесса обновления
+  bDoRacePanelRefresh := false;
+end;
+
+procedure TMainForm.RepaintNumberButtons(Sender: TObject);
+var
+  i, iBtnNum, iBtnWidth, iBtnHeight, iRows, iColumns, iFldWidth, iFldHeight, maxBtnSize : integer;
+  k : real;
+  Item : TControl;
+begin
+  // вычисление параметров кнопочного поля
+  iFldWidth := spNumbersPanel.Width;
+  iFldHeight := spNumbersPanel.Height;
+  iBtnNum := RaceNumbers.Count;
+  // https://toster.ru/q/165393
+  // Считаем максимальную сторону квадрата
+  maxBtnSize := trunc(sqrt(iFldHeight * iFldWidth / iBtnNum));
+  // пробежался в сторону уменьшения i подставляя его в формулу K=(ширина div i)*(высота div i)
+  // пока K не станет равно количеству квадратов
+  i := maxBtnSize;
+  repeat
+    dec(i);
+    iColumns := iFldWidth div i;
+    iRows := iFldHeight div i;
+    k := iColumns * iRows;
+  until (k >= iBtnNum);
+  iBtnHeight := i;
+  iBtnWidth := i;
+  spNumbersPanel.Hide;
+  // удаление старых кнопок
+  for i := spNumbersPanel.ControlCount - 1 downto 0 do begin
+    Item := spNumbersPanel.Controls[i];
+    Item.Free;
+  end;
+  // заполняем
+  for i := 0 to iBtnNum - 1 do begin
+    with TFreeButton.Create(spNumbersPanel) do begin
+      Parent := spNumbersPanel;
+      Caption := RaceNumbers.Strings[i];
+      Width := iBtnWidth;
+      Height := iBtnHeight;
+      Left := (i mod iColumns) * iBtnWidth;
+      Top := (i div iColumns) * iBtnHeight;
+      DrawColor := clCream;
+      DrawLight := false;
+      DrawDropShadow := false;
+      with Font do begin
+        Size := iBtnHeight div 3;
+        Style := [fsBold];
+        Color := clBlack;
+        Name := strPLATENUMBER_FONT_NAME;
+      end;
+      // сохраняем RACE_ID в Tag кнопки
+      Tag := sCheckListBox2.Tag;
+      onClick := OnPlateNumberClick;
+//      Show;
+    end;
+  end;
+  spNumbersPanel.Show;
 end;
 
 procedure TMainForm.ListView2CustomDraw(Sender: TCustomListView;
@@ -1283,216 +1503,9 @@ begin
   else ShowMessage(strCOMP_GROUP_NOT_SELECTED);
 end;
 
-procedure TMainForm.RefreshRacePanel;
-var
-  i, j, k, iPosCnt, iLapsOffset, iPanelWidth, ScrollBarWidth,
-    RACE_ID, TN_ID, PLATENUMBER, iLapsCompleted, iLapsToGo : integer;
-  TIMENOTE, RACETIME : TDateTime;
-  strTIME_START : string;
-  lItem : TListItem;
-begin
-  bDoRacePanelRefresh := true;
-  ListView2.Clear;
-  // берём RACE_ID из sspNumbersPanel.Tag
-  RACE_ID := spNumbersPanel.Tag;
-  with TIBQuery.Create(nil) do try
-    Database := DBase;
-    Transaction := DBTran;
-    // время старта
-    SQL.Text := 'select timenote from timenotes where (platenumber = 0) '
-      + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
-    Open;
-    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    if RecordCount > 0 then begin
-      sBitBtn22.Enabled := false;
-      strTIME_START := Fields[0].AsString;
-      TIME_START := StrToTime(strTIME_START, fs);
-      sBitBtn22.Caption := 'Время старта: ' + Copy(strTIME_START, 1, 11);
-//      Timer.Enabled := true;
-    end
-    else begin
-      sBitBtn22.Enabled := true;
-      sBitBtn22.Caption := 'СТАРТ';
-    end;
-
-    // времена засечек
-    Close;
-    SQL.Text := 'select timenotes.tn_id, athletes.name, timenotes.platenumber, '
-      + 'timenotes.timenote from athletes, registry, timenotes where (athletes.athlet_id = '
-      + 'registry.athlet_id) and (registry.platenumber = timenotes.platenumber) and '
-      + '(registry.race_id = timenotes.race_id) and (timenotes.race_id = ' + IntToStr(RACE_ID)
-      + ') order by timenotes.timenote;';
-    Open;
-    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    while not(EOF) do begin
-      TN_ID := Fields[0].AsInteger;
-      PLATENUMBER := Fields[2].AsInteger;
-      TIMENOTE := StrToTime(Fields[3].AsString, fs);
-      RACETIME := TIMENOTE - TIME_START;
-      lItem := ListView2.Items.Add;
-      with lItem do begin
-        // сохраняем TN_ID в Item.Data
-        Data := Pointer(TN_ID);
-        // отсекаем тысячные, чтоб не захламлять
-        Caption := Copy(FormatDateTime(strTIMENOTE_FORMAT, RACETIME), 1, 11);
-        SubItems.Add(IntToStr(PLATENUMBER));
-        SubItems.Add(Fields[1].AsString);
-        // считаем круги
-        with TIBQuery.Create(nil) do try
-          Database := DBase;
-          Transaction := DBTran;
-          SQL.Text := 'select count(tn_id) from timenotes where '
-            + '(tn_id < ' + IntToStr(TN_ID) + ') and (platenumber=' + IntToStr(PLATENUMBER)
-            + ') and (race_id=' + IntToStr(RACE_ID) + ');';
-          Open;
-          LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-          SubItems.Add(IntToStr(Fields[0].AsInteger + 1));
-        finally
-          Free;
-        end;
-      end;
-      Next;
-    end;
-    // проставляем позиции
-    with ListView2.Items do begin
-      if Count <> 0 then begin
-        iPosCnt := 1;
-        Item[0].SubItems.Add('1');
-        for i := 1 to Count - 1 do begin
-          iPosCnt := 0;
-          iLapsOffset := 0;
-          // преебираем всех кто прошёл ранее
-          for j := i downto 0 do begin
-            // находим позицию на основании числа уже прошедших в этом круге
-            if Item[i].SubItems.Strings[2] = Item[j].SubItems.Strings[2] then inc(iPosCnt);
-            // находим максимальную разницу в кругах из уже ранее отметившихся
-            k := StrToInt(Item[j].SubItems.Strings[2]) - StrToInt(Item[i].SubItems.Strings[2]);
-            if iLapsOffset < k then iLapsOffset := k;
-            // заодно сохраняем текущий круг лидера
-            if iLapsCompleted < StrToInt(Item[j].SubItems.Strings[2]) then
-              iLapsCompleted := StrToInt(Item[j].SubItems.Strings[2]);
-          end;
-          Item[i].SubItems.Add(intToStr(iPosCnt));
-          if iLapsOffset > 0 then Item[i].SubItems.Add('-' + IntToStr(iLapsOffset));
-        end;
-      end;
-    end; // with ListView2.Items
-    // выравнивание ширины колонок, подгонка ширины панели по колонкам
-    iPanelWidth := 0;
-    for i := 0 to ListView2.Columns.Count - 2 do begin
-      ListView2.Columns[i].Width := ColumnHeaderWidth;
-      iPanelWidth := iPanelWidth + ListView2.Columns[i].Width;
-    end;
-    iPanelWidth := iPanelWidth + ListView2.Columns[ListView2.Columns.Count - 1].Width;
-    if ScrollBarVisible(ListView2.Handle, WS_VSCROLL) then
-      ScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL)
-    else ScrollBarWidth := 0;
-    spRacePanel.Width := iPanelWidth + ScrollBarWidth + ListView2.Columns.Count;
-    // прокрутка в конец
-    SendMessage(ListView2.Handle, WM_VSCROLL, SB_BOTTOM, 0);
-  finally
-    Free;
-  end;
-  // выводим сколько кругов осталось
-  iLapsToGo := sBitBtn23.Tag - iLapsCompleted;
-  if iLapsToGo > 1 then sBitBtn23.Caption :=
-    IntToStr(sBitBtn23.Tag - iLapsCompleted) + strLAPSTOGO;
-  if iLapsToGo = 1 then sBitBtn23.Caption := strLASTLAP;
-  if iLapsToGo < 1 then sBitBtn23.Caption := 'ФИНИШ';
-  bDoRacePanelRefresh := false;
-end;
-
 function ScrollBarVisible(Handle : HWnd; Style : Longint) : Boolean;
 begin
   Result := (GetWindowLong(Handle, GWL_STYLE) and Style) <> 0;
-end;
-
-procedure TMainForm.OnPlateNumberClick(Sender: TObject);
-var
-  PLATENUMBER, RACE_ID, LAST_TN_ID : integer;
-begin
-  // проверяем стартовал ли заезд
-  if not(sBitBtn22.Enabled) then begin
-    PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
-    RACE_ID := TFreeButton(Sender).Tag;
-    with TIBQuery.Create(nil) do try
-      Database := DBase;
-      Transaction := DBTran;
-      SQL.Text := 'select max(tn_id) from timenotes;';
-      Open;
-      LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-      LAST_TN_ID := Fields[0].AsInteger;
-    finally
-      Free;
-    end;
-    with TIBSQL.Create(nil) do try
-      Database := DBase;
-      Transaction := DBTran;
-      SQL.Text := 'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
-        + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ',' + IntToStr(PLATENUMBER)
-        + ',''' + FormatDateTime(strTIMENOTE_FORMAT, Now()) + ''');';
-      ExecQuery;
-      LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    finally
-      Free;
-    end;
-    if not(bDoRacePanelRefresh) then rpThread := RPUpdThread.Create(False);
-  end;
-end;
-
-procedure TMainForm.RepaintNumberButtons(Sender: TObject);
-var
-  i, iBtnNum, iBtnWidth, iBtnHeight, iRows, iColumns, iFldWidth, iFldHeight, maxBtnSize : integer;
-  k : real;
-  Item : TControl;
-begin
-  // удаление старых кнопок
-  for i := spNumbersPanel.ControlCount - 1 downto 0 do begin
-    Item := spNumbersPanel.Controls[i];
-    Item.Free;
-  end;
-  // вычисление параметров кнопочного поля
-  iFldWidth := spNumbersPanel.Width;
-  iFldHeight := spNumbersPanel.Height;
-  iBtnNum := RaceNumbers.Count;
-  // https://toster.ru/q/165393
-  // Считаем максимальную сторону квадрата
-  maxBtnSize := trunc(sqrt(iFldHeight * iFldWidth / iBtnNum));
-  // пробежался в сторону уменьшения i подставляя его в формулу K=(ширина div i)*(высота div i)
-  // пока K не станет равно количеству квадратов
-  i := maxBtnSize;
-  repeat
-    dec(i);
-    iColumns := iFldWidth div i;
-    iRows := iFldHeight div i;
-    k := iColumns * iRows;
-  until (k >= iBtnNum);
-  iBtnHeight := i;
-  iBtnWidth := i;
-  // заполняем
-  for i := 0 to iBtnNum - 1 do begin
-    with TFreeButton.Create(spNumbersPanel) do begin
-      Parent := spNumbersPanel;
-      Caption := RaceNumbers.Strings[i];
-      Width := iBtnWidth;
-      Height := iBtnHeight;
-      Left := (i mod iColumns) * iBtnWidth;
-      Top := (i div iColumns) * iBtnHeight;
-      DrawColor := clCream;
-      DrawLight := false;
-      DrawDropShadow := false;
-      with Font do begin
-        Size := iBtnHeight div 3;
-        Style := [fsBold];
-        Color := clBlack;
-        Name := strPLATENUMBER_FONT_NAME;
-      end;
-      // сохраняем RACE_ID в Tag кнопки
-      Tag := sCheckListBox2.Tag;
-      onClick := OnPlateNumberClick;
-      Show;
-    end;
-  end;
 end;
 
 procedure TMainForm.sBitBtn2Click(Sender: TObject);
@@ -2106,6 +2119,12 @@ begin
   lvResults.Show;
 end;
 
+procedure TMainForm.sComboBox7Change(Sender: TObject);
+begin
+  logLevel := sComboBox7.ItemIndex;
+  Config.WriteInteger('Logging', 'Level', logLevel);
+end;
+
 procedure TMainForm.sEdit8Change(Sender: TObject);
 begin
   sBitBtn19.Enabled := sEdit8.Text <> '';
@@ -2209,6 +2228,11 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TMainForm.tsSettingsShow(Sender: TObject);
+begin
+  sComboBox7.ItemIndex := logLevel;
 end;
 
 procedure TMainForm.tsStartPrepShow(Sender: TObject);
