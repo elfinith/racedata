@@ -15,6 +15,8 @@ const
   llERROR = 1;
   llWARNING = 2;
   llDEBUG = 3;
+  iORDINARY_LAP_FLAG = 1;
+  iBEST_LAP_FLAG = 2;
   PLATENUMBERS_COUNT = 50;
   strTIMER_CAPTION = '00:00:00.00';
   strPLATENUMBER_FONT_NAME = 'Century Gothic';
@@ -185,6 +187,8 @@ type
     lvAthRaces: TsListView;
     sComboBox7: TsComboBox;
     sLabel19: TsLabel;
+    lvAthStats: TsListView;
+    sLabel20: TsLabel;
     procedure sBitBtn3Click(Sender: TObject);
     procedure sBitBtn2Click(Sender: TObject);
     procedure sBitBtn1Click(Sender: TObject);
@@ -257,6 +261,13 @@ type
       Selected: Boolean);
     procedure sComboBox7Change(Sender: TObject);
     procedure tsSettingsShow(Sender: TObject);
+    procedure lvAthRacesSelectItem(Sender: TObject; Item: TListItem;
+      Selected: Boolean);
+    procedure lvAthStatsCustomDrawItem(Sender: TCustomListView; Item: TListItem;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure lvAthStatsCustomDrawSubItem(Sender: TCustomListView;
+      Item: TListItem; SubItem: Integer; State: TCustomDrawState;
+      var DefaultDraw: Boolean);
   private
     { Private declarations }
   public
@@ -656,11 +667,12 @@ var
   i : integer;
   lItem : TListItem;
 begin
+  lvAthStats.Clear;
   lvAthRaces.Clear;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    SQL.Text := 'select events.event_date, events.name, races.name from athletes, races, events, '
+    SQL.Text := 'select events.event_date, events.name, races.name, races.race_id from athletes, races, events, '
       + 'registry where (athletes.athlet_id = ' + IntToStr(Integer(Item.Data))
       + ') and (athletes.athlet_id = registry.athlet_id) and (registry.race_id = races.race_id) '
       + 'and (races.event_id = events.event_id) and (races.status = ''' + strRACE_STATUS_FINISHED
@@ -672,6 +684,7 @@ begin
       lItem := lvAthRaces.Items.Add;
       with lItem do begin
         Caption := FormatDateTime(strSIMPLEDATEFORMAT,Fields[0].AsDateTime);
+        Data := Pointer(Fields[3].AsInteger);
         SubItems.Add(Fields[1].AsString);
         SubItems.Add(Fields[2].AsString);
       end;
@@ -683,6 +696,129 @@ begin
   // выравнивание ширины колонок
   for i := 0 to lvAthRaces.Columns.Count - 1 do begin
     lvAthRaces.Columns[i].Width := ColumnTextWidth;
+  end;
+end;
+
+procedure TMainForm.lvAthRacesSelectItem(Sender: TObject; Item: TListItem;
+  Selected: Boolean);
+var
+  lItem : TListItem;
+  i, j, iShift, iBestLap, RACE_ID, ATHLET_ID, TRACK_LENGTH, LAPS : integer;
+  strTIME_PREVIOUS, strTIME_CURRENT : string;
+  dtLapTime, dtBesLapTime : TDateTime;
+  rLapSpeed : extended;
+begin
+  ATHLET_ID := Integer(lvAthletes.Items[lvAthletes.ItemIndex].Data);
+  RACE_ID := Integer(Item.Data);
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    // параметры заезда
+    SQL.Text := 'select laps,track_length from races where race_id=' + IntToStr(RACE_ID) + ';';
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
+    LAPS := Fields[0].AsInteger;
+    TRACK_LENGTH := Fields[1].AsInteger;
+    // время старта
+    Close;
+    SQL.Text := 'select timenote from timenotes where (race_id=' + IntToStr(RACE_ID)
+      + ') and (platenumber=0);';
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
+    strTIME_PREVIOUS := Fields[0].AsString;
+    // времена кругов
+    Close;
+    SQL.Text := 'select timenotes.tn_id, timenotes.timenote from timenotes, registry '
+      + 'where (timenotes.race_id=' + IntToStr(RACE_ID)
+      + ') and (timenotes.platenumber = registry.platenumber) and (registry.race_id = '
+      + 'timenotes.race_id) and (registry.athlet_id = '
+      + IntToStr(ATHLET_ID) + ') order by timenotes.tn_id;';
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
+    FetchAll;
+    lvAthStats.Clear;
+    i := 1;
+    dtBesLapTime := Now;
+    while not(EOF) do begin
+      lItem := lvAthStats.Items.Add;
+      with lItem do begin
+        Caption := IntToStr(i);
+        strTIME_CURRENT := Fields[1].AsString;
+        dtLapTime := StrToTime(strTIME_CURRENT, fs) - StrToTime(strTIME_PREVIOUS, fs);
+        Data := Pointer(iORDINARY_LAP_FLAG);
+        // ищем лучший круг
+        if dtLapTime < dtBesLapTime then begin
+          dtBesLapTime := dtLapTime;
+          iBestLap := i;
+        end;
+        SubItems.Add(FormatDateTime(strTIMENOTE_FORMAT, dtLapTime));
+        // скорость на круге
+        if TRACK_LENGTH > 0 then begin
+          rLapSpeed := (3600 * TRACK_LENGTH / SecondsBetween(StrToTime(strTIME_CURRENT, fs),
+            StrToTime(strTIME_PREVIOUS, fs))) / 1000;
+        end
+        else rLapSpeed := 0;
+        strTIME_PREVIOUS := strTIME_CURRENT;
+        // определяем место на круге
+        with TIBQuery.Create(nil) do try
+          Database := DBase;
+          Transaction := DBTran;
+          SQL.Text := 'select registry.athlet_id, a.lap, a.timenote from ( '
+            + 'select platenumber, count(platenumber) as lap, max(timenote) '
+            + 'as timenote from (select platenumber, lap, timenote from (select tn_id, timenote, '
+            + 'platenumber, (select count(*) from timenotes b where (b.tn_id < a.tn_id) and '
+            + '(a.platenumber = b.platenumber) and (race_id = ' + IntToStr(RACE_ID)
+            + ')) + 1 as lap from timenotes a where (race_id = ' + IntToStr(RACE_ID)
+            + ')) where lap <= ' + IntToStr(i) + ' order by timenote) '
+            + 'group by platenumber order by count(platenumber) desc, max(timenote)) a, '
+            + 'registry where (a.platenumber = registry.platenumber) and '
+            + '(registry.race_id = ' + IntToStr(RACE_ID) + ') order by a.lap desc, a.timenote;';
+          LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+          Open;
+          FetchAll;
+          j := 1;
+          while Fields[0].AsInteger <> ATHLET_ID do begin
+            inc(j);
+            Next;
+          end;
+          SubItems.Add(IntToStr(j));
+        finally
+          Free;
+        end;
+        // проставляем прогресс
+        if i > 1 then begin
+          iShift := StrToInt(SubItems.Strings[1]) - StrToInt(lvAthStats.Items[i - 2].SubItems.Strings[1]);
+          if iShift = 0 then SubItems.Add('-');
+          if iShift > 0 then SubItems.Add('+' + IntToStr(iShift));
+          if iShift < 0 then SubItems.Add(IntToStr(iShift));
+        end
+        else SubItems.Add('-');
+        // скорость на круге
+        SubItems.Add(FloatToStrF(rLapSpeed,ffGeneral, 6, 3));
+      end;
+      Next;
+      inc(i);
+    end;
+    if iBestLap > 0 then lvAthStats.Items[iBestLap - 1].Data := Pointer(iBEST_LAP_FLAG);
+  finally
+    Free;
+  end;
+end;
+
+procedure TMainForm.lvAthStatsCustomDrawItem(Sender: TCustomListView;
+  Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  with Sender.Canvas do begin
+    if Integer(Item.Data) = iBEST_LAP_FLAG then Font.Style := [fsBold];
+  end;
+end;
+
+procedure TMainForm.lvAthStatsCustomDrawSubItem(Sender: TCustomListView;
+  Item: TListItem; SubItem: Integer; State: TCustomDrawState;
+  var DefaultDraw: Boolean);
+begin
+  with Sender.Canvas do begin
+    if Integer(Item.Data) = iBEST_LAP_FLAG then Font.Style := [fsBold];
   end;
 end;
 
