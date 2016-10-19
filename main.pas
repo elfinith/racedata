@@ -672,7 +672,8 @@ begin
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    SQL.Text := 'select events.event_date, events.name, races.name, races.race_id from athletes, races, events, '
+    SQL.Text := 'select events.event_date, events.name, races.name, races.race_id, '
+      + 'races.track_length, races.laps from athletes, races, events, '
       + 'registry where (athletes.athlet_id = ' + IntToStr(Integer(Item.Data))
       + ') and (athletes.athlet_id = registry.athlet_id) and (registry.race_id = races.race_id) '
       + 'and (races.event_id = events.event_id) and (races.status = ''' + strRACE_STATUS_FINISHED
@@ -687,6 +688,8 @@ begin
         Data := Pointer(Fields[3].AsInteger);
         SubItems.Add(Fields[1].AsString);
         SubItems.Add(Fields[2].AsString);
+        SubItems.Add(IntToStr(Fields[4].AsInteger));
+        SubItems.Add(IntToStr(Fields[5].AsInteger));
       end;
       Next;
     end;
@@ -694,7 +697,7 @@ begin
     Free;
   end;
   // выравнивание ширины колонок
-  for i := 0 to lvAthRaces.Columns.Count - 1 do begin
+  for i := 0 to lvAthRaces.Columns.Count - 3 do begin
     lvAthRaces.Columns[i].Width := ColumnTextWidth;
   end;
 end;
@@ -751,11 +754,11 @@ begin
           dtBesLapTime := dtLapTime;
           iBestLap := i;
         end;
-        SubItems.Add(FormatDateTime(strTIMENOTE_FORMAT, dtLapTime));
+        SubItems.Add(Copy(FormatDateTime(strTIMENOTE_FORMAT, dtLapTime), 1, 11));
         // скорость на круге
         if TRACK_LENGTH > 0 then begin
-          rLapSpeed := (3600 * TRACK_LENGTH / SecondsBetween(StrToTime(strTIME_CURRENT, fs),
-            StrToTime(strTIME_PREVIOUS, fs))) / 1000;
+          rLapSpeed := (3600 * TRACK_LENGTH / MilliSecondsBetween(StrToTime(strTIME_PREVIOUS, fs),
+            StrToTime(strTIME_CURRENT, fs)) * 1000) / 1000;
         end
         else rLapSpeed := 0;
         strTIME_PREVIOUS := strTIME_CURRENT;
@@ -794,7 +797,7 @@ begin
         end
         else SubItems.Add('-');
         // скорость на круге
-        SubItems.Add(FloatToStrF(rLapSpeed,ffGeneral, 6, 3));
+        SubItems.Add(FloatToStrF(rLapSpeed, ffGeneral, 4, 2));
       end;
       Next;
       inc(i);
