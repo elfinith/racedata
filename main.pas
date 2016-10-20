@@ -40,6 +40,7 @@ const
   strABSOLUTE = 'Абсолютный зачёт';
   strLAPSTOGO = ' кругов до финиша';
   strLASTLAP = 'Последний круг';
+  strFINISH = 'ФИНИШ';
   strEXEC_SQL = 'SQL: ';
 
   // розовый (св-т)
@@ -54,212 +55,210 @@ const
 type
   TMainForm = class(TForm)
     sSkinManager: TsSkinManager;
-    sPanel1: TsPanel;
-    sBitBtn2: TsBitBtn;
-    sBitBtn1: TsBitBtn;
-    sBitBtn3: TsBitBtn;
-    PageControl1: TSPageControl;
+    pnlMainMenu: TsPanel;
+    btnEvents: TsBitBtn;
+    btnAthletes: TsBitBtn;
+    btnRegistration: TsBitBtn;
+    pcMain: TSPageControl;
     tsRegistration: TSTabSheet;
     tsEvent: TSTabSheet;
     tsStart: TSTabSheet;
-    sListBox1: TsListBox;
-    sBitBtn4: TsBitBtn;
-    sLabelFX1: TsLabelFX;
-    sPanel2: TsPanel;
-    sEdit1: TsEdit;
-    sLabel2: TsLabel;
-    sLabel1: TsLabel;
-    DateTimePicker1: TSDateEdit;
-    sBitBtn6: TsBitBtn;
-    sBitBtn7: TsBitBtn;
-    sBitBtn5: TsBitBtn;
-    sBitBtn8: TsBitBtn;
+    lbEvents: TsListBox;
+    btnEventNew: TsBitBtn;
+    lblDateEvent: TsLabelFX;
+    pnlEvent: TsPanel;
+    eEventName: TsEdit;
+    lblEventName: TsLabel;
+    lblEventDate: TsLabel;
+    dtpEvent: TSDateEdit;
+    btnEventDelete: TsBitBtn;
+    btnEventEdit: TsBitBtn;
+    btnEventSave: TsBitBtn;
+    btnEventClose: TsBitBtn;
     DBase: TIBDatabase;
     DBTran: TIBTransaction;
-    sPanel4: TsPanel;
-    sBitBtn11: TsBitBtn;
-    sBitBtn10: TsBitBtn;
-    sBitBtn9: TsBitBtn;
-    sListBox2: TsListBox;
-    sLabelFX2: TsLabelFX;
-    sPanel3: TsPanel;
-    sLabel5: TsLabel;
-    sLabel4: TsLabel;
-    sLabel3: TsLabel;
-    sEdit4: TsEdit;
-    sEdit2: TsEdit;
-    sEdit3: TsEdit;
-    sBitBtn13: TsBitBtn;
-    sBitBtn12: TsBitBtn;
-    sBitBtn14: TsBitBtn;
-    sBitBtn15: TsBitBtn;
-    sCheckListBox1: TsCheckListBox;
+    pnlEventRaces: TsPanel;
+    btnRaceDelete: TsBitBtn;
+    btnRaceEdit: TsBitBtn;
+    btnRaceNew: TsBitBtn;
+    lbEventRaces: TsListBox;
+    lblEventRaces: TsLabelFX;
+    pnlRace: TsPanel;
+    lblRaceLaps: TsLabel;
+    lblRaceTrackLength: TsLabel;
+    lblRaceName: TsLabel;
+    eRaceLaps: TsEdit;
+    eRaceName: TsEdit;
+    eRaceTrackLength: TsEdit;
+    btnRaceClose: TsBitBtn;
+    btnRaceSave: TsBitBtn;
+    btnStart: TsBitBtn;
+    btnAthletNew: TsBitBtn;
+    chlbRaces: TsCheckListBox;
     sComboBox1: TsComboBox;
-    sLabelFX3: TsLabelFX;
-    sLabel6: TsLabel;
-    sComboBox2: TsComboBox;
-    sLabel7: TsLabel;
-    sBitBtn17: TsBitBtn;
-    sEdit5: TsEdit;
-    sCheckBox1: TsCheckBox;
-    sCheckBox2: TsCheckBox;
-    sLabel8: TsLabel;
-    sBitBtn18: TsBitBtn;
-    sLabelFX4: TsLabelFX;
-    ListView1: TSListView;
-    sLabel9: TsLabel;
-    sLabel10: TsLabel;
-    DateTimePicker2: TSDateEdit;
-    sLabel11: TsLabel;
-    sEdit6: TsEdit;
-    sEdit7: TsEdit;
-    sLabel12: TsLabel;
-    sBitBtn16: TsBitBtn;
-    sEdit8: TsEdit;
-    sBitBtn19: TsBitBtn;
+    lblRegisterEventName: TsLabelFX;
+    lblRegisterRaces: TsLabel;
+    cbRegisterNumberplate: TsComboBox;
+    lblRegisterPlatenumber: TsLabel;
+    btnSettings: TsBitBtn;
+    eAthletName: TsEdit;
+    chbSexMale: TsCheckBox;
+    chbSexFemale: TsCheckBox;
+    lblRegisterAthletName: TsLabel;
+    btnRegister: TsBitBtn;
+    lblRegisteredList: TsLabelFX;
+    lvRegistered: TSListView;
+    lblRegisterSex: TsLabel;
+    lblAthletBirthdate: TsLabel;
+    dtpAthlet: TSDateEdit;
+    lblTeam: TsLabel;
+    eTeam: TsEdit;
+    eCity: TsEdit;
+    lblCity: TsLabel;
+    btnFindAthlet: TsBitBtn;
+    eAthletSearch: TsEdit;
+    btnAthletSearch: TsBitBtn;
     PopupMenu1: TPopupMenu;
     sSkinProvider: TsSkinProvider;
     PopupMenu2: TPopupMenu;
     N1: TMenuItem;
     ImageList1: TImageList;
-    sLabelFX5: TsLabelFX;
-    sComboBox3: TsComboBox;
-    sComboBox4: TsComboBox;
-    sLabel13: TsLabel;
+    lblEvent: TsLabelFX;
+    cbEvent: TsComboBox;
+    cbRace: TsComboBox;
+    lblRace: TsLabel;
     tsAthletes: TSTabSheet;
     tsSettings: TSTabSheet;
     Timer: TTimer;
-    sBitBtn25: TsBitBtn;
+    btnDropAllTimenotes: TsBitBtn;
     pmRPMenu: TPopupMenu;
     N2: TMenuItem;
     N3: TMenuItem;
     N4: TMenuItem;
-    sLabelFX7: TsLabelFX;
+    lblCGList: TsLabelFX;
     lvCompGroups: TSListView;
-    sBitBtn28: TsBitBtn;
-    sBitBtn29: TsBitBtn;
-    sPanel9: TsPanel;
-    sCheckBox6: TsCheckBox;
-    sEdit11: TsEdit;
-    sEdit9: TsEdit;
-    sCheckBox5: TsCheckBox;
-    sLabel15: TsLabel;
-    sCheckBox4: TsCheckBox;
-    sCheckBox3: TsCheckBox;
-    sLabel16: TsLabel;
-    sBitBtn30: TsBitBtn;
-    sBitBtn31: TsBitBtn;
-    sEdit12: TsEdit;
-    sLabel18: TsLabel;
+    btnCGNew: TsBitBtn;
+    btnCGDelete: TsBitBtn;
+    pnlCGEdit: TsPanel;
+    chbCGAgeMax: TsCheckBox;
+    eCGAgeMax: TsEdit;
+    eCGAgeMin: TsEdit;
+    chbCGAgeMin: TsCheckBox;
+    lblCGAge: TsLabel;
+    chbCGFemale: TsCheckBox;
+    chbCGMale: TsCheckBox;
+    lblCGSex: TsLabel;
+    btnCGSave: TsBitBtn;
+    btnCGClose: TsBitBtn;
+    eCGLaps: TsEdit;
+    lblCGLabs: TsLabel;
     spRace: TsPanel;
-    PageControl2: TSPageControl;
+    pcStart: TSPageControl;
     tsStartPrep: TSTabSheet;
-    sLabel14: TsLabel;
-    sLabelFX6: TsLabelFX;
-    sCheckListBox2: TsCheckListBox;
-    sBitBtn20: TsBitBtn;
-    sBitBtn21: TsBitBtn;
-    sBitBtn32: TsBitBtn;
+    lblAthletes: TsLabel;
+    lblRaceStatus: TsLabelFX;
+    chlbAthletes: TsCheckListBox;
+    btnRaceConfirm: TsBitBtn;
+    btnRaceStart: TsBitBtn;
+    btnRaceResults: TsBitBtn;
     tsRacePanel: TSTabSheet;
     spNumbersPanel: TsPanel;
     tsRaceResults: TSTabSheet;
-    sLabel17: TsLabel;
-    sComboBox6: TsComboBox;
+    lblResultsCG: TsLabel;
+    cbResultsCG: TsComboBox;
     lvResults: TSListView;
-    sBitBtn33: TsBitBtn;
-    sBitBtn34: TsBitBtn;
+    btnResultsPrint: TsBitBtn;
+    btnResultsSave: TsBitBtn;
     spRacePanel: TsPanel;
     sTimerLabel: TsLabel;
-    sBitBtn22: TsBitBtn;
-    sBitBtn23: TsBitBtn;
-    sBitBtn24: TsBitBtn;
-    ListView2: TSListView;
-    sPanel7: TsPanel;
-    sBitBtn26: TsBitBtn;
-    sBitBtn27: TsBitBtn;
-    sEdit10: TsEdit;
-    sComboBox5: TsComboBox;
+    btnStpwtchStart: TsBitBtn;
+    btnStpwtchFinish: TsBitBtn;
+    lvRacePanel: TSListView;
+    pnlTimenote: TsPanel;
+    btnTimenoteOK: TsBitBtn;
+    btnTimenoteCancel: TsBitBtn;
+    eTimenote: TsEdit;
+    cbTimenotePlatenumber: TsComboBox;
     spbResults: TsProgressBar;
     lvAthletes: TsListView;
     sSplitter1: TsSplitter;
-    sPanel5: TsPanel;
-    sLabelFX8: TsLabelFX;
+    pnlAthletStats: TsPanel;
+    lblAthletRaces: TsLabelFX;
     lvAthRaces: TsListView;
-    sComboBox7: TsComboBox;
-    sLabel19: TsLabel;
+    cbLogLevel: TsComboBox;
+    lblLogLevel: TsLabel;
     lvAthStats: TsListView;
-    sLabel20: TsLabel;
-    procedure sBitBtn3Click(Sender: TObject);
-    procedure sBitBtn2Click(Sender: TObject);
-    procedure sBitBtn1Click(Sender: TObject);
-    procedure sBitBtn4Click(Sender: TObject);
-    procedure sBitBtn7Click(Sender: TObject);
-    procedure sBitBtn8Click(Sender: TObject);
-    procedure sBitBtn5Click(Sender: TObject);
+    lblAthletRaceStats: TsLabel;
+    procedure btnRegistrationClick(Sender: TObject);
+    procedure btnEventsClick(Sender: TObject);
+    procedure btnAthletesClick(Sender: TObject);
+    procedure btnEventNewClick(Sender: TObject);
+    procedure btnEventEditClick(Sender: TObject);
+    procedure btnEventCloseClick(Sender: TObject);
+    procedure btnEventSaveClick(Sender: TObject);
     procedure tsEventShow(Sender: TObject);
-    procedure sBitBtn9Click(Sender: TObject);
-    procedure sBitBtn12Click(Sender: TObject);
-    procedure sBitBtn13Click(Sender: TObject);
-    procedure sListBox1Enter(Sender: TObject);
-    procedure sBitBtn10Click(Sender: TObject);
-    procedure sBitBtn11Click(Sender: TObject);
-    procedure sBitBtn6Click(Sender: TObject);
+    procedure btnRaceNewClick(Sender: TObject);
+    procedure btnRaceSaveClick(Sender: TObject);
+    procedure btnRaceCloseClick(Sender: TObject);
+    procedure lbEventsEnter(Sender: TObject);
+    procedure btnRaceEditClick(Sender: TObject);
+    procedure btnRaceDeleteClick(Sender: TObject);
+    procedure btnEventDeleteClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure tsRegistrationShow(Sender: TObject);
     procedure sComboBox1Change(Sender: TObject);
-    procedure sCheckBox2Click(Sender: TObject);
-    procedure sCheckBox1Click(Sender: TObject);
-    procedure sBitBtn18Click(Sender: TObject);
-    procedure sBitBtn15Click(Sender: TObject);
-    procedure sBitBtn16Click(Sender: TObject);
-    procedure sEdit8Change(Sender: TObject);
-    procedure sBitBtn19Click(Sender: TObject);
-    procedure sEdit8KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure sListBox1DblClick(Sender: TObject);
+    procedure chbSexFemaleClick(Sender: TObject);
+    procedure chbSexMaleClick(Sender: TObject);
+    procedure btnRegisterClick(Sender: TObject);
+    procedure btnAthletNewClick(Sender: TObject);
+    procedure btnFindAthletClick(Sender: TObject);
+    procedure eAthletSearchChange(Sender: TObject);
+    procedure btnAthletSearchClick(Sender: TObject);
+    procedure eAthletSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure lbEventsDblClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure N1Click(Sender: TObject);
-    procedure sBitBtn14Click(Sender: TObject);
-    procedure sComboBox3Change(Sender: TObject);
-    procedure sBitBtn20Click(Sender: TObject);
-    procedure sComboBox4Change(Sender: TObject);
-    procedure sBitBtn21Click(Sender: TObject);
+    procedure btnStartClick(Sender: TObject);
+    procedure cbEventChange(Sender: TObject);
+    procedure btnRaceConfirmClick(Sender: TObject);
+    procedure cbRaceChange(Sender: TObject);
+    procedure btnRaceStartClick(Sender: TObject);
     procedure spNumbersPanelResize(Sender: TObject);
-    procedure sBitBtn22Click(Sender: TObject);
-    procedure sBitBtn24Click(Sender: TObject);
-    procedure ListView2CustomDraw(Sender: TCustomListView; const ARect: TRect;
+    procedure btnStpwtchStartClick(Sender: TObject);
+    procedure lvRacePanelCustomDraw(Sender: TCustomListView; const ARect: TRect;
       var DefaultDraw: Boolean);
-    procedure ListView2CustomDrawItem(Sender: TCustomListView; Item: TListItem;
+    procedure lvRacePanelCustomDrawItem(Sender: TCustomListView; Item: TListItem;
       State: TCustomDrawState; var DefaultDraw: Boolean);
-    procedure ListView2CustomDrawSubItem(Sender: TCustomListView;
+    procedure lvRacePanelCustomDrawSubItem(Sender: TCustomListView;
       Item: TListItem; SubItem: Integer; State: TCustomDrawState;
       var DefaultDraw: Boolean);
-    procedure sBitBtn23Click(Sender: TObject);
-    procedure sBitBtn17Click(Sender: TObject);
+    procedure btnStpwtchFinishClick(Sender: TObject);
+    procedure btnSettingsClick(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
-    procedure sBitBtn25Click(Sender: TObject);
+    procedure btnDropAllTimenotesClick(Sender: TObject);
     procedure N2Click(Sender: TObject);
-    procedure sBitBtn27Click(Sender: TObject);
+    procedure btnTimenoteCancelClick(Sender: TObject);
     procedure N3Click(Sender: TObject);
     procedure N4Click(Sender: TObject);
-    procedure sBitBtn26Click(Sender: TObject);
-    procedure sBitBtn28Click(Sender: TObject);
-    procedure sBitBtn30Click(Sender: TObject);
-    procedure sBitBtn31Click(Sender: TObject);
-    procedure sCheckBox3Click(Sender: TObject);
-    procedure sCheckBox4Click(Sender: TObject);
-    procedure sCheckBox5Click(Sender: TObject);
-    procedure sCheckBox6Click(Sender: TObject);
-    procedure sBitBtn29Click(Sender: TObject);
-    procedure sBitBtn32Click(Sender: TObject);
+    procedure btnTimenoteOKClick(Sender: TObject);
+    procedure btnCGNewClick(Sender: TObject);
+    procedure btnCGSaveClick(Sender: TObject);
+    procedure btnCGCloseClick(Sender: TObject);
+    procedure chbCGMaleClick(Sender: TObject);
+    procedure chbCGFemaleClick(Sender: TObject);
+    procedure chbCGAgeMinClick(Sender: TObject);
+    procedure chbCGAgeMaxClick(Sender: TObject);
+    procedure btnCGDeleteClick(Sender: TObject);
+    procedure btnRaceResultsClick(Sender: TObject);
     procedure tsRaceResultsShow(Sender: TObject);
-    procedure sComboBox6Change(Sender: TObject);
+    procedure cbResultsCGChange(Sender: TObject);
     procedure tsStartPrepShow(Sender: TObject);
     procedure tsRacePanelShow(Sender: TObject);
     procedure tsAthletesShow(Sender: TObject);
     procedure sSkinManagerAfterChange(Sender: TObject);
     procedure lvAthletesSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
-    procedure sComboBox7Change(Sender: TObject);
+    procedure cbLogLevelChange(Sender: TObject);
     procedure tsSettingsShow(Sender: TObject);
     procedure lvAthRacesSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
@@ -399,7 +398,7 @@ var
   PLATENUMBER, RACE_ID, LAST_TN_ID : integer;
 begin
   // проверяем стартовал ли заезд
-  if not(sBitBtn22.Enabled) then begin
+  if not(btnStpwtchStart.Enabled) then begin
     PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
     RACE_ID := TFreeButton(Sender).Tag;
     with TIBQuery.Create(nil) do try
@@ -441,7 +440,7 @@ var
   strTIME_START : string;
   lItem : TListItem;
 begin
-  ListView2.Clear;
+  lvRacePanel.Clear;
   // берём RACE_ID из sspNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
   with TIBQuery.Create(nil) do try
@@ -453,15 +452,15 @@ begin
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     if RecordCount > 0 then begin
-      sBitBtn22.Enabled := false;
+      btnStpwtchStart.Enabled := false;
       strTIME_START := Fields[0].AsString;
       TIME_START := StrToTime(strTIME_START, fs);
-      sBitBtn22.Caption := 'Время старта: ' + Copy(strTIME_START, 1, 11);
+      btnStpwtchStart.Caption := 'Время старта: ' + Copy(strTIME_START, 1, 11);
 //      Timer.Enabled := true;
     end
     else begin
-      sBitBtn22.Enabled := true;
-      sBitBtn22.Caption := 'СТАРТ';
+      btnStpwtchStart.Enabled := true;
+      btnStpwtchStart.Caption := 'СТАРТ';
     end;
     // времена засечек
     Close;
@@ -477,7 +476,7 @@ begin
       PLATENUMBER := Fields[2].AsInteger;
       TIMENOTE := StrToTime(Fields[3].AsString, fs);
       RACETIME := TIMENOTE - TIME_START;
-      lItem := ListView2.Items.Add;
+      lItem := lvRacePanel.Items.Add;
       with lItem do begin
         // сохраняем TN_ID в Item.Data
         Data := Pointer(TN_ID);
@@ -502,7 +501,7 @@ begin
       Next;
     end;
     // проставляем позиции
-    with ListView2.Items do begin
+    with lvRacePanel.Items do begin
       if Count <> 0 then begin
         iPosCnt := 1;
         Item[0].SubItems.Add('1');
@@ -527,26 +526,26 @@ begin
     end; // with ListView2.Items
     // выравнивание ширины колонок, подгонка ширины панели по колонкам
     iPanelWidth := 0;
-    for i := 0 to ListView2.Columns.Count - 2 do begin
-      ListView2.Columns[i].Width := ColumnHeaderWidth;
-      iPanelWidth := iPanelWidth + ListView2.Columns[i].Width;
+    for i := 0 to lvRacePanel.Columns.Count - 2 do begin
+      lvRacePanel.Columns[i].Width := ColumnHeaderWidth;
+      iPanelWidth := iPanelWidth + lvRacePanel.Columns[i].Width;
     end;
-    iPanelWidth := iPanelWidth + ListView2.Columns[ListView2.Columns.Count - 1].Width;
-    if ScrollBarVisible(ListView2.Handle, WS_VSCROLL) then
+    iPanelWidth := iPanelWidth + lvRacePanel.Columns[lvRacePanel.Columns.Count - 1].Width;
+    if ScrollBarVisible(lvRacePanel.Handle, WS_VSCROLL) then
       ScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL)
     else ScrollBarWidth := 0;
-    spRacePanel.Width := iPanelWidth + ScrollBarWidth + ListView2.Columns.Count;
+    spRacePanel.Width := iPanelWidth + ScrollBarWidth + lvRacePanel.Columns.Count;
     // прокрутка в конец
-    SendMessage(ListView2.Handle, WM_VSCROLL, SB_BOTTOM, 0);
+    SendMessage(lvRacePanel.Handle, WM_VSCROLL, SB_BOTTOM, 0);
   finally
     Free;
   end;
   // выводим сколько кругов осталось
-  iLapsToGo := sBitBtn23.Tag - iLapsCompleted;
-  if iLapsToGo > 1 then sBitBtn23.Caption :=
-    IntToStr(sBitBtn23.Tag - iLapsCompleted) + strLAPSTOGO;
-  if iLapsToGo = 1 then sBitBtn23.Caption := strLASTLAP;
-  if iLapsToGo < 1 then sBitBtn23.Caption := 'ФИНИШ';
+  iLapsToGo := btnStpwtchFinish.Tag - iLapsCompleted;
+  if iLapsToGo > 1 then btnStpwtchFinish.Caption :=
+    IntToStr(btnStpwtchFinish.Tag - iLapsCompleted) + strLAPSTOGO;
+  if iLapsToGo = 1 then btnStpwtchFinish.Caption := strLASTLAP;
+  if iLapsToGo < 1 then btnStpwtchFinish.Caption := strFINISH;
   // снимаем флаг процесса обновления
   bDoRacePanelRefresh := false;
 end;
@@ -600,7 +599,7 @@ begin
         Name := strPLATENUMBER_FONT_NAME;
       end;
       // сохраняем RACE_ID в Tag кнопки
-      Tag := sCheckListBox2.Tag;
+      Tag := chlbAthletes.Tag;
       onClick := OnPlateNumberClick;
 //      Show;
     end;
@@ -608,16 +607,16 @@ begin
   spNumbersPanel.Show;
 end;
 
-procedure TMainForm.ListView2CustomDraw(Sender: TCustomListView;
+procedure TMainForm.lvRacePanelCustomDraw(Sender: TCustomListView;
   const ARect: TRect; var DefaultDraw: Boolean);
 begin
-  with ListView2.Canvas do begin
+  with lvRacePanel.Canvas do begin
 //    Brush.Color := clLinen;
 //    FillRect(ARect);
   end;
 end;
 
-procedure TMainForm.ListView2CustomDrawItem(Sender: TCustomListView;
+procedure TMainForm.lvRacePanelCustomDrawItem(Sender: TCustomListView;
   Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
 begin
   with Sender.Canvas do begin
@@ -639,7 +638,7 @@ begin
   end;
 end;
 
-procedure TMainForm.ListView2CustomDrawSubItem(Sender: TCustomListView;
+procedure TMainForm.lvRacePanelCustomDrawSubItem(Sender: TCustomListView;
   Item: TListItem; SubItem: Integer; State: TCustomDrawState;
   var DefaultDraw: Boolean);
 begin
@@ -830,10 +829,10 @@ var
   strRaceName, strAthletName, strAthletBirthDate : string;
   EVENT_ID, RACE_ID, ATHLET_ID : integer;
 begin
-  EVENT_ID := sCheckListBox1.Tag;
-  strRaceName := ListView1.Items[ListView1.ItemIndex].Caption;
-  strAthletName := ListView1.Items[ListView1.ItemIndex].SubItems[1];
-  strAthletBirthDate := ListView1.Items[ListView1.ItemIndex].SubItems[2];
+  EVENT_ID := chlbRaces.Tag;
+  strRaceName := lvRegistered.Items[lvRegistered.ItemIndex].Caption;
+  strAthletName := lvRegistered.Items[lvRegistered.ItemIndex].SubItems[1];
+  strAthletBirthDate := lvRegistered.Items[lvRegistered.ItemIndex].SubItems[2];
   if RusMessageDialog('Отменить регистрацию ' + strAthletName + ' на ' + strRaceName + '?',
     mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
   then begin
@@ -876,7 +875,7 @@ procedure TMainForm.N2Click(Sender: TObject);
 var
   TN_ID : integer;
 begin
-  TN_ID := Integer(ListView2.Items[ListView2.ItemIndex].Data);
+  TN_ID := Integer(lvRacePanel.Items[lvRacePanel.ItemIndex].Data);
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -905,15 +904,15 @@ begin
     Free;
   end;
   // подставляем текущее время (чтоб было удобнее менять)
-  sEdit10.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT, Now() - TIME_START),1,11);
+  eTimenote.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT, Now() - TIME_START),1,11);
   // сохраняем TN_ID в sPanel7.Tag
-  sPanel7.Tag := TN_ID;
+  pnlTimenote.Tag := TN_ID;
   // номера
-  sComboBox5.Clear;
-  for i := 0 to RaceNumbers.Count - 1 do sComboBox5.Items.Add(RaceNumbers[i]);
-  sEdit10.Enabled := true;
-  sComboBox5.DroppedDown := false;
-  sPanel7.Show;
+  cbTimenotePlatenumber.Clear;
+  for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
+  eTimenote.Enabled := true;
+  cbTimenotePlatenumber.DroppedDown := false;
+  pnlTimenote.Show;
 end;
 
 procedure TMainForm.N4Click(Sender: TObject);
@@ -921,19 +920,19 @@ var
   i : integer;
 begin
   // сохраняем TN_ID в sPanel7.Tag
-  sPanel7.Tag := Integer(ListView2.Items[ListView2.ItemIndex].Data);
+  pnlTimenote.Tag := Integer(lvRacePanel.Items[lvRacePanel.ItemIndex].Data);
   // номера
-  sComboBox5.Clear;
-  for i := 0 to RaceNumbers.Count - 1 do sComboBox5.Items.Add(RaceNumbers[i]);
-  sComboBox5.Text := ListView2.Items[ListView2.ItemIndex].SubItems.Strings[0];
-  sEdit10.Text := ListView2.Items[ListView2.ItemIndex].Caption;
-  sEdit10.Enabled := false;
-  sPanel7.Show;
-  sComboBox5.SetFocus;
-  sComboBox5.DroppedDown := true;
+  cbTimenotePlatenumber.Clear;
+  for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
+  cbTimenotePlatenumber.Text := lvRacePanel.Items[lvRacePanel.ItemIndex].SubItems.Strings[0];
+  eTimenote.Text := lvRacePanel.Items[lvRacePanel.ItemIndex].Caption;
+  eTimenote.Enabled := false;
+  pnlTimenote.Show;
+  cbTimenotePlatenumber.SetFocus;
+  cbTimenotePlatenumber.DroppedDown := true;
 end;
 
-procedure TMainForm.sBitBtn10Click(Sender: TObject);
+procedure TMainForm.btnRaceEditClick(Sender: TObject);
 var
   i : integer;
   lItem : TListItem;
@@ -942,25 +941,25 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select race_id,name,laps,track_length from races where event_id='
-      + IntToStr(sPanel2.Tag) + ';';
+      + IntToStr(pnlEvent.Tag) + ';';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     First;
     i := 0;
-    while sListBox2.ItemIndex > i do begin
+    while lbEventRaces.ItemIndex > i do begin
       Next;
       inc(i);
     end;
     // race_id храним в sPanel3.Tag
-    sPanel3.Tag := Fields[0].AsInteger;
-    sEdit2.Text := Fields[1].AsString;
-    sEdit3.Text := Fields[3].AsString;
-    sEdit4.Text := Fields[2].AsString;
+    pnlRace.Tag := Fields[0].AsInteger;
+    eRaceName.Text := Fields[1].AsString;
+    eRaceTrackLength.Text := Fields[3].AsString;
+    eRaceLaps.Text := Fields[2].AsString;
     // загрузка зачётов
     Close;
     SQL.Text := 'select cg_id,sex,agemin,agemax,laps from comp_groups where race_id='
-      + IntToStr(sPanel3.Tag) + ';';
+      + IntToStr(pnlRace.Tag) + ';';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
@@ -982,23 +981,23 @@ begin
   finally
     Free;
   end;
-  sListBox2.Enabled := false;
-  sBitBtn9.Enabled := false;
-  sBitBtn11.Enabled := false;
-  sBitBtn5.Enabled := false;
-  sBitBtn8.Enabled := false;
-  sEdit1.Enabled := false;
-  DateTimePicker1.Enabled := false;
-  sPanel3.Show;
+  lbEventRaces.Enabled := false;
+  btnRaceNew.Enabled := false;
+  btnRaceDelete.Enabled := false;
+  btnEventSave.Enabled := false;
+  btnEventClose.Enabled := false;
+  eEventName.Enabled := false;
+  dtpEvent.Enabled := false;
+  pnlRace.Show;
 end;
 
-procedure TMainForm.sBitBtn11Click(Sender: TObject);
+procedure TMainForm.btnRaceDeleteClick(Sender: TObject);
 var
   i, RACE_ID : integer;
   bClear : boolean;
 begin
-  if sListBox2.ItemIndex <> -1 then begin
-    if MessageDlg('Удалить заезд "' + sListBox2.Items.Strings[sListBox2.ItemIndex]
+  if lbEventRaces.ItemIndex <> -1 then begin
+    if MessageDlg('Удалить заезд "' + lbEventRaces.Items.Strings[lbEventRaces.ItemIndex]
         + '"?', mtConfirmation, [mbyes, mbno], 0) = mryes then with TIBSQL.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
@@ -1007,13 +1006,13 @@ begin
         Database := DBase;
         Transaction := DBTran;
         SQL.Text := 'select race_id,name,laps,track_length,status from races where event_id='
-          + IntToStr(sPanel2.Tag) + ';';
+          + IntToStr(pnlEvent.Tag) + ';';
         Open;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
         FetchAll;
         First;
         i := 0;
-        while sListBox2.ItemIndex > i do begin
+        while lbEventRaces.ItemIndex > i do begin
           Next;
           inc(i);
         end;
@@ -1028,61 +1027,61 @@ begin
       Free;
     end;
     // refresh
-    sBitBtn7Click(Self);
+    btnEventEditClick(Self);
   end
   else ShowMessage(strRACE_NOT_DELECTED);
 end;
 
-procedure TMainForm.sBitBtn12Click(Sender: TObject);
+procedure TMainForm.btnRaceSaveClick(Sender: TObject);
 begin
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
     // если создать
-    if sPanel3.Tag = 0 then SQL.Text := 'insert into races(race_id,event_id,name,laps,track_length) '
-      + 'values((select max(race_id) from races) + 1,' + IntToStr(sPanel2.Tag) + ','''
-      + sEdit2.Text + ''',' + sEdit4.Text + ',' + sEdit3.Text +  ');'
+    if pnlRace.Tag = 0 then SQL.Text := 'insert into races(race_id,event_id,name,laps,track_length) '
+      + 'values((select max(race_id) from races) + 1,' + IntToStr(pnlEvent.Tag) + ','''
+      + eRaceName.Text + ''',' + eRaceLaps.Text + ',' + eRaceTrackLength.Text +  ');'
     // если изменить
-    else SQL.Text := 'update races set name=''' + sEdit2.Text + ''',laps='
-      + sEdit4.Text + ',track_length=' + sEdit3.Text + ' where race_id=' + IntToStr(sPanel3.Tag) + ';';
+    else SQL.Text := 'update races set name=''' + eRaceName.Text + ''',laps='
+      + eRaceLaps.Text + ',track_length=' + eRaceTrackLength.Text + ' where race_id=' + IntToStr(pnlRace.Tag) + ';';
     ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    sPanel3.Hide;
+    pnlRace.Hide;
   finally
     Free;
   end;
-  sBitBtn5.Enabled := true;
-  sBitBtn8.Enabled := true;
-  sBitBtn9.Enabled := true;
-  sBitBtn10.Enabled := true;
-  sBitBtn11.Enabled := true;
-  sListBox2.Enabled := true;
-  sEdit1.Enabled := true;
-  DateTimePicker1.Enabled := true;
+  btnEventSave.Enabled := true;
+  btnEventClose.Enabled := true;
+  btnRaceNew.Enabled := true;
+  btnRaceEdit.Enabled := true;
+  btnRaceDelete.Enabled := true;
+  lbEventRaces.Enabled := true;
+  eEventName.Enabled := true;
+  dtpEvent.Enabled := true;
   // refresh
-  sBitBtn7Click(Self);
+  btnEventEditClick(Self);
 end;
 
-procedure TMainForm.sBitBtn13Click(Sender: TObject);
+procedure TMainForm.btnRaceCloseClick(Sender: TObject);
 begin
-  sPanel3.Hide;
-  sBitBtn5.Enabled := true;
-  sBitBtn8.Enabled := true;
-  sBitBtn9.Enabled := true;
-  sBitBtn10.Enabled := true;
-  sBitBtn11.Enabled := true;
-  sListBox2.Enabled := true;
-  sEdit1.Enabled := true;
-  DateTimePicker1.Enabled := true;
+  pnlRace.Hide;
+  btnEventSave.Enabled := true;
+  btnEventClose.Enabled := true;
+  btnRaceNew.Enabled := true;
+  btnRaceEdit.Enabled := true;
+  btnRaceDelete.Enabled := true;
+  lbEventRaces.Enabled := true;
+  eEventName.Enabled := true;
+  dtpEvent.Enabled := true;
 end;
 
-procedure TMainForm.sBitBtn14Click(Sender: TObject);
+procedure TMainForm.btnStartClick(Sender: TObject);
 var
   i, EVENT_ID : integer;
 begin
   if tsRegistration.Visible then begin
     // Если прееход с регистрации
-    EVENT_ID := sCheckListBox1.Tag;
+    EVENT_ID := chlbRaces.Tag;
   end;
   if tsEvent.Visible then begin
     // Если переход со списка соревнований
@@ -1095,7 +1094,7 @@ begin
       FetchAll;
       First;
       i := 0;
-      while sListBox1.ItemIndex > i do begin
+      while lbEvents.ItemIndex > i do begin
         Next;
         inc(i);
       end;
@@ -1116,7 +1115,7 @@ begin
       FetchAll;
       First;
       i := 0;
-      while sComboBox3.ItemIndex > i do begin
+      while cbEvent.ItemIndex > i do begin
         Next;
         inc(i);
       end;
@@ -1128,7 +1127,7 @@ begin
   end;
 
   // сохраняем event_id в sComboBox4.Tag
-  sComboBox4.Tag := EVENT_ID;
+  cbRace.Tag := EVENT_ID;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1138,12 +1137,12 @@ begin
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     First;
-    sComboBox3.Items.Clear;
+    cbEvent.Items.Clear;
     i := 0;
     while not(EOF) do begin
-      sComboBox3.Items.Add(Fields[2].AsString);
+      cbEvent.Items.Add(Fields[2].AsString);
       // выбранное мероприятие
-      if Fields[0].AsInteger = EVENT_ID then sComboBox3.ItemIndex := i;
+      if Fields[0].AsInteger = EVENT_ID then cbEvent.ItemIndex := i;
       inc(i);
       Next;
     end;
@@ -1153,16 +1152,16 @@ begin
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
-    sComboBox4.Items.Clear;
+    cbRace.Items.Clear;
     while not(EOF) do begin
-      sComboBox4.Items.Add(Fields[3].AsString);
+      cbRace.Items.Add(Fields[3].AsString);
       Next;
     end;
-    if sComboBox4.Items.Count > 0 then begin
-      sComboBox4.ItemIndex := 0;
+    if cbRace.Items.Count > 0 then begin
+      cbRace.ItemIndex := 0;
       spRacePanel.Show;
       // refresh
-      sComboBox4Change(Self);
+      cbRaceChange(Self);
     end
     else spRacePanel.Hide;
   finally
@@ -1170,49 +1169,49 @@ begin
   end;
 
   tsStart.Show;
-  PageControl2.ActivePage := tsStartPrep;
-  sBitBtn1.Font.Style := [];
-  sBitBtn2.Font.Style := [];
-  sBitBtn3.Font.Style := [];
-  sBitBtn14.Font.Style := [fsBold];
-  sBitBtn17.Font.Style := [];
+  pcStart.ActivePage := tsStartPrep;
+  btnAthletes.Font.Style := [];
+  btnEvents.Font.Style := [];
+  btnRegistration.Font.Style := [];
+  btnStart.Font.Style := [fsBold];
+  btnSettings.Font.Style := [];
 end;
 
-procedure TMainForm.sBitBtn15Click(Sender: TObject);
+procedure TMainForm.btnAthletNewClick(Sender: TObject);
 begin
-  sEdit5.Tag := 0;
-  sEdit5.Clear;
-  sEdit6.Clear;
-  sEdit6.Clear;
-  sCheckBox1.Checked := true;
-  sCheckBox2.Checked := false;
-  DateTimePicker2.Date := Now;
-  sEdit5.ReadOnly := false;
-  sEdit6.ReadOnly := false;
-  sEdit7.ReadOnly := false;
-  sEdit8.Hide;
-  sBitBtn19.Hide;
+  eAthletName.Tag := 0;
+  eAthletName.Clear;
+  eTeam.Clear;
+  eTeam.Clear;
+  chbSexMale.Checked := true;
+  chbSexFemale.Checked := false;
+  dtpAthlet.Date := Now;
+  eAthletName.ReadOnly := false;
+  eTeam.ReadOnly := false;
+  eCity.ReadOnly := false;
+  eAthletSearch.Hide;
+  btnAthletSearch.Hide;
 end;
 
-procedure TMainForm.sBitBtn16Click(Sender: TObject);
+procedure TMainForm.btnFindAthletClick(Sender: TObject);
 begin
-  sEdit8.Text := '';
-  sEdit8.Show;
-  sBitBtn19.Show;
-  sEdit8.SetFocus;
+  eAthletSearch.Text := '';
+  eAthletSearch.Show;
+  btnAthletSearch.Show;
+  eAthletSearch.SetFocus;
 end;
 
-procedure TMainForm.sBitBtn17Click(Sender: TObject);
+procedure TMainForm.btnSettingsClick(Sender: TObject);
 begin
-  sBitBtn1.Font.Style := [];
-  sBitBtn2.Font.Style := [];
-  sBitBtn3.Font.Style := [];
-  sBitBtn14.Font.Style := [];
-  sBitBtn17.Font.Style := [fsBold];
+  btnAthletes.Font.Style := [];
+  btnEvents.Font.Style := [];
+  btnRegistration.Font.Style := [];
+  btnStart.Font.Style := [];
+  btnSettings.Font.Style := [fsBold];
   tsSettings.Show;
 end;
 
-procedure TMainForm.sBitBtn18Click(Sender: TObject);
+procedure TMainForm.btnRegisterClick(Sender: TObject);
 var
   i, EVENT_ID, ATHLET_ID, RACE_ID, REG_ID : integer;
   SEX : string;
@@ -1220,18 +1219,18 @@ var
 begin
   bRacesSelected := false;
   // сначала смотрим выбраны ли вообще заезды
-  for i := 0 to sCheckListBox1.Items.Count - 1 do
-    if sCheckListBox1.Checked[i] then bRacesSelected := true;
+  for i := 0 to chlbRaces.Items.Count - 1 do
+    if chlbRaces.Checked[i] then bRacesSelected := true;
   // проверяем заполнение обязательных полей
-  if (sEdit5.Text <> '') and (sComboBox2.Text <> '') and bRacesSelected then begin
-    EVENT_ID := sCheckListBox1.Tag;
+  if (eAthletName.Text <> '') and (cbRegisterNumberplate.Text <> '') and bRacesSelected then begin
+    EVENT_ID := chlbRaces.Tag;
     with TIBSQL.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
       // добавляем (выбираем) участника. признак (новый/неновый) - sEdit5.Tag
-      if sEdit5.Tag = 0 then begin
+      if eAthletName.Tag = 0 then begin
         // если новый участник
-        if sCheckBox1.Checked then SEX := 'М' else SEX := 'Ж';
+        if chbSexMale.Checked then SEX := 'М' else SEX := 'Ж';
         // получаем ATHLET_ID
         with TIBQuery.Create(nil) do try
           Database := DBase;
@@ -1245,18 +1244,18 @@ begin
           Free;
         end;
         SQL.Text := 'insert into athletes(athlet_id,name,date_born,sex,team,city) values('
-          + IntToStr(ATHLET_ID) + ',''' + sEdit5.Text + ''','''
-          + FormatDateTime(strSIMPLEDATEFORMAT, DateTimePicker2.Date) + ''',''' + SEX + ''','''
-          + sEdit6.Text + ''',''' + sEdit7.Text + ''');';
+          + IntToStr(ATHLET_ID) + ',''' + eAthletName.Text + ''','''
+          + FormatDateTime(strSIMPLEDATEFORMAT, dtpAthlet.Date) + ''',''' + SEX + ''','''
+          + eTeam.Text + ''',''' + eCity.Text + ''');';
         ExecQuery;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
       end
       else begin
         // если участник выбран через поиск
-        ATHLET_ID := sEdit5.Tag;
+        ATHLET_ID := eAthletName.Tag;
       end;
       // выбираем гонки для регистрации
-      for i := 0 to sCheckListBox1.Count - 1 do if sCheckListBox1.Checked[i] then begin
+      for i := 0 to chlbRaces.Count - 1 do if chlbRaces.Checked[i] then begin
         // извлекаем RACE_ID
         with tIBQuery.Create(nil) do try
           Database := DBase;
@@ -1267,7 +1266,7 @@ begin
           LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
           FetchAll;
           First;
-          while not(EOF) and (sCheckListBox1.Items.Strings[i] <> Fields[1].AsString) do begin
+          while not(EOF) and (chlbRaces.Items.Strings[i] <> Fields[1].AsString) do begin
             Next;
           end;
           RACE_ID := Fields[0].AsInteger;
@@ -1289,7 +1288,7 @@ begin
           Free;
         end;
         SQL.Text := 'insert into registry(reg_id,platenumber,athlet_id,race_id) values('
-          + IntToStr(REG_ID) + ',' + sComboBox2.Text + ','
+          + IntToStr(REG_ID) + ',' + cbRegisterNumberplate.Text + ','
           + IntToStr(ATHLET_ID) + ',' + IntToStr(RACE_ID) + ');';
         ExecQuery;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
@@ -1299,7 +1298,7 @@ begin
     end;
     // refresh
     sComboBox1Change(Self);
-    sBitBtn15Click(Self);
+    btnAthletNewClick(Self);
   end
   else ShowMessage(strREQUIRED_FIELDS_MISSING);
 end;
@@ -1310,7 +1309,7 @@ var
 begin
   ATHLET_ID := (Sender as TMenuItem).Tag;
   // сохраняем ATHLET_ID в sEdit5.Tag для последующего избежания добавления нового участника
-  sEdit5.Tag := ATHLET_ID;
+  eAthletName.Tag := ATHLET_ID;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1319,24 +1318,24 @@ begin
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
-    sEdit5.Text := Fields[0].AsString;
-    sEdit6.Text := Fields[3].AsString;
-    sEdit7.Text := Fields[4].AsString;
-    DateTimePicker2.Date := Fields[1].AsDateTime;
-    sCheckBox1.Checked := Fields[2].AsString = 'М';
-    sCheckBox2.Checked := not(sCheckBox1.Checked);
+    eAthletName.Text := Fields[0].AsString;
+    eTeam.Text := Fields[3].AsString;
+    eCity.Text := Fields[4].AsString;
+    dtpAthlet.Date := Fields[1].AsDateTime;
+    chbSexMale.Checked := Fields[2].AsString = 'М';
+    chbSexFemale.Checked := not(chbSexMale.Checked);
   finally
     Free;
   end;
-  sEdit5.ReadOnly := true;
-  sEdit6.ReadOnly := true;
-  sEdit7.ReadOnly := true;
-  sEdit8.Hide;
-  sBitBtn19.Hide;
+  eAthletName.ReadOnly := true;
+  eTeam.ReadOnly := true;
+  eCity.ReadOnly := true;
+  eAthletSearch.Hide;
+  btnAthletSearch.Hide;
 end;
 
 
-procedure TMainForm.sBitBtn19Click(Sender: TObject);
+procedure TMainForm.btnAthletSearchClick(Sender: TObject);
 var
   mItem : TMenuItem;
   ATHLET_ID : integer;
@@ -1347,7 +1346,7 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select athlet_id,name,date_born,sex,team,city from athletes where name like ''%'
-      + sEdit8.Text + '%'' order by name;';
+      + eAthletSearch.Text + '%'' order by name;';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
@@ -1359,7 +1358,7 @@ begin
         Transaction := DBTran;
         SQL.Text := 'select * from registry,races where (registry.race_id=races.race_id)'
           + 'and(athlet_id=' + IntToStr(ATHLET_ID) + ')and(races.event_id='
-          + IntToStr(sCheckListBox1.Tag) + ');';
+          + IntToStr(chlbRaces.Tag) + ');';
         Open;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
         FetchAll;
@@ -1378,33 +1377,33 @@ begin
       end;
       Next;
     end;
-    PopupMenu1.Popup(Left + sEdit8.Left, Top + sPanel1.Height + sEdit5.Top + sEdit5.Height);
+    PopupMenu1.Popup(Left + eAthletSearch.Left, Top + pnlMainMenu.Height + eAthletName.Top + eAthletName.Height);
   finally
     Free;
   end;
 end;
 
-procedure TMainForm.sBitBtn1Click(Sender: TObject);
+procedure TMainForm.btnAthletesClick(Sender: TObject);
 begin
-  sBitBtn1.Font.Style := [fsBold];
-  sBitBtn2.Font.Style := [];
-  sBitBtn3.Font.Style := [];
-  sBitBtn14.Font.Style := [];
-  sBitBtn17.Font.Style := [];
+  btnAthletes.Font.Style := [fsBold];
+  btnEvents.Font.Style := [];
+  btnRegistration.Font.Style := [];
+  btnStart.Font.Style := [];
+  btnSettings.Font.Style := [];
   tsAthletes.Show;
 end;
 
-procedure TMainForm.sBitBtn20Click(Sender: TObject);
+procedure TMainForm.btnRaceConfirmClick(Sender: TObject);
 var
   i, j : integer;
   Buffer : TStringList;
   str : string;
 begin
-  sBitBtn21.Enabled := true;
+  btnRaceStart.Enabled := true;
   // исключаем не прошедших проверку
   Buffer := TStringList.Create;
-  for i := 0 to sCheckListBox2.Count - 1 do begin
-    if sCheckListBox2.Checked[i] then Buffer.Add(RaceNumbers[i]);
+  for i := 0 to chlbAthletes.Count - 1 do begin
+    if chlbAthletes.Checked[i] then Buffer.Add(RaceNumbers[i]);
   end;
   RaceNumbers.Clear;
   for i := 0 to Buffer.Count - 1 do RaceNumbers.Add(Buffer[i]);
@@ -1415,27 +1414,27 @@ begin
     Transaction := DBTran;
     // берём race_id из sCheckListBox2.Tag
     SQL.Text := 'update races set status=''' + strRACE_STATUS_STARTED
-      + ''' where race_id=' + IntToStr(sCheckListBox2.Tag) + ';';
+      + ''' where race_id=' + IntToStr(chlbAthletes.Tag) + ';';
     ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
   finally
     Free;
   end;
-  sCheckListBox2.Enabled := false;
-  sLabelFX6.Caption := strREADY_TO_RACE;
+  chlbAthletes.Enabled := false;
+  lblRaceStatus.Caption := strREADY_TO_RACE;
 end;
 
-procedure TMainForm.sBitBtn21Click(Sender: TObject);
+procedure TMainForm.btnRaceStartClick(Sender: TObject);
 begin
   RefreshRacePanel;
   tsRacePanel.Show;
   spRacePanel.Enabled := true;
-  sBitBtn23.Enabled := true;
-  if not(sBitBtn22.Enabled) then RepaintNumberButtons(Sender);
+  btnStpwtchFinish.Enabled := true;
+  if not(btnStpwtchStart.Enabled) then RepaintNumberButtons(Sender);
 
 end;
 
-procedure TMainForm.sBitBtn22Click(Sender: TObject);
+procedure TMainForm.btnStpwtchStartClick(Sender: TObject);
 var
   RACE_ID, LAST_TN_ID : integer;
 begin
@@ -1449,7 +1448,7 @@ begin
   finally
     Free;
   end;
-  RACE_ID := sCheckListBox2.Tag;
+  RACE_ID := chlbAthletes.Tag;
   TIME_START := Now();
   // фигарим в базу номер "0" - признак старта заезда
   with TIBSQL.Create(nil) do try
@@ -1460,13 +1459,13 @@ begin
       + FormatDateTime(strTIMENOTE_FORMAT, TIME_START) + ''');';
     ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    sBitBtn22.Enabled := false;
+    btnStpwtchStart.Enabled := false;
     Timer.Enabled := true;
   finally
     Free;
   end;
   spRacePanel.Enabled := true;
-  sBitBtn22.Enabled := false;
+  btnStpwtchStart.Enabled := false;
   // выводим сколько осталось кругов
   // и запихиваем в Tag кнопки ФИНИШ
   with TIBQuery.Create(nil) do try
@@ -1475,16 +1474,16 @@ begin
     SQL.Text := 'select laps from races where race_id=' + IntToStr(RACE_ID) + ';';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    sBitBtn23.Tag := Fields[0].AsInteger;
-    sBitBtn23.Caption := IntToStr(sBitBtn23.Tag) + strLAPSTOGO;
-    sBitBtn23.Enabled := true;
+    btnStpwtchFinish.Tag := Fields[0].AsInteger;
+    btnStpwtchFinish.Caption := IntToStr(btnStpwtchFinish.Tag) + strLAPSTOGO;
+    btnStpwtchFinish.Enabled := true;
   finally
     Free;
   end;
   RepaintNumberButtons(Sender);
 end;
 
-procedure TMainForm.sBitBtn23Click(Sender: TObject);
+procedure TMainForm.btnStpwtchFinishClick(Sender: TObject);
 var
   i, RACE_ID : integer;
   strSEX, strAGEMIN, strAGEMAX: string;
@@ -1495,7 +1494,7 @@ begin
     Timer.Enabled := false;
     // забираем RACE_ID из spNumbersPanel.Tag
     RACE_ID := spNumbersPanel.Tag;
-    sBitBtn22.Enabled := true;
+    btnStpwtchStart.Enabled := true;
     Timer.Enabled := false;
     with tIBSQL.Create(nil) do try
       Database := DBase;
@@ -1508,20 +1507,15 @@ begin
       Free;
     end;
     // сохраняем RACE_ID в sComboBox6.Tag
-    sComboBox6.Tag := RACE_ID;
+    cbResultsCG.Tag := RACE_ID;
     tsRaceResults.Show;
-    sBitBtn23.Enabled := false;
+    btnStpwtchFinish.Enabled := false;
     // refresh
-    sComboBox6Change(Self);
+    cbResultsCGChange(Self);
   end;
 end;
 
-procedure TMainForm.sBitBtn24Click(Sender: TObject);
-begin
-  RefreshRacePanel;
-end;
-
-procedure TMainForm.sBitBtn25Click(Sender: TObject);
+procedure TMainForm.btnDropAllTimenotesClick(Sender: TObject);
 begin
   // зачитка данных ВСЕХ заездов
   with TIBSQL.Create(nil) do try
@@ -1557,21 +1551,21 @@ begin
   end;
 end;
 
-procedure TMainForm.sBitBtn26Click(Sender: TObject);
+procedure TMainForm.btnTimenoteOKClick(Sender: TObject);
 var
   i, TN_ID, RACE_ID : integer;
   strTIMENOTE, StrAbsTime : string;
   bValidData : boolean;
 begin
   // берём TN_ID из sPanel7.Tag
-  TN_ID := sPanel7.Tag;
+  TN_ID := pnlTimenote.Tag;
   // берём RACE_ID из spNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
   // проверяем корректность данных
   bValidData := false;
   for i := 0 to RaceNumbers.Count - 1 do
-    if RaceNumbers.Strings[i] = sComboBox5.Text then bValidData := true;
-  strTIMENOTE := sEdit10.Text;
+    if RaceNumbers.Strings[i] = cbTimenotePlatenumber.Text then bValidData := true;
+  strTIMENOTE := eTimenote.Text;
   if (strTIMENOTE[3] <> ':') or (strTIMENOTE[6] <> ':') or (strTIMENOTE[9] <> '.')
   then bValidData := false;
   // если ОК, пишем в базу
@@ -1580,14 +1574,14 @@ begin
       Database := DBase;
       Transaction := DBTran;
       // признак добавления/изменения - sEdit10.Enabled
-      if sEdit10.Enabled then begin
+      if eTimenote.Enabled then begin
         // вычисляем и пишем абсолютное время (время старта + время отметки )
         strAbsTime := FormatDateTime(strTIMENOTE_FORMAT, TIME_START + StrToTime(strTIMENOTE, fs));
         SQL.Text := 'insert into timenotes(tn_id,platenumber,race_id,timenote) values('
-          + IntToStr(TN_ID) + ',' + sComboBox5.Text + ',' + IntToStr(RACE_ID) + ','''
+          + IntToStr(TN_ID) + ',' + cbTimenotePlatenumber.Text + ',' + IntToStr(RACE_ID) + ','''
           + strAbsTime + ''');'
       end
-      else SQL.Text := 'update timenotes set platenumber=' + sComboBox5.Text
+      else SQL.Text := 'update timenotes set platenumber=' + cbTimenotePlatenumber.Text
         + ' where TN_ID=' + IntToStr(TN_ID) + ';';
       ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
@@ -1595,32 +1589,32 @@ begin
       Free;
     end;
     RefreshRacePanel;
-    sPanel7.Hide;
+    pnlTimenote.Hide;
   end
   else ShowMessage(strINVALID_TIMENOTE_DATA);
 end;
 
-procedure TMainForm.sBitBtn27Click(Sender: TObject);
+procedure TMainForm.btnTimenoteCancelClick(Sender: TObject);
 begin
-  sPanel7.Hide;
+  pnlTimenote.Hide;
 end;
 
-procedure TMainForm.sBitBtn28Click(Sender: TObject);
+procedure TMainForm.btnCGNewClick(Sender: TObject);
 begin
-  sCheckBox3.Checked := false;
-  sCheckBox4.Checked := false;
-  sCheckBox5.Checked := false;
-  sCheckBox6.Checked := false;
-  sEdit9.Enabled := false;
-  sEdit9.Clear;
-  sEdit11.Enabled := false;
-  sEdit11.Clear;
-  sEdit12.Text := sEdit4.Text;
-  sPanel9.Show;
-  sBitBtn29.Enabled := false;
+  chbCGMale.Checked := false;
+  chbCGFemale.Checked := false;
+  chbCGAgeMin.Checked := false;
+  chbCGAgeMax.Checked := false;
+  eCGAgeMin.Enabled := false;
+  eCGAgeMin.Clear;
+  eCGAgeMax.Enabled := false;
+  eCGAgeMax.Clear;
+  eCGLaps.Text := eRaceLaps.Text;
+  pnlCGEdit.Show;
+  btnCGDelete.Enabled := false;
 end;
 
-procedure TMainForm.sBitBtn29Click(Sender: TObject);
+procedure TMainForm.btnCGDeleteClick(Sender: TObject);
 begin
   if lvCompGroups.ItemIndex <> -1 then begin
     if RusMessageDialog(strDELETE_COMP_GROUP, mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
@@ -1636,7 +1630,7 @@ begin
         Free;
       end;
       // refresh
-      sBitBtn10Click(Self);
+      btnRaceEditClick(Self);
     end;
   end
   else ShowMessage(strCOMP_GROUP_NOT_SELECTED);
@@ -1647,22 +1641,22 @@ begin
   Result := (GetWindowLong(Handle, GWL_STYLE) and Style) <> 0;
 end;
 
-procedure TMainForm.sBitBtn2Click(Sender: TObject);
+procedure TMainForm.btnEventsClick(Sender: TObject);
 begin
-  sBitBtn1.Font.Style := [];
-  sBitBtn2.Font.Style := [fsBold];
-  sBitBtn3.Font.Style := [];
-  sBitBtn14.Font.Style := [];
-  sBitBtn17.Font.Style := [];
+  btnAthletes.Font.Style := [];
+  btnEvents.Font.Style := [fsBold];
+  btnRegistration.Font.Style := [];
+  btnStart.Font.Style := [];
+  btnSettings.Font.Style := [];
   tsEvent.Show;
 end;
 
-procedure TMainForm.sBitBtn30Click(Sender: TObject);
+procedure TMainForm.btnCGSaveClick(Sender: TObject);
 var
   CG_ID, RACE_ID, AGEMIN, AGEMAX, LAPS : integer;
   SEX : string;
 begin
-  RACE_ID := sPanel3.Tag;
+  RACE_ID := pnlRace.Tag;
   // новый CG_ID
   with TIBQuery.Create(nil) do try
     Database := DBase;
@@ -1675,11 +1669,11 @@ begin
     Free;
   end;
   SEX := '-';
-  if sCheckBox3.Checked then SEX := 'М';
-  if sCheckBox4.Checked then SEX := 'Ж';
-  if sCheckBox5.Checked then AGEMIN := StrToInt(sEdit9.Text) else AGEMIN := 0;
-  if sCheckBox6.Checked then AGEMAX := StrToInt(sEdit11.Text) else AGEMAX := 0;
-  if sEdit12.Text <> '' then LAPS := StrToInt(sEdit12.Text) else LAPS := 0;
+  if chbCGMale.Checked then SEX := 'М';
+  if chbCGFemale.Checked then SEX := 'Ж';
+  if chbCGAgeMin.Checked then AGEMIN := StrToInt(eCGAgeMin.Text) else AGEMIN := 0;
+  if chbCGAgeMax.Checked then AGEMAX := StrToInt(eCGAgeMax.Text) else AGEMAX := 0;
+  if eCGLaps.Text <> '' then LAPS := StrToInt(eCGLaps.Text) else LAPS := 0;
 
   // херачим в базу новую зачётную группу
   with TIBSQL.Create(nil) do try
@@ -1693,91 +1687,91 @@ begin
   finally
     Free;
   end;
-  sPanel9.Hide;
-  sBitBtn29.Enabled := true;
+  pnlCGEdit.Hide;
+  btnCGDelete.Enabled := true;
   // refresh
-  sBitBtn10Click(Self);
+  btnRaceEditClick(Self);
 end;
 
-procedure TMainForm.sBitBtn31Click(Sender: TObject);
+procedure TMainForm.btnCGCloseClick(Sender: TObject);
 begin
-  sPanel9.Hide;
-  sBitBtn29.Enabled := true;
+  pnlCGEdit.Hide;
+  btnCGDelete.Enabled := true;
 end;
 
-procedure TMainForm.sBitBtn32Click(Sender: TObject);
+procedure TMainForm.btnRaceResultsClick(Sender: TObject);
 begin
   tsRaceResults.Show;
 //  RefreshRacePanel;
   Timer.Enabled := false;
   spRacePanel.Enabled := true;
-  sBitBtn23.Enabled := false;
+  btnStpwtchFinish.Enabled := false;
   // refresh
-  sComboBox6Change(Self);
+  cbResultsCGChange(Self);
 end;
 
-procedure TMainForm.sBitBtn3Click(Sender: TObject);
+procedure TMainForm.btnRegistrationClick(Sender: TObject);
 var
   i : integer;
 begin
-  sBitBtn1.Font.Style := [];
-  sBitBtn2.Font.Style := [];
-  sBitBtn3.Font.Style := [fsBold];
-  sBitBtn14.Font.Style := [];
-  sBitBtn17.Font.Style := [];
+  btnAthletes.Font.Style := [];
+  btnEvents.Font.Style := [];
+  btnRegistration.Font.Style := [fsBold];
+  btnStart.Font.Style := [];
+  btnSettings.Font.Style := [];
   tsRegistration.Show;
-  sComboBox1.ItemIndex := sListBox1.ItemIndex;
+  sComboBox1.ItemIndex := lbEvents.ItemIndex;
   sComboBox1Change(Self);
 end;
 
-procedure TMainForm.sBitBtn4Click(Sender: TObject);
+procedure TMainForm.btnEventNewClick(Sender: TObject);
 begin
-  sEdit1.Clear;
-  sPanel2.Tag := 0;
-  sPanel4.Hide;
-  sPanel2.Show;
-  sEdit1.SetFocus;
-  sListBox1.Enabled := false;
-  sBitBtn7.Enabled := false;
-  sBitBtn6.Enabled := false;
+  eEventName.Clear;
+  pnlEvent.Tag := 0;
+  pnlEventRaces.Hide;
+  pnlEvent.Show;
+  eEventName.SetFocus;
+  lbEvents.Enabled := false;
+  btnEventEdit.Enabled := false;
+  btnEventDelete.Enabled := false;
 end;
 
-procedure TMainForm.sBitBtn5Click(Sender: TObject);
+procedure TMainForm.btnEventSaveClick(Sender: TObject);
 begin
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
     // если создать
-    if sPanel2.Tag = 0 then SQL.Text :=
+    if pnlEvent.Tag = 0 then SQL.Text :=
       'insert into events(event_id,event_date,name) values((select max(event_id) from events) + 1,'''
-      + FormatDateTime(strSIMPLEDATEFORMAT, DateTimePicker1.Date) + ''','''
-      + sEdit1.Text + ''')'
+      + FormatDateTime(strSIMPLEDATEFORMAT, dtpEvent.Date) + ''','''
+      + eEventName.Text + ''')'
     // изменить
     else
-      SQL.Text := 'update events set name=''' + sEdit1.Text +  ''',event_date='''
-        + FormatDateTime(strSIMPLEDATEFORMAT, DateTimePicker1.Date) + ''' where event_id='
-        + IntToStr(sPanel2.Tag) + ';';
+      SQL.Text := 'update events set name=''' + eEventName.Text +  ''',event_date='''
+        + FormatDateTime(strSIMPLEDATEFORMAT, dtpEvent.Date) + ''' where event_id='
+        + IntToStr(pnlEvent.Tag) + ';';
     ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    sPanel2.Hide;
+    pnlEvent.Hide;
   finally
     Free;
   end;
   // обновить список
   tsEventShow(Self);
-  sListBox1.Enabled := true;
-  sBitBtn4.Enabled := true;
-  sBitBtn6.Enabled := true;
-  sBitBtn7.Enabled := true;
-  sListBox1.SetFocus;
+  lbEvents.Enabled := true;
+  btnEventNew.Enabled := true;
+  btnEventDelete.Enabled := true;
+  btnEventEdit.Enabled := true;
+  lbEvents.SetFocus;
 end;
 
-procedure TMainForm.sBitBtn6Click(Sender: TObject);
+procedure TMainForm.btnEventDeleteClick(Sender: TObject);
 var
   i, EVENT_ID : integer;
   bClear : boolean;
 begin
-  if MessageDlg('Удалить мероприятие "' + sListBox1.Items.Strings[sListBox1.ItemIndex]
+  if MessageDlg('Удалить мероприятие "' + lbEvents.Items.Strings[lbEvents.ItemIndex]
       + '"?', mtConfirmation, [mbyes, mbno], 0) = mryes then with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1791,7 +1785,7 @@ begin
       FetchAll;
       First;
       i := 0;
-      while sListBox1.ItemIndex > i do begin
+      while lbEvents.ItemIndex > i do begin
         Next;
         inc(i);
       end;
@@ -1825,14 +1819,14 @@ begin
   end;
 end;
 
-procedure TMainForm.sBitBtn7Click(Sender: TObject);
+procedure TMainForm.btnEventEditClick(Sender: TObject);
 var
   i : integer;
 begin
-  sListBox2.Clear;
-  sListBox1.Enabled := false;
-  sBitBtn4.Enabled := false;
-  sBitBtn6.Enabled := false;
+  lbEventRaces.Clear;
+  lbEvents.Enabled := false;
+  btnEventNew.Enabled := false;
+  btnEventDelete.Enabled := false;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1842,85 +1836,85 @@ begin
     FetchAll;
     First;
     i := 0;
-    while sListBox1.ItemIndex > i do begin
+    while lbEvents.ItemIndex > i do begin
       Next;
       inc(i);
     end;
-    sEdit1.Text := Fields[2].AsString;
-    DateTimePicker1.Date := Fields[1].AsDateTime;
+    eEventName.Text := Fields[2].AsString;
+    dtpEvent.Date := Fields[1].AsDateTime;
     // event_id храним в sPanel2.Tag
-    sPanel2.Tag := Fields[0].AsInteger;
+    pnlEvent.Tag := Fields[0].AsInteger;
     // выбираем заезды
     Close;
     SQL.Text := 'select race_id,name,track_length,laps from races where event_id='
-      + IntToStr(sPanel2.Tag) + ';';
+      + IntToStr(pnlEvent.Tag) + ';';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     while not(EOF) do begin
-      sListBox2.Items.Add(Fields[1].AsString + ' (' + IntToStr(Fields[3].AsInteger)
+      lbEventRaces.Items.Add(Fields[1].AsString + ' (' + IntToStr(Fields[3].AsInteger)
         + 'кр. по ' + IntToStr(Fields[2].AsInteger) + 'м)');
       Next;
     end;
   finally
     Free;
   end;
-  sPanel2.Show;
-  sPanel4.Show;
+  pnlEvent.Show;
+  pnlEventRaces.Show;
 end;
 
-procedure TMainForm.sBitBtn8Click(Sender: TObject);
+procedure TMainForm.btnEventCloseClick(Sender: TObject);
 begin
-  sPanel2.Hide;
-  sListBox1.Enabled := true;
-  sBitBtn4.Enabled := true;
-  sBitBtn6.Enabled := true;
-  sBitBtn7.Enabled := true;
-  sListBox1.SetFocus;
+  pnlEvent.Hide;
+  lbEvents.Enabled := true;
+  btnEventNew.Enabled := true;
+  btnEventDelete.Enabled := true;
+  btnEventEdit.Enabled := true;
+  lbEvents.SetFocus;
 end;
 
-procedure TMainForm.sBitBtn9Click(Sender: TObject);
+procedure TMainForm.btnRaceNewClick(Sender: TObject);
 begin
-  sEdit2.Clear;
-  sEdit3.Clear;
-  sEdit4.Clear;
-  sPanel3.Tag := 0;
-  sPanel3.Show;
-  sBitBtn5.Enabled := false;
-  sBitBtn8.Enabled := false;
-  sEdit2.SetFocus;
+  eRaceName.Clear;
+  eRaceTrackLength.Clear;
+  eRaceLaps.Clear;
+  pnlRace.Tag := 0;
+  pnlRace.Show;
+  btnEventSave.Enabled := false;
+  btnEventClose.Enabled := false;
+  eRaceName.SetFocus;
 end;
 
-procedure TMainForm.sCheckBox1Click(Sender: TObject);
+procedure TMainForm.chbSexMaleClick(Sender: TObject);
 begin
-  sCheckBox2.Checked := not(sCheckBox1.Checked);
+  chbSexFemale.Checked := not(chbSexMale.Checked);
 end;
 
-procedure TMainForm.sCheckBox2Click(Sender: TObject);
+procedure TMainForm.chbSexFemaleClick(Sender: TObject);
 begin
-  sCheckBox1.Checked := not(sCheckBox2.Checked);
+  chbSexMale.Checked := not(chbSexFemale.Checked);
 end;
 
-procedure TMainForm.sCheckBox3Click(Sender: TObject);
+procedure TMainForm.chbCGMaleClick(Sender: TObject);
 begin
-  sCheckBox4.Checked := not(sCheckBox3.Checked);
+  chbCGFemale.Checked := not(chbCGMale.Checked);
 end;
 
-procedure TMainForm.sCheckBox4Click(Sender: TObject);
+procedure TMainForm.chbCGFemaleClick(Sender: TObject);
 begin
-  sCheckBox3.Checked := not(sCheckBox4.Checked);
+  chbCGMale.Checked := not(chbCGFemale.Checked);
 end;
 
-procedure TMainForm.sCheckBox5Click(Sender: TObject);
+procedure TMainForm.chbCGAgeMinClick(Sender: TObject);
 begin
-  sEdit9.Enabled := sCheckBox5.Checked;
-  if sCheckBox5.Checked then sEdit9.SetFocus;
+  eCGAgeMin.Enabled := chbCGAgeMin.Checked;
+  if chbCGAgeMin.Checked then eCGAgeMin.SetFocus;
 end;
 
-procedure TMainForm.sCheckBox6Click(Sender: TObject);
+procedure TMainForm.chbCGAgeMaxClick(Sender: TObject);
 begin
-  sEdit11.Enabled := sCheckBox6.Checked;
-  if sCheckBox6.Checked then sEdit11.SetFocus;
+  eCGAgeMax.Enabled := chbCGAgeMax.Checked;
+  if chbCGAgeMax.Checked then eCGAgeMax.SetFocus;
 end;
 
 procedure TMainForm.sComboBox1Change(Sender: TObject);
@@ -1943,7 +1937,7 @@ begin
     end;
     EVENT_ID := Fields[0].AsInteger;
     // сохраним EVENT_ID в sCheckListBox1.Tag
-    sCheckListBox1.Tag := EVENT_ID;
+    chlbRaces.Tag := EVENT_ID;
     // список заездов
     Close;
     SQL.Text := 'select race_id,name,track_length,laps from races where event_id='
@@ -1952,14 +1946,14 @@ begin
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     First;
-    sCheckListBox1.Clear;
+    chlbRaces.Clear;
     while not(EOF) do begin
-      sCheckListBox1.Items.Add(Fields[1].AsString);
+      chlbRaces.Items.Add(Fields[1].AsString);
       Next;
     end;
     // список уже зарегистрировавшихся, выдача свободных номеров
-    sComboBox2.Items.Clear;
-    for i := 1 to PLATENUMBERS_COUNT do sComboBox2.Items.Add(IntToStr(i));
+    cbRegisterNumberplate.Items.Clear;
+    for i := 1 to PLATENUMBERS_COUNT do cbRegisterNumberplate.Items.Add(IntToStr(i));
     Close;
     SQL.Text := 'select distinct registry.platenumber, athletes.name, athletes.date_born, races.name, races.race_id '
       + 'from registry, athletes, races, events where (registry.race_id = races.race_id) and (races.event_id = events.event_id)'
@@ -1968,14 +1962,14 @@ begin
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
-    ListView1.Items.Clear;
+    lvRegistered.Items.Clear;
     while not(EOF) do begin
-      lItem := ListView1.Items.Add;
+      lItem := lvRegistered.Items.Add;
       with lItem do begin
         j := 0;
-        for j := 0 to sComboBox2.Items.Count - 1 do
-          if sComboBox2.Items.Strings[j] = IntToStr(Fields[0].AsInteger)
-          then sComboBox2.Items.Delete(j);
+        for j := 0 to cbRegisterNumberplate.Items.Count - 1 do
+          if cbRegisterNumberplate.Items.Strings[j] = IntToStr(Fields[0].AsInteger)
+          then cbRegisterNumberplate.Items.Delete(j);
         Caption := Fields[3].AsString;
         SubItems.Add(IntToStr(Fields[0].AsInteger));
         SubItems.Add(Fields[1].AsString);
@@ -1988,7 +1982,7 @@ begin
   end;
 end;
 
-procedure TMainForm.sComboBox3Change(Sender: TObject);
+procedure TMainForm.cbEventChange(Sender: TObject);
 var
   EVENT_ID : integer;
 begin
@@ -2001,7 +1995,7 @@ begin
     FetchAll;
     First;
     while not(EOF) do begin
-      if Fields[2].AsString = SComboBox3.Text then EVENT_ID := Fields[0].AsInteger;
+      if Fields[2].AsString = cbEvent.Text then EVENT_ID := Fields[0].AsInteger;
       Next;
     end;
     Close;
@@ -2010,18 +2004,18 @@ begin
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
-    sComboBox4.Items.Clear;
+    cbRace.Items.Clear;
     // схраняем EVENT_ID в sComboBox4.Tag
-    sComboBox4.Tag := EVENT_ID;
+    cbRace.Tag := EVENT_ID;
     while not(EOF) do begin
-      sComboBox4.Items.Add(Fields[3].AsString);
+      cbRace.Items.Add(Fields[3].AsString);
       Next;
     end;
-    if sComboBox4.Items.Count > 0 then begin
-      sComboBox4.ItemIndex := 0;
+    if cbRace.Items.Count > 0 then begin
+      cbRace.ItemIndex := 0;
       spRacePanel.Show;
       // refresh
-      sComboBox4Change(Self);
+      cbRaceChange(Self);
       RefreshRacePanel;
     end
     else spRacePanel.Hide;
@@ -2030,13 +2024,13 @@ begin
   end;
 end;
 
-procedure TMainForm.sComboBox4Change(Sender: TObject);
+procedure TMainForm.cbRaceChange(Sender: TObject);
 var
   EVENT_ID, RACE_ID, LAPS : integer;
   STATUS : string;
 begin
-  EVENT_ID := sComboBox4.Tag;
-  PageControl2.Show;
+  EVENT_ID := cbRace.Tag;
+  pcStart.Show;
   tsStartPrep.Show;
   with TIBQuery.Create(nil) do try
     Database := DBase;
@@ -2048,7 +2042,7 @@ begin
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     while not(EOF) do begin
-      if sComboBox4.Text = Fields[3].AsString then begin
+      if cbRace.Text = Fields[3].AsString then begin
         RACE_ID := Fields[0].AsInteger;
         LAPS := Fields[1].AsInteger;
         STATUS := Fields[4].AsString;
@@ -2065,11 +2059,11 @@ begin
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     First;
-    sCheckListBox2.Clear;
+    chlbAthletes.Clear;
     RaceNumbers.Clear;
     while not(EOF) do begin
-      sCheckListBox2.Items.Add(IntToStr(Fields[0].AsInteger) + ' - ' + Fields[1].AsString);
-      sCheckListBox2.Checked[sCheckListBox2.Items.Count - 1] := true;
+      chlbAthletes.Items.Add(IntToStr(Fields[0].AsInteger) + ' - ' + Fields[1].AsString);
+      chlbAthletes.Checked[chlbAthletes.Items.Count - 1] := true;
       RaceNumbers.Add(IntToStr(Fields[0].AsInteger));
       Next;
     end;
@@ -2078,50 +2072,50 @@ begin
   end;
   // проверка статуса гонки
   if STATUS = strRACE_STATUS_STARTED then begin
-    sLabelFX6.Caption := strREADY_TO_RACE;
-    sCheckListBox2.Enabled := false;
-    sBitBtn20.Enabled := false;
-    sBitBtn21.Enabled := true;
-    sBitBtn32.Enabled := false;
-    sBitBtn22.Enabled := true;
-    sBitBtn23.Enabled := true;
+    lblRaceStatus.Caption := strREADY_TO_RACE;
+    chlbAthletes.Enabled := false;
+    btnRaceConfirm.Enabled := false;
+    btnRaceStart.Enabled := true;
+    btnRaceResults.Enabled := false;
+    btnStpwtchStart.Enabled := true;
+    btnStpwtchFinish.Enabled := true;
     spRacePanel.Enabled := false;
     spRacePanel.Show;
   end;
   if STATUS = strRACE_STATUS_FINISHED then begin
-    sLabelFX6.Caption := strRACE_FINISHED;
-    sCheckListBox2.Enabled := false;
-    sBitBtn20.Enabled := false;
-    sBitBtn21.Enabled := false;
-    sBitBtn32.Enabled := true;
+    lblRaceStatus.Caption := strRACE_FINISHED;
+    chlbAthletes.Enabled := false;
+    btnRaceConfirm.Enabled := false;
+    btnRaceStart.Enabled := false;
+    btnRaceResults.Enabled := true;
     spRacePanel.Enabled := true;
-    sBitBtn22.Enabled := false;
-    sBitBtn23.Enabled := false;
+    btnStpwtchStart.Enabled := false;
+    btnStpwtchFinish.Enabled := false;
     Timer.Enabled := false;
     spRacePanel.Show;
   end;
   if STATUS = '' then begin
-    sLabelFX6.Caption := strPRERACE_CHECK_REQUIRED;
-    sCheckListBox2.Enabled := true;
-    sBitBtn20.Enabled := true;
-    sBitBtn21.Enabled := false;
-    sBitBtn32.Enabled := false;
+    lblRaceStatus.Caption := strPRERACE_CHECK_REQUIRED;
+    chlbAthletes.Enabled := true;
+    btnRaceConfirm.Enabled := true;
+    btnRaceStart.Enabled := false;
+    btnRaceResults.Enabled := false;
     spRacePanel.Enabled := false;
-    sBitBtn22.Enabled := false;
-    sBitBtn23.Enabled := false;
+    btnStpwtchStart.Enabled := false;
+    btnStpwtchFinish.Enabled := false;
     Timer.Enabled := false;
     spRacePanel.Hide;
   end;
   // сохраняем race_id в sCheckListBox2.Tag и spNumbersPanel.Tag
-  sCheckListBox2.Tag := RACE_ID;
+  chlbAthletes.Tag := RACE_ID;
   spNumbersPanel.Tag := RACE_ID;
-  sComboBox6.Tag := RACE_ID;
+  cbResultsCG.Tag := RACE_ID;
   // refresh
   sTimerLabel.Caption := strTIMER_CAPTION;
   RefreshRacePanel;
 end;
 
-procedure TMainForm.sComboBox6Change(Sender: TObject);
+procedure TMainForm.cbResultsCGChange(Sender: TObject);
 var
   i, RACE_ID, iPlace, iLeaderLaps, iAthleteLaps, PLATENUMBER, iAGE, iAGEMIN, iAGEMAX, iLAPS : integer;
   strTIMENOTE, strTIMESTART, strTIMELEADER, strShift, strSEX : string;
@@ -2132,8 +2126,8 @@ begin
   lvResults.Hide;
   spbResults.Show;
   // берём RACE_ID из sComboBox6.Tag
-  RACE_ID := sComboBox6.Tag;
-  bToApplyFilter := sComboBox6.ItemIndex > 0;
+  RACE_ID := cbResultsCG.Tag;
+  bToApplyFilter := cbResultsCG.ItemIndex > 0;
   lvResults.Items.Clear;
   // выборка резултата гонки. номера с количенством кругов и временем по абсолюту
   with TIBQuery.Create(nil) do try
@@ -2156,7 +2150,7 @@ begin
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
       FetchAll;
       i := 1;
-      while i < sComboBox6.ItemIndex do begin
+      while i < cbResultsCG.ItemIndex do begin
         Next;
         inc(i);
       end;
@@ -2258,41 +2252,41 @@ begin
   lvResults.Show;
 end;
 
-procedure TMainForm.sComboBox7Change(Sender: TObject);
+procedure TMainForm.cbLogLevelChange(Sender: TObject);
 begin
-  logLevel := sComboBox7.ItemIndex;
+  logLevel := cbLogLevel.ItemIndex;
   Config.WriteInteger('Logging', 'Level', logLevel);
 end;
 
-procedure TMainForm.sEdit8Change(Sender: TObject);
+procedure TMainForm.eAthletSearchChange(Sender: TObject);
 begin
-  sBitBtn19.Enabled := sEdit8.Text <> '';
+  btnAthletSearch.Enabled := eAthletSearch.Text <> '';
 end;
 
-procedure TMainForm.sEdit8KeyUp(Sender: TObject; var Key: Word;
+procedure TMainForm.eAthletSearchKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Key = 13 then sBitBtn19Click(Self);
+  if Key = 13 then btnAthletSearchClick(Self);
   if Key = 27 then begin
-    sEdit8.Hide;
-    sBitBtn19.Hide;
+    eAthletSearch.Hide;
+    btnAthletSearch.Hide;
   end;
 end;
 
-procedure TMainForm.sListBox1DblClick(Sender: TObject);
+procedure TMainForm.lbEventsDblClick(Sender: TObject);
 begin
-  sBitBtn3Click(Self);
+  btnRegistrationClick(Self);
 end;
 
-procedure TMainForm.sListBox1Enter(Sender: TObject);
+procedure TMainForm.lbEventsEnter(Sender: TObject);
 begin
-  sBitBtn3.Enabled := true;
-  sBitBtn14.Enabled := true;
+  btnRegistration.Enabled := true;
+  btnStart.Enabled := true;
 end;
 
 procedure TMainForm.spNumbersPanelResize(Sender: TObject);
 begin
-  if (PageControl2.ActivePage = tsRacePanel) and (PageControl1.ActivePage = tsStart)
+  if (pcStart.ActivePage = tsRacePanel) and (pcMain.ActivePage = tsStart)
   then RepaintNumberButtons(Sender);
 end;
 
@@ -2316,10 +2310,10 @@ var
   RACE_ID : integer;
   strSEX, strAGEMIN, strAGEMAX, strLAPS : string;
 begin
-  sBitBtn22.Enabled := false;
+  btnStpwtchStart.Enabled := false;
   spRacePanel.Show;
-  RACE_ID := sComboBox6.Tag;
-  with sComboBox6 do begin
+  RACE_ID := cbResultsCG.Tag;
+  with cbResultsCG do begin
     Items.Clear;
     Items.Add(strABSOLUTE);
     with TIBQuery.Create(nil) do try
@@ -2371,7 +2365,7 @@ end;
 
 procedure TMainForm.tsSettingsShow(Sender: TObject);
 begin
-  sComboBox7.ItemIndex := logLevel;
+  cbLogLevel.ItemIndex := logLevel;
 end;
 
 procedure TMainForm.tsStartPrepShow(Sender: TObject);
@@ -2428,9 +2422,9 @@ begin
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
-    sListBox1.Clear;
+    lbEvents.Clear;
     while not(EOF) do begin
-      sListBox1.Items.Add('[' + FormatDateTime(strSIMPLEDATEFORMAT, Fields[1].AsDateTime) + '] '
+      lbEvents.Items.Add('[' + FormatDateTime(strSIMPLEDATEFORMAT, Fields[1].AsDateTime) + '] '
         + Fields[2].AsString);
       Next;
     end;
