@@ -8,7 +8,8 @@ uses
   sButton, sListBox, sLabel, sEdit, IBDatabase, DB, IBSQL, IBQuery, sComboBox,
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
-  sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter;
+  sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter, FR_DSet,
+  FR_Class, Math;
 
 const
   iBEST_LAP_FLAG = 2;
@@ -196,6 +197,8 @@ type
     tsSettings: TSTabSheet;
     tsStart: TSTabSheet;
     tsStartPrep: TSTabSheet;
+    frResults: TfrReport;
+    frUserDataset: TfrUserDataset;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -271,6 +274,8 @@ type
     procedure tsSettingsShow(Sender: TObject);
     procedure tsStartPrepShow(Sender: TObject);
     procedure btnEventResultsClick(Sender: TObject);
+    procedure frResultsGetValue(const ParName: string; var ParValue: Variant);
+    procedure btnResultsPrintClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -395,6 +400,103 @@ end;
 procedure TMainForm.FormShow(Sender: TObject);
 begin
   tsEvent.Show;
+end;
+
+procedure TMainForm.frResultsGetValue(const ParName: string;
+  var ParValue: Variant);
+var
+  i, EVENT_ID, RACE_ID : integer;
+begin
+  if ParName = 'date' then begin
+    EVENT_ID := cbRace.Tag;
+    with TIBQuery.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'select event_date from events where event_id=' + IntToStr(EVENT_ID) + ';';
+      LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
+      ParValue := FormatDateTime(strSIMPLE_DATEFORMAT, Fields[0].AsDateTime);
+    finally
+      Free;
+    end;
+  end;
+  if ParName = 'track_length' then begin
+    RACE_ID := cbResultsCG.Tag;
+    with TIBQuery.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'select track_length from races where race_id=' + IntToStr(RACE_ID) + ';';
+      LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
+      ParValue := Fields[0].AsInteger;
+    finally
+      Free;
+    end;
+  end;
+  if (ParName = 'laps') or (ParName = 'race_distance') then begin
+    RACE_ID := cbResultsCG.Tag;
+    if cbResultsCG.ItemIndex = 0 then begin
+      // если абсолют
+      with TIBQuery.Create(nil) do try
+        Database := DBase;
+        Transaction := DBTran;
+        SQL.Text := 'select laps, track_length from races where race_id=' + IntToStr(RACE_ID) + ';';
+        LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
+        if ParName = 'laps' then ParValue := Fields[0].AsInteger;
+        if ParName = 'race_distance' then
+          ParValue := RoundTo(Fields[0].AsInteger * Fields[1].AsInteger / 1000, -3);
+      finally
+        Free;
+      end;
+
+    end
+    else begin
+      // если подгруппа
+      with TIBQuery.Create(nil) do try
+        Database := DBase;
+        Transaction := DBTran;
+        // изображаем такой-же запрос как и в sComboBox6, пробегаемся по нему до ItemIndex
+        // и находим нужные поля
+        SQL.Text := 'select comp_groups.sex, comp_groups.agemin, comp_groups.agemax, '
+          + 'comp_groups.laps, races.track_length from comp_groups,races where '
+          + '(comp_groups.race_id=' + IntToStr(RACE_ID) + ') and(races.race_id=comp_groups.race_id)'
+          + ' order by sex,agemin;';
+        LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
+        FetchAll;
+        i := 1;
+        while i < cbResultsCG.ItemIndex do begin
+          Next;
+          inc(i);
+        end;
+        if ParName = 'laps' then ParValue := Fields[3].AsInteger;
+        if ParName = 'race_distance' then
+          ParValue := RoundTo(Fields[3].AsInteger * Fields[4].AsInteger / 1000, -3);
+      finally
+        Free;
+      end;
+    end;
+  end;
+  if ParName = 'event_name' then ParValue := cbEvent.Text;
+  if ParName = 'race_name' then ParValue := cbRace.Text;
+  if ParName = 'comp_group' then ParValue := cbResultsCG.Text;
+  if ParName = 'place' then ParValue := lvResults.Items[frUserDataset.RecNo].Caption;
+  if ParName = 'athlet' then ParValue := lvResults.Items[frUserDataset.RecNo].SubItems.Strings[0];
+  if ParName = 'platenumber' then ParValue := lvResults.Items[frUserDataset.RecNo].SubItems.Strings[1];
+  if ParName = 'time' then ParValue := lvResults.Items[frUserDataset.RecNo].SubItems.Strings[2];
+  if ParName = 'city' then begin
+    if lvResults.Items[frUserDataset.RecNo].SubItems.Count > 3 then
+      ParValue := lvResults.Items[frUserDataset.RecNo].SubItems.Strings[3]
+    else
+      ParValue := '';
+  end;
+  if ParName = 'team' then begin
+   if lvResults.Items[frUserDataset.RecNo].SubItems.Count > 4 then
+      ParValue := lvResults.Items[frUserDataset.RecNo].SubItems.Strings[4]
+    else
+      ParValue := '';
+  end;
 end;
 
 procedure TMainForm.OnPlateNumberClick(Sender: TObject);
@@ -687,7 +789,7 @@ begin
     while not(EOF) do begin
       lItem := lvAthRaces.Items.Add;
       with lItem do begin
-        Caption := FormatDateTime(strSIMPLE_DATEFORMAT,Fields[0].AsDateTime);
+        Caption := FormatDateTime(strSIMPLE_DATEFORMAT, Fields[0].AsDateTime);
         Data := Pointer(Fields[3].AsInteger);
         SubItems.Add(Fields[1].AsString);
         SubItems.Add(Fields[2].AsString);
@@ -1727,6 +1829,13 @@ begin
   sComboBox1Change(Self);
 end;
 
+procedure TMainForm.btnResultsPrintClick(Sender: TObject);
+begin
+  frUserDataset.RangeEnd := reCount;
+  frUserDataset.RangeEndCount := lvResults.Items.Count;
+  frResults.ShowReport;
+end;
+
 procedure TMainForm.btnEventNewClick(Sender: TObject);
 begin
   eEventName.Clear;
@@ -2138,7 +2247,7 @@ begin
   RACE_ID := cbResultsCG.Tag;
   bToApplyFilter := cbResultsCG.ItemIndex > 0;
   lvResults.Items.Clear;
-  // выборка резултата гонки. номера с количенством кругов и временем по абсолюту
+  // выборка результата гонки. номера с количенством кругов и временем по абсолюту
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
