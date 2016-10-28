@@ -9,7 +9,7 @@ uses
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
   sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter, FR_DSet,
-  FR_Class, Math;
+  FR_Class, Math, FR_E_RTF, sDialogs;
 
 const
   iBEST_LAP_FLAG = 2;
@@ -199,6 +199,11 @@ type
     tsStartPrep: TSTabSheet;
     frResults: TfrReport;
     frUserDataset: TfrUserDataset;
+    frTimenotes: TfrReport;
+    N1: TMenuItem;
+    miRPPrint: TMenuItem;
+    frAthletStats: TfrReport;
+    btnPrintAthletStats: TsBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -276,6 +281,11 @@ type
     procedure btnEventResultsClick(Sender: TObject);
     procedure frResultsGetValue(const ParName: string; var ParValue: Variant);
     procedure btnResultsPrintClick(Sender: TObject);
+    procedure miRPPrintClick(Sender: TObject);
+    procedure frTimenotesGetValue(const ParName: string; var ParValue: Variant);
+    procedure btnPrintAthletStatsClick(Sender: TObject);
+    procedure frAthletStatsGetValue(const ParName: string;
+      var ParValue: Variant);
   private
     { Private declarations }
   public
@@ -292,7 +302,7 @@ type
     procedure OnPlateNumberClick(Sender: TObject);
     procedure RefreshRacePanel;
     procedure LogIt(errLever: integer; strMessage : string);
-
+    function GetReportHeaderParam(const RACE_ID: integer; const ParName: string): Variant;
   end;
 
   RPUpdThread = class(TThread)
@@ -402,40 +412,38 @@ begin
   tsEvent.Show;
 end;
 
-procedure TMainForm.frResultsGetValue(const ParName: string;
-  var ParValue: Variant);
+// извлечение дополнительных параметров дял шапки отчёта. передаём RACE_ID и ParName
+function TMainForm.GetReportHeaderParam(const RACE_ID: integer; const ParName: string): Variant;
 var
-  i, EVENT_ID, RACE_ID : integer;
+  i : integer;
 begin
   if ParName = 'date' then begin
-    EVENT_ID := cbRace.Tag;
     with TIBQuery.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
-      SQL.Text := 'select event_date from events where event_id=' + IntToStr(EVENT_ID) + ';';
+      SQL.Text := 'select events.event_date from events, races where '
+        + '(races.event_id=events.event_id) and (races.race_id=' + IntToStr(RACE_ID) + ');';
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
       Open;
-      ParValue := FormatDateTime(strSIMPLE_DATEFORMAT, Fields[0].AsDateTime);
+      GetReportHeaderParam := FormatDateTime(strSIMPLE_DATEFORMAT, Fields[0].AsDateTime);
     finally
       Free;
     end;
   end;
   if ParName = 'track_length' then begin
-    RACE_ID := cbResultsCG.Tag;
     with TIBQuery.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
       SQL.Text := 'select track_length from races where race_id=' + IntToStr(RACE_ID) + ';';
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
       Open;
-      ParValue := Fields[0].AsInteger;
+      GetReportHeaderParam := Fields[0].AsInteger;
     finally
       Free;
     end;
   end;
   if (ParName = 'laps') or (ParName = 'race_distance') then begin
-    RACE_ID := cbResultsCG.Tag;
-    if cbResultsCG.ItemIndex = 0 then begin
+    if (cbResultsCG.ItemIndex = 0) or (tsAthletes.Visible) then begin
       // если абсолют
       with TIBQuery.Create(nil) do try
         Database := DBase;
@@ -443,13 +451,12 @@ begin
         SQL.Text := 'select laps, track_length from races where race_id=' + IntToStr(RACE_ID) + ';';
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
         Open;
-        if ParName = 'laps' then ParValue := Fields[0].AsInteger;
+        if ParName = 'laps' then GetReportHeaderParam := Fields[0].AsInteger;
         if ParName = 'race_distance' then
-          ParValue := RoundTo(Fields[0].AsInteger * Fields[1].AsInteger / 1000, -3);
+          GetReportHeaderParam := RoundTo(Fields[0].AsInteger * Fields[1].AsInteger / 1000, -3);
       finally
         Free;
       end;
-
     end
     else begin
       // если подгруппа
@@ -470,14 +477,38 @@ begin
           Next;
           inc(i);
         end;
-        if ParName = 'laps' then ParValue := Fields[3].AsInteger;
+        if ParName = 'laps' then GetReportHeaderParam := Fields[3].AsInteger;
         if ParName = 'race_distance' then
-          ParValue := RoundTo(Fields[3].AsInteger * Fields[4].AsInteger / 1000, -3);
+          GetReportHeaderParam := RoundTo(Fields[3].AsInteger * Fields[4].AsInteger / 1000, -3);
       finally
         Free;
       end;
     end;
   end;
+end;
+
+procedure TMainForm.frAthletStatsGetValue(const ParName: string;
+  var ParValue: Variant);
+begin
+  if (ParName = 'laps') or (ParName = 'race_distance') or (ParName = 'date')
+    or (ParName = 'track_length')
+  then ParValue := GetReportHeaderParam(Integer(lvAthRaces.Selected.Data), ParName);
+  if ParName = 'event_name' then ParValue := lvAthRaces.Selected.SubItems.Strings[0];
+  if ParName = 'race_name' then ParValue := lvAthRaces.Selected.SubItems.Strings[1];
+  if ParName = 'comp_group' then ParValue := strABSOLUTE;
+  if ParName = 'athlet' then ParValue := lvAthletes.Selected.Caption;
+  if ParName = 'lap' then ParValue := lvAthStats.Items[frUserDataset.RecNo].Caption;
+  if ParName = 'lap_time' then ParValue := lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[0];
+  if ParName = 'position' then ParValue := lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[1];
+  if ParName = 'move' then ParValue := lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[2];
+  if ParName = 'speed' then ParValue := lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[3];
+end;
+
+procedure TMainForm.frResultsGetValue(const ParName: string;
+  var ParValue: Variant);
+begin
+  if (ParName = 'laps') or (ParName = 'race_distance') or (ParName = 'date')
+    or (ParName = 'track_length') then ParValue := GetReportHeaderParam(cbResultsCG.Tag,ParName);
   if ParName = 'event_name' then ParValue := cbEvent.Text;
   if ParName = 'race_name' then ParValue := cbRace.Text;
   if ParName = 'comp_group' then ParValue := cbResultsCG.Text;
@@ -497,6 +528,34 @@ begin
     else
       ParValue := '';
   end;
+end;
+
+procedure TMainForm.frTimenotesGetValue(const ParName: string;
+  var ParValue: Variant);
+begin
+  if (ParName = 'laps') or (ParName = 'race_distance') or (ParName = 'date')
+    or (ParName = 'track_length') then ParValue := GetReportHeaderParam(cbResultsCG.Tag,ParName);
+  if ParName = 'event_name' then ParValue := cbEvent.Text;
+  if ParName = 'race_name' then ParValue := cbRace.Text;
+  if ParName = 'comp_group' then ParValue := cbResultsCG.Text;
+  if ParName = 'timenote' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].Caption;
+  if ParName = 'platenumber' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[0];
+  if ParName = 'athlet' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[1];
+  if ParName = 'lap' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[2];
+  if ParName = 'position' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[3];
+  if ParName = 'overlaps' then begin
+   if lvRacePanel.Items[frUserDataset.RecNo].SubItems.Count > 4 then
+      ParValue := lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[4]
+    else
+      ParValue := '';
+  end;
+end;
+
+procedure TMainForm.miRPPrintClick(Sender: TObject);
+begin
+  frUserDataset.RangeEnd := reCount;
+  frUserDataset.RangeEndCount := lvRacePanel.Items.Count;
+  frTimenotes.ShowReport;
 end;
 
 procedure TMainForm.OnPlateNumberClick(Sender: TObject);
@@ -774,6 +833,7 @@ var
 begin
   lvAthStats.Clear;
   lvAthRaces.Clear;
+  btnPrintAthletStats.Enabled := false;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -816,6 +876,7 @@ var
   dtLapTime, dtBesLapTime : TDateTime;
   rLapSpeed : extended;
 begin
+  btnPrintAthletStats.Enabled := true;
   ATHLET_ID := Integer(lvAthletes.Items[lvAthletes.ItemIndex].Data);
   RACE_ID := Integer(Item.Data);
   with TIBQuery.Create(nil) do try
@@ -1254,7 +1315,8 @@ begin
     end;
     // список заездов
     Close;
-    SQL.Text := 'select race_id,laps,track_length,name,status from races where event_id=' + IntToStr(EVENT_ID) + ';';
+    SQL.Text := 'select race_id,laps,track_length,name,status from races where event_id='
+      + IntToStr(EVENT_ID) + ';';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
@@ -1305,6 +1367,13 @@ begin
   eAthletSearch.Show;
   btnAthletSearch.Show;
   eAthletSearch.SetFocus;
+end;
+
+procedure TMainForm.btnPrintAthletStatsClick(Sender: TObject);
+begin
+  frUserDataset.RangeEnd := reCount;
+  frUserDataset.RangeEndCount := lvAthStats.Items.Count;
+  frAthletStats.ShowReport;
 end;
 
 procedure TMainForm.btnSettingsClick(Sender: TObject);
