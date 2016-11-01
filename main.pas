@@ -200,10 +200,12 @@ type
     frResults: TfrReport;
     frUserDataset: TfrUserDataset;
     frTimenotes: TfrReport;
-    N1: TMenuItem;
     miRPPrint: TMenuItem;
     frAthletStats: TfrReport;
     btnPrintAthletStats: TsBitBtn;
+    miRPTimenoteAddNow: TMenuItem;
+    miRPTimenote1SecPlus: TMenuItem;
+    miRPTimenoteAdd1SecMinus: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -264,7 +266,6 @@ type
       State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure lvRacePanelCustomDrawSubItem(Sender: TCustomListView; Item: TListItem;
       SubItem: Integer; State: TCustomDrawState; var DefaultDraw: Boolean);
-    procedure miRPTimenoteAddClick(Sender: TObject);
     procedure miRPTimenoteDelClick(Sender: TObject);
     procedure miRPTimenoteRenumClick(Sender: TObject);
     procedure miRagistrationCancelClick(Sender: TObject);
@@ -286,6 +287,9 @@ type
     procedure btnPrintAthletStatsClick(Sender: TObject);
     procedure frAthletStatsGetValue(const ParName: string;
       var ParValue: Variant);
+    procedure miRPTimenoteAddNowClick(Sender: TObject);
+    procedure miRPTimenote1SecPlusClick(Sender: TObject);
+    procedure miRPTimenoteAdd1SecMinusClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -489,6 +493,8 @@ end;
 
 procedure TMainForm.frAthletStatsGetValue(const ParName: string;
   var ParValue: Variant);
+var
+  i : integer;
 begin
   if (ParName = 'laps') or (ParName = 'race_distance') or (ParName = 'date')
     or (ParName = 'track_length')
@@ -502,6 +508,13 @@ begin
   if ParName = 'position' then ParValue := lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[1];
   if ParName = 'move' then ParValue := lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[2];
   if ParName = 'speed' then ParValue := lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[3];
+  if (ParName = 'best_lap_number') or (ParName = 'best_lap_time') or (ParName = 'best_avg_speed') then begin
+    i := 0;
+    while Integer(lvAthStats.Items[i].Data) <> iBEST_LAP_FLAG do inc(i);
+    if ParName = 'best_lap_number' then ParValue := lvAthStats.Items[i].Caption;
+    if ParName = 'best_lap_time' then ParValue := lvAthStats.Items[i].SubItems.Strings[0];
+    if ParName = 'best_avg_speed' then ParValue := lvAthStats.Items[i].SubItems.Strings[3];
+  end;
 end;
 
 procedure TMainForm.frResultsGetValue(const ParName: string;
@@ -1055,7 +1068,63 @@ begin
   RefreshRacePanel;
 end;
 
-procedure TMainForm.miRPTimenoteAddClick(Sender: TObject);
+procedure TMainForm.miRPTimenote1SecPlusClick(Sender: TObject);
+var
+  i, TN_ID : integer;
+begin
+  // вычисляем новый TN_ID
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select max(tn_id) from timenotes;';
+    Open;
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    TN_ID := Fields[0].AsInteger + 1;
+  finally
+    Free;
+  end;
+  // вычисляем время +1 сек от времени выбранной отметки
+  eTimenote.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT,
+    IncSecond(StrToTime(lvRacePanel.Selected.Caption + '0', fs), 1)),1,11);
+  // сохраняем TN_ID в sPanel7.Tag
+  pnlTimenote.Tag := TN_ID;
+  // номера
+  cbTimenotePlatenumber.Clear;
+  for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
+  eTimenote.Enabled := true;
+  cbTimenotePlatenumber.DroppedDown := false;
+  pnlTimenote.Show;
+end;
+
+procedure TMainForm.miRPTimenoteAdd1SecMinusClick(Sender: TObject);
+var
+  i, TN_ID : integer;
+begin
+  // вычисляем новый TN_ID
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select max(tn_id) from timenotes;';
+    Open;
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    TN_ID := Fields[0].AsInteger + 1;
+  finally
+    Free;
+  end;
+  // вычисляем время -1 сек от времени выбранной отметки
+  eTimenote.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT,
+    IncSecond(StrToTime(lvRacePanel.Selected.Caption + '0', fs), -1)),1,11);
+  // сохраняем TN_ID в sPanel7.Tag
+  pnlTimenote.Tag := TN_ID;
+  // номера
+  cbTimenotePlatenumber.Clear;
+  for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
+  eTimenote.Enabled := true;
+  cbTimenotePlatenumber.DroppedDown := false;
+  pnlTimenote.Show;
+end;
+
+procedure TMainForm.miRPTimenoteAddNowClick(Sender: TObject);
 var
   i, TN_ID : integer;
 begin
@@ -1164,8 +1233,9 @@ var
   bClear : boolean;
 begin
   if lbEventRaces.ItemIndex <> -1 then begin
-    if MessageDlg('Удалить заезд "' + lbEventRaces.Items.Strings[lbEventRaces.ItemIndex]
-        + '"?', mtConfirmation, [mbyes, mbno], 0) = mryes then with TIBSQL.Create(nil) do try
+    if RusMessageDialog('Удалить заезд "' + lbEventRaces.Items.Strings[lbEventRaces.ItemIndex]
+        + '"?', mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
+    then with TIBSQL.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
       // поиск RACE_ID для удаления
