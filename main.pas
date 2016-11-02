@@ -1,4 +1,4 @@
-unit main;
+п»їunit main;
 
 interface
 
@@ -14,49 +14,55 @@ uses
 const
   iBEST_LAP_FLAG = 2;
   iORDINARY_LAP_FLAG = 1;
-  iPLATENUMBERS_COUNT = 50;
+  iPLATENUMBERS_COUNT_DEFAULT = 50;
   llDEBUG = 3;
   llERROR = 1;
   llNOLOG = 0;
   llWARNING = 2;
-  strABSOLUTE = 'Абсолютный зачёт';
-  strCOMPLETE_RACE = 'Завершить гонку и перейти к итоговой таблице?';
-  strCOMP_GROUP_NOT_SELECTED = 'Не выбрана зачётная подгруппа';
+  strABSOLUTE = 'РђР±СЃРѕР»СЋС‚РЅС‹Р№ Р·Р°С‡С‘С‚';
+//  strARROW_DOWN = 'в†“';
+//  strARROW_UP = 'в†‘';
+  strARROW_DOWN = 'в–ј';
+  strARROW_UP = 'в–І';
+  strCOMPLETE_RACE = 'Р—Р°РІРµСЂС€РёС‚СЊ РіРѕРЅРєСѓ Рё РїРµСЂРµР№С‚Рё Рє РёС‚РѕРіРѕРІРѕР№ С‚Р°Р±Р»РёС†Рµ?';
+  strCOMP_GROUP_NOT_SELECTED = 'РќРµ РІС‹Р±СЂР°РЅР° Р·Р°С‡С‘С‚РЅР°СЏ РїРѕРґРіСЂСѓРїРїР°';
   strCONFIG_FILENAME = 'config.ini';
-  strDB_CONNECTION_ERROR = 'Ошибка при соединении с БД';
+  strDB_CONNECTION_ERROR = 'РћС€РёР±РєР° РїСЂРё СЃРѕРµРґРёРЅРµРЅРёРё СЃ Р‘Р”';
   strDB_FILENAME = 'DBASE.FDB';
   strDEFAULT_SKIN_NAME = 'Clean card (internal)';
-  strDELETE_COMP_GROUP = 'Удалить зачётную подгруппу?';
+  strDELETE_COMP_GROUP = 'РЈРґР°Р»РёС‚СЊ Р·Р°С‡С‘С‚РЅСѓСЋ РїРѕРґРіСЂСѓРїРїСѓ?';
   strEXEC_SQL = 'SQL: ';
-  strFINISH = 'ФИНИШ';
-  strINVALID_TIMENOTE_DATA = 'Неверные данные о временной отметке';
-  strLAPSTOGO = ' кругов до финиша';
-  strLASTLAP = 'Последний круг';
+  strFINISH = 'Р¤РРќРРЁ';
+  strINVALID_TIMENOTE_DATA = 'РќРµРІРµСЂРЅС‹Рµ РґР°РЅРЅС‹Рµ Рѕ РІСЂРµРјРµРЅРЅРѕР№ РѕС‚РјРµС‚РєРµ';
+  strLAPSTOGO = ' РєСЂСѓРіРѕРІ РґРѕ С„РёРЅРёС€Р°';
+  strLASTLAP = 'РџРѕСЃР»РµРґРЅРёР№ РєСЂСѓРі';
   strLOG_FILENAME = 'racedata.log';
+//  strNO_POSITION_CHANGES = 'вЂў';
+  strNO_POSITION_CHANGES = 'в—Џ';
   strPLATENUMBER_FONT_NAME = 'Century Gothic';
-  strPRERACE_CHECK_REQUIRED = 'Требуется предстартовая проверка';
-  strRACE_FINISHED = 'Гонка закончена';
-  strRACE_NOT_DELECTED = 'Не выбран заезд';
-  strRACE_STATUS_FINISHED = 'Завершено';
-  strRACE_STATUS_STARTED = 'В процессе';
-  strREADY_TO_RACE = 'Готовы к старту';
-  strREQUIRED_FIELDS_MISSING = 'Пропущены обязательные для заполнения поля';
+  strPRERACE_CHECK_REQUIRED = 'РўСЂРµР±СѓРµС‚СЃСЏ РїСЂРµРґСЃС‚Р°СЂС‚РѕРІР°СЏ РїСЂРѕРІРµСЂРєР°';
+  strRACE_FINISHED = 'Р“РѕРЅРєР° Р·Р°РєРѕРЅС‡РµРЅР°';
+  strRACE_NOT_DELECTED = 'РќРµ РІС‹Р±СЂР°РЅ Р·Р°РµР·Рґ';
+  strRACE_STATUS_FINISHED = 'Р—Р°РІРµСЂС€РµРЅРѕ';
+  strRACE_STATUS_STARTED = 'Р’ РїСЂРѕС†РµСЃСЃРµ';
+  strREADY_TO_RACE = 'Р“РѕС‚РѕРІС‹ Рє СЃС‚Р°СЂС‚Сѓ';
+  strREQUIRED_FIELDS_MISSING = 'РџСЂРѕРїСѓС‰РµРЅС‹ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ РїРѕР»СЏ';
   strSIMPLE_DATEFORMAT = 'dd/mm/yyyy';
-  strSTART = 'СТАРТ';
+  strSTART = 'РЎРўРђР Рў';
   strTIMENOTE_FORMAT = 'hh:mm:ss.zzz';
   strTIMER_CAPTION = '00:00:00.00';
-  strUNABLE_TO_DELETE_STARTED_EVENT = 'Невозможно удалить мероприятие с проведёнными заездами';
-  strUNABLE_TO_DELETE_STARTED_RACE = 'Невозможно удалить уже начатый заезд';
+  strUNABLE_TO_DELETE_STARTED_EVENT = 'РќРµРІРѕР·РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ РјРµСЂРѕРїСЂРёСЏС‚РёРµ СЃ РїСЂРѕРІРµРґС‘РЅРЅС‹РјРё Р·Р°РµР·РґР°РјРё';
+  strUNABLE_TO_DELETE_STARTED_RACE = 'РќРµРІРѕР·РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ СѓР¶Рµ РЅР°С‡Р°С‚С‹Р№ Р·Р°РµР·Рґ';
 
-  // розовый (св-т)
+  // СЂРѕР·РѕРІС‹Р№ (СЃРІ-С‚)
   clOddLight = TColor($faf0e6);
   clOddDark = TColor($ffe4e1);
-  // голубой (св-т)
+  // РіРѕР»СѓР±РѕР№ (СЃРІ-С‚)
   clEvenLight = TColor($f0f8ff);
   clEvenDark = TColor($e6e6fa);
-  // серый фон
+  // СЃРµСЂС‹Р№ С„РѕРЅ
   clOverlapped = TColor($dcdcdc);
-  // серый шрифт
+  // СЃРµСЂС‹Р№ С€СЂРёС„С‚
   clFontGrayed = TColor($808080);
 
 type
@@ -206,6 +212,9 @@ type
     miRPTimenoteAddNow: TMenuItem;
     miRPTimenote1SecPlus: TMenuItem;
     miRPTimenoteAdd1SecMinus: TMenuItem;
+    lblPlatesCount: TsLabel;
+    ePlatesCount: TsEdit;
+    btnPlatesCount: TsBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -290,11 +299,13 @@ type
     procedure miRPTimenoteAddNowClick(Sender: TObject);
     procedure miRPTimenote1SecPlusClick(Sender: TObject);
     procedure miRPTimenoteAdd1SecMinusClick(Sender: TObject);
+    procedure btnPlatesCountClick(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
     fs: TFormatSettings;
+    iPlatenumbersCount : integer;
     RaceNumbers : TStringList;
     TIME_START : TDateTime;
     logLevel : integer;
@@ -351,13 +362,13 @@ var
 begin
   aMsgDlg := CreateMessageDialog(Msg, DlgType, Buttons);
   captionIndex := 0;
-  // перебор по объектам в диалоге
+  // РїРµСЂРµР±РѕСЂ РїРѕ РѕР±СЉРµРєС‚Р°Рј РІ РґРёР°Р»РѕРіРµ
   for i := 0 to aMsgDlg.ComponentCount - 1 do begin
-    // если кнопка
+    // РµСЃР»Рё РєРЅРѕРїРєР°
     if (aMsgDlg.Components[i] is TButton) then begin
       dlgButton := TButton(aMsgDlg.Components[i]);
       if CaptionIndex > High(Captions) then Break;
-      // загружаем новый заголовок из нашего массива заголовков
+      // Р·Р°РіСЂСѓР¶Р°РµРј РЅРѕРІС‹Р№ Р·Р°РіРѕР»РѕРІРѕРє РёР· РЅР°С€РµРіРѕ РјР°СЃСЃРёРІР° Р·Р°РіРѕР»РѕРІРєРѕРІ
       dlgButton.Caption := Captions[CaptionIndex];
       inc(CaptionIndex);
     end;
@@ -395,6 +406,7 @@ begin
   strLogFilename := ExtractFilePath(Application.ExeName) + Config.ReadString('Logging', 'Filename', strLOG_FILENAME);
   sSkinManager.SkinName := Config.ReadString('General', 'Skin', strDEFAULT_SKIN_NAME);
   DBase.DatabaseName := ExtractFilePath(Application.ExeName) + strDB_FILENAME;
+  iPlatenumbersCount := Config.ReadInteger('General', 'PlateNumbers', iPLATENUMBERS_COUNT_DEFAULT);
   try
     DBase.Connected := True;
     DBTran.Active := True;
@@ -416,7 +428,7 @@ begin
   tsEvent.Show;
 end;
 
-// извлечение дополнительных параметров дял шапки отчёта. передаём RACE_ID и ParName
+// РёР·РІР»РµС‡РµРЅРёРµ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РґСЏР» С€Р°РїРєРё РѕС‚С‡С‘С‚Р°. РїРµСЂРµРґР°С‘Рј RACE_ID Рё ParName
 function TMainForm.GetReportHeaderParam(const RACE_ID: integer; const ParName: string): Variant;
 var
   i : integer;
@@ -448,7 +460,7 @@ begin
   end;
   if (ParName = 'laps') or (ParName = 'race_distance') then begin
     if (cbResultsCG.ItemIndex = 0) or (tsAthletes.Visible) then begin
-      // если абсолют
+      // РµСЃР»Рё Р°Р±СЃРѕР»СЋС‚
       with TIBQuery.Create(nil) do try
         Database := DBase;
         Transaction := DBTran;
@@ -463,12 +475,12 @@ begin
       end;
     end
     else begin
-      // если подгруппа
+      // РµСЃР»Рё РїРѕРґРіСЂСѓРїРїР°
       with TIBQuery.Create(nil) do try
         Database := DBase;
         Transaction := DBTran;
-        // изображаем такой-же запрос как и в sComboBox6, пробегаемся по нему до ItemIndex
-        // и находим нужные поля
+        // РёР·РѕР±СЂР°Р¶Р°РµРј С‚Р°РєРѕР№-Р¶Рµ Р·Р°РїСЂРѕСЃ РєР°Рє Рё РІ sComboBox6, РїСЂРѕР±РµРіР°РµРјСЃСЏ РїРѕ РЅРµРјСѓ РґРѕ ItemIndex
+        // Рё РЅР°С…РѕРґРёРј РЅСѓР¶РЅС‹Рµ РїРѕР»СЏ
         SQL.Text := 'select comp_groups.sex, comp_groups.agemin, comp_groups.agemax, '
           + 'comp_groups.laps, races.track_length from comp_groups,races where '
           + '(comp_groups.race_id=' + IntToStr(RACE_ID) + ') and(races.race_id=comp_groups.race_id)'
@@ -550,7 +562,7 @@ begin
     or (ParName = 'track_length') then ParValue := GetReportHeaderParam(cbResultsCG.Tag,ParName);
   if ParName = 'event_name' then ParValue := cbEvent.Text;
   if ParName = 'race_name' then ParValue := cbRace.Text;
-  if ParName = 'comp_group' then ParValue := cbResultsCG.Text;
+  if ParName = 'comp_group' then ParValue := strABSOLUTE;
   if ParName = 'timenote' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].Caption;
   if ParName = 'platenumber' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[0];
   if ParName = 'athlet' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[1];
@@ -575,7 +587,7 @@ procedure TMainForm.OnPlateNumberClick(Sender: TObject);
 var
   PLATENUMBER, RACE_ID, LAST_TN_ID : integer;
 begin
-  // проверяем стартовал ли заезд
+  // РїСЂРѕРІРµСЂСЏРµРј СЃС‚Р°СЂС‚РѕРІР°Р» Р»Рё Р·Р°РµР·Рґ
   if not(btnStpwtchStart.Enabled) then begin
     PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
     RACE_ID := TFreeButton(Sender).Tag;
@@ -600,9 +612,9 @@ begin
     finally
       Free;
     end;
-    // если предыдущий поток обновления завершил работу, запускаем новый
+    // РµСЃР»Рё РїСЂРµРґС‹РґСѓС‰РёР№ РїРѕС‚РѕРє РѕР±РЅРѕРІР»РµРЅРёСЏ Р·Р°РІРµСЂС€РёР» СЂР°Р±РѕС‚Сѓ, Р·Р°РїСѓСЃРєР°РµРј РЅРѕРІС‹Р№
     if not(bDoRacePanelRefresh) then begin
-      // выставляем флаг процесса обновления
+      // РІС‹СЃС‚Р°РІР»СЏРµРј С„Р»Р°Рі РїСЂРѕС†РµСЃСЃР° РѕР±РЅРѕРІР»РµРЅРёСЏ
       bDoRacePanelRefresh := true;
       rpThread := RPUpdThread.Create(False);
       LogIt(llDEBUG, 'RPUpdThread.Create, ThreadID = ' + IntToStr(rpThread.ThreadID) + #13#10);
@@ -619,12 +631,12 @@ var
   lItem : TListItem;
 begin
   lvRacePanel.Clear;
-  // берём RACE_ID из sspNumbersPanel.Tag
+  // Р±РµСЂС‘Рј RACE_ID РёР· sspNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // время старта
+    // РІСЂРµРјСЏ СЃС‚Р°СЂС‚Р°
     SQL.Text := 'select timenote from timenotes where (platenumber = 0) '
       + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
     Open;
@@ -633,14 +645,14 @@ begin
       btnStpwtchStart.Enabled := false;
       strTIME_START := Fields[0].AsString;
       TIME_START := StrToTime(strTIME_START, fs);
-      btnStpwtchStart.Caption := 'Время старта: ' + Copy(strTIME_START, 1, 11);
+      btnStpwtchStart.Caption := 'Р’СЂРµРјСЏ СЃС‚Р°СЂС‚Р°: ' + Copy(strTIME_START, 1, 11);
 //      Timer.Enabled := true;
     end
     else begin
       btnStpwtchStart.Enabled := true;
       btnStpwtchStart.Caption := strSTART;
     end;
-    // времена засечек
+    // РІСЂРµРјРµРЅР° Р·Р°СЃРµС‡РµРє
     Close;
     SQL.Text := 'select timenotes.tn_id, athletes.name, timenotes.platenumber, '
       + 'timenotes.timenote from athletes, registry, timenotes where (athletes.athlet_id = '
@@ -656,13 +668,13 @@ begin
       RACETIME := TIMENOTE - TIME_START;
       lItem := lvRacePanel.Items.Add;
       with lItem do begin
-        // сохраняем TN_ID в Item.Data
+        // СЃРѕС…СЂР°РЅСЏРµРј TN_ID РІ Item.Data
         Data := Pointer(TN_ID);
-        // отсекаем тысячные, чтоб не захламлять
+        // РѕС‚СЃРµРєР°РµРј С‚С‹СЃСЏС‡РЅС‹Рµ, С‡С‚РѕР± РЅРµ Р·Р°С…Р»Р°РјР»СЏС‚СЊ
         Caption := Copy(FormatDateTime(strTIMENOTE_FORMAT, RACETIME), 1, 11);
         SubItems.Add(IntToStr(PLATENUMBER));
         SubItems.Add(Fields[1].AsString);
-        // считаем круги
+        // СЃС‡РёС‚Р°РµРј РєСЂСѓРіРё
         with TIBQuery.Create(nil) do try
           Database := DBase;
           Transaction := DBTran;
@@ -678,7 +690,7 @@ begin
       end;
       Next;
     end;
-    // проставляем позиции
+    // РїСЂРѕСЃС‚Р°РІР»СЏРµРј РїРѕР·РёС†РёРё
     with lvRacePanel.Items do begin
       if Count <> 0 then begin
         iPosCnt := 1;
@@ -686,14 +698,14 @@ begin
         for i := 1 to Count - 1 do begin
           iPosCnt := 0;
           iLapsOffset := 0;
-          // преебираем всех кто прошёл ранее
+          // РїСЂРµРµР±РёСЂР°РµРј РІСЃРµС… РєС‚Рѕ РїСЂРѕС€С‘Р» СЂР°РЅРµРµ
           for j := i downto 0 do begin
-            // находим позицию на основании числа уже прошедших в этом круге
+            // РЅР°С…РѕРґРёРј РїРѕР·РёС†РёСЋ РЅР° РѕСЃРЅРѕРІР°РЅРёРё С‡РёСЃР»Р° СѓР¶Рµ РїСЂРѕС€РµРґС€РёС… РІ СЌС‚РѕРј РєСЂСѓРіРµ
             if Item[i].SubItems.Strings[2] = Item[j].SubItems.Strings[2] then inc(iPosCnt);
-            // находим максимальную разницу в кругах из уже ранее отметившихся
+            // РЅР°С…РѕРґРёРј РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ СЂР°Р·РЅРёС†Сѓ РІ РєСЂСѓРіР°С… РёР· СѓР¶Рµ СЂР°РЅРµРµ РѕС‚РјРµС‚РёРІС€РёС…СЃСЏ
             k := StrToInt(Item[j].SubItems.Strings[2]) - StrToInt(Item[i].SubItems.Strings[2]);
             if iLapsOffset < k then iLapsOffset := k;
-            // заодно сохраняем текущий круг лидера
+            // Р·Р°РѕРґРЅРѕ СЃРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰РёР№ РєСЂСѓРі Р»РёРґРµСЂР°
             if iLapsCompleted < StrToInt(Item[j].SubItems.Strings[2]) then
               iLapsCompleted := StrToInt(Item[j].SubItems.Strings[2]);
           end;
@@ -702,7 +714,7 @@ begin
         end;
       end;
     end; // with ListView2.Items
-    // выравнивание ширины колонок, подгонка ширины панели по колонкам
+    // РІС‹СЂР°РІРЅРёРІР°РЅРёРµ С€РёСЂРёРЅС‹ РєРѕР»РѕРЅРѕРє, РїРѕРґРіРѕРЅРєР° С€РёСЂРёРЅС‹ РїР°РЅРµР»Рё РїРѕ РєРѕР»РѕРЅРєР°Рј
     iPanelWidth := 0;
     for i := 0 to lvRacePanel.Columns.Count - 2 do begin
       lvRacePanel.Columns[i].Width := ColumnHeaderWidth;
@@ -713,18 +725,18 @@ begin
       ScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL)
     else ScrollBarWidth := 0;
     spRacePanel.Width := iPanelWidth + ScrollBarWidth + lvRacePanel.Columns.Count;
-    // прокрутка в конец
+    // РїСЂРѕРєСЂСѓС‚РєР° РІ РєРѕРЅРµС†
     SendMessage(lvRacePanel.Handle, WM_VSCROLL, SB_BOTTOM, 0);
   finally
     Free;
   end;
-  // выводим сколько кругов осталось
+  // РІС‹РІРѕРґРёРј СЃРєРѕР»СЊРєРѕ РєСЂСѓРіРѕРІ РѕСЃС‚Р°Р»РѕСЃСЊ
   iLapsToGo := btnStpwtchFinish.Tag - iLapsCompleted;
   if iLapsToGo > 1 then btnStpwtchFinish.Caption :=
     IntToStr(btnStpwtchFinish.Tag - iLapsCompleted) + strLAPSTOGO;
   if iLapsToGo = 1 then btnStpwtchFinish.Caption := strLASTLAP;
   if iLapsToGo < 1 then btnStpwtchFinish.Caption := strFINISH;
-  // снимаем флаг процесса обновления
+  // СЃРЅРёРјР°РµРј С„Р»Р°Рі РїСЂРѕС†РµСЃСЃР° РѕР±РЅРѕРІР»РµРЅРёСЏ
   bDoRacePanelRefresh := false;
 end;
 
@@ -734,15 +746,15 @@ var
   k : real;
   Item : TControl;
 begin
-  // вычисление параметров кнопочного поля
+  // РІС‹С‡РёСЃР»РµРЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РєРЅРѕРїРѕС‡РЅРѕРіРѕ РїРѕР»СЏ
   iFldWidth := spNumbersPanel.Width;
   iFldHeight := spNumbersPanel.Height;
   iBtnNum := RaceNumbers.Count;
   // https://toster.ru/q/165393
-  // Считаем максимальную сторону квадрата
+  // РЎС‡РёС‚Р°РµРј РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ СЃС‚РѕСЂРѕРЅСѓ РєРІР°РґСЂР°С‚Р°
   maxBtnSize := trunc(sqrt(iFldHeight * iFldWidth / iBtnNum));
-  // пробежался в сторону уменьшения i подставляя его в формулу K=(ширина div i)*(высота div i)
-  // пока K не станет равно количеству квадратов
+  // РїСЂРѕР±РµР¶Р°Р»СЃСЏ РІ СЃС‚РѕСЂРѕРЅСѓ СѓРјРµРЅСЊС€РµРЅРёСЏ i РїРѕРґСЃС‚Р°РІР»СЏСЏ РµРіРѕ РІ С„РѕСЂРјСѓР»Сѓ K=(С€РёСЂРёРЅР° div i)*(РІС‹СЃРѕС‚Р° div i)
+  // РїРѕРєР° K РЅРµ СЃС‚Р°РЅРµС‚ СЂР°РІРЅРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ РєРІР°РґСЂР°С‚РѕРІ
   i := maxBtnSize;
   repeat
     dec(i);
@@ -753,12 +765,12 @@ begin
   iBtnHeight := i;
   iBtnWidth := i;
   spNumbersPanel.Hide;
-  // удаление старых кнопок
+  // СѓРґР°Р»РµРЅРёРµ СЃС‚Р°СЂС‹С… РєРЅРѕРїРѕРє
   for i := spNumbersPanel.ControlCount - 1 downto 0 do begin
     Item := spNumbersPanel.Controls[i];
     Item.Free;
   end;
-  // заполняем
+  // Р·Р°РїРѕР»РЅСЏРµРј
   for i := 0 to iBtnNum - 1 do begin
     with TFreeButton.Create(spNumbersPanel) do begin
       Parent := spNumbersPanel;
@@ -776,7 +788,7 @@ begin
         Color := clBlack;
         Name := strPLATENUMBER_FONT_NAME;
       end;
-      // сохраняем RACE_ID в Tag кнопки
+      // СЃРѕС…СЂР°РЅСЏРµРј RACE_ID РІ Tag РєРЅРѕРїРєРё
       Tag := chlbAthletes.Tag;
       onClick := OnPlateNumberClick;
 //      Show;
@@ -874,7 +886,7 @@ begin
   finally
     Free;
   end;
-  // выравнивание ширины колонок
+  // РІС‹СЂР°РІРЅРёРІР°РЅРёРµ С€РёСЂРёРЅС‹ РєРѕР»РѕРЅРѕРє
   for i := 0 to lvAthRaces.Columns.Count - 3 do begin
     lvAthRaces.Columns[i].Width := ColumnTextWidth;
   end;
@@ -895,20 +907,20 @@ begin
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // параметры заезда
+    // РїР°СЂР°РјРµС‚СЂС‹ Р·Р°РµР·РґР°
     SQL.Text := 'select laps,track_length from races where race_id=' + IntToStr(RACE_ID) + ';';
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     Open;
     LAPS := Fields[0].AsInteger;
     TRACK_LENGTH := Fields[1].AsInteger;
-    // время старта
+    // РІСЂРµРјСЏ СЃС‚Р°СЂС‚Р°
     Close;
     SQL.Text := 'select timenote from timenotes where (race_id=' + IntToStr(RACE_ID)
       + ') and (platenumber=0);';
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     Open;
     strTIME_PREVIOUS := Fields[0].AsString;
-    // времена кругов
+    // РІСЂРµРјРµРЅР° РєСЂСѓРіРѕРІ
     Close;
     SQL.Text := 'select timenotes.tn_id, timenotes.timenote from timenotes, registry '
       + 'where (timenotes.race_id=' + IntToStr(RACE_ID)
@@ -928,20 +940,20 @@ begin
         strTIME_CURRENT := Fields[1].AsString;
         dtLapTime := StrToTime(strTIME_CURRENT, fs) - StrToTime(strTIME_PREVIOUS, fs);
         Data := Pointer(iORDINARY_LAP_FLAG);
-        // ищем лучший круг
+        // РёС‰РµРј Р»СѓС‡С€РёР№ РєСЂСѓРі
         if dtLapTime < dtBesLapTime then begin
           dtBesLapTime := dtLapTime;
           iBestLap := i;
         end;
         SubItems.Add(Copy(FormatDateTime(strTIMENOTE_FORMAT, dtLapTime), 1, 11));
-        // скорость на круге
+        // СЃРєРѕСЂРѕСЃС‚СЊ РЅР° РєСЂСѓРіРµ
         if TRACK_LENGTH > 0 then begin
           rLapSpeed := (3600 * TRACK_LENGTH / MilliSecondsBetween(StrToTime(strTIME_PREVIOUS, fs),
             StrToTime(strTIME_CURRENT, fs)) * 1000) / 1000;
         end
         else rLapSpeed := 0;
         strTIME_PREVIOUS := strTIME_CURRENT;
-        // определяем место на круге
+        // РѕРїСЂРµРґРµР»СЏРµРј РјРµСЃС‚Рѕ РЅР° РєСЂСѓРіРµ
         with TIBQuery.Create(nil) do try
           Database := DBase;
           Transaction := DBTran;
@@ -967,15 +979,15 @@ begin
         finally
           Free;
         end;
-        // проставляем прогресс
+        // РїСЂРѕСЃС‚Р°РІР»СЏРµРј РїСЂРѕРіСЂРµСЃСЃ
         if i > 1 then begin
           iShift := StrToInt(SubItems.Strings[1]) - StrToInt(lvAthStats.Items[i - 2].SubItems.Strings[1]);
-          if iShift = 0 then SubItems.Add('-');
-          if iShift > 0 then SubItems.Add('+' + IntToStr(iShift));
-          if iShift < 0 then SubItems.Add(IntToStr(iShift));
+          if iShift = 0 then SubItems.Add(strNO_POSITION_CHANGES);
+          if iShift > 0 then SubItems.Add(IntToStr(iShift) + ' ' + strARROW_DOWN);
+          if iShift < 0 then SubItems.Add(IntToStr(-iShift) + ' ' + strARROW_UP);
         end
-        else SubItems.Add('-');
-        // скорость на круге
+        else SubItems.Add(strNO_POSITION_CHANGES);
+        // СЃРєРѕСЂРѕСЃС‚СЊ РЅР° РєСЂСѓРіРµ
         SubItems.Add(FloatToStrF(rLapSpeed, ffGeneral, 4, 2));
       end;
       Next;
@@ -1013,11 +1025,11 @@ begin
   strRaceName := lvRegistered.Items[lvRegistered.ItemIndex].Caption;
   strAthletName := lvRegistered.Items[lvRegistered.ItemIndex].SubItems[1];
   strAthletBirthDate := lvRegistered.Items[lvRegistered.ItemIndex].SubItems[2];
-  if RusMessageDialog('Отменить регистрацию ' + strAthletName + ' на ' + strRaceName + '?',
-    mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
+  if RusMessageDialog('РћС‚РјРµРЅРёС‚СЊ СЂРµРіРёСЃС‚СЂР°С†РёСЋ ' + strAthletName + ' РЅР° ' + strRaceName + '?',
+    mtConfirmation, mbYesNo, ['РћРљ', 'РћС‚РјРµРЅР°']) = mryes
   then begin
     with TIBQuery.Create(nil) do try
-      // извлекаем RACE_ID
+      // РёР·РІР»РµРєР°РµРј RACE_ID
       Database := DBase;
       Transaction := DBTran;
       SQL.Text := 'select race_id from races where (event_id=' + IntToStr(EVENT_ID)
@@ -1026,7 +1038,7 @@ begin
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
       FetchAll;
       RACE_ID := Fields[0].AsInteger;
-      // извлекаем ATHLET_ID
+      // РёР·РІР»РµРєР°РµРј ATHLET_ID
       Close;
       SQL.Text := 'select athlet_id from athletes where (name=''' + strAthletName
         + ''') and (date_born=''' + strAthletBirthDate + ''');';
@@ -1072,7 +1084,7 @@ procedure TMainForm.miRPTimenote1SecPlusClick(Sender: TObject);
 var
   i, TN_ID : integer;
 begin
-  // вычисляем новый TN_ID
+  // РІС‹С‡РёСЃР»СЏРµРј РЅРѕРІС‹Р№ TN_ID
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1083,12 +1095,12 @@ begin
   finally
     Free;
   end;
-  // вычисляем время +1 сек от времени выбранной отметки
+  // РІС‹С‡РёСЃР»СЏРµРј РІСЂРµРјСЏ +1 СЃРµРє РѕС‚ РІСЂРµРјРµРЅРё РІС‹Р±СЂР°РЅРЅРѕР№ РѕС‚РјРµС‚РєРё
   eTimenote.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT,
     IncSecond(StrToTime(lvRacePanel.Selected.Caption + '0', fs), 1)),1,11);
-  // сохраняем TN_ID в sPanel7.Tag
+  // СЃРѕС…СЂР°РЅСЏРµРј TN_ID РІ sPanel7.Tag
   pnlTimenote.Tag := TN_ID;
-  // номера
+  // РЅРѕРјРµСЂР°
   cbTimenotePlatenumber.Clear;
   for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
   eTimenote.Enabled := true;
@@ -1100,7 +1112,7 @@ procedure TMainForm.miRPTimenoteAdd1SecMinusClick(Sender: TObject);
 var
   i, TN_ID : integer;
 begin
-  // вычисляем новый TN_ID
+  // РІС‹С‡РёСЃР»СЏРµРј РЅРѕРІС‹Р№ TN_ID
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1111,12 +1123,12 @@ begin
   finally
     Free;
   end;
-  // вычисляем время -1 сек от времени выбранной отметки
+  // РІС‹С‡РёСЃР»СЏРµРј РІСЂРµРјСЏ -1 СЃРµРє РѕС‚ РІСЂРµРјРµРЅРё РІС‹Р±СЂР°РЅРЅРѕР№ РѕС‚РјРµС‚РєРё
   eTimenote.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT,
     IncSecond(StrToTime(lvRacePanel.Selected.Caption + '0', fs), -1)),1,11);
-  // сохраняем TN_ID в sPanel7.Tag
+  // СЃРѕС…СЂР°РЅСЏРµРј TN_ID РІ sPanel7.Tag
   pnlTimenote.Tag := TN_ID;
-  // номера
+  // РЅРѕРјРµСЂР°
   cbTimenotePlatenumber.Clear;
   for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
   eTimenote.Enabled := true;
@@ -1128,7 +1140,7 @@ procedure TMainForm.miRPTimenoteAddNowClick(Sender: TObject);
 var
   i, TN_ID : integer;
 begin
-  // вычисляем новый TN_ID
+  // РІС‹С‡РёСЃР»СЏРµРј РЅРѕРІС‹Р№ TN_ID
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1139,11 +1151,11 @@ begin
   finally
     Free;
   end;
-  // подставляем текущее время (чтоб было удобнее менять)
+  // РїРѕРґСЃС‚Р°РІР»СЏРµРј С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ (С‡С‚РѕР± Р±С‹Р»Рѕ СѓРґРѕР±РЅРµРµ РјРµРЅСЏС‚СЊ)
   eTimenote.Text := Copy(FormatDateTime(strTIMENOTE_FORMAT, Now() - TIME_START),1,11);
-  // сохраняем TN_ID в sPanel7.Tag
+  // СЃРѕС…СЂР°РЅСЏРµРј TN_ID РІ sPanel7.Tag
   pnlTimenote.Tag := TN_ID;
-  // номера
+  // РЅРѕРјРµСЂР°
   cbTimenotePlatenumber.Clear;
   for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
   eTimenote.Enabled := true;
@@ -1155,9 +1167,9 @@ procedure TMainForm.miRPTimenoteRenumClick(Sender: TObject);
 var
   i : integer;
 begin
-  // сохраняем TN_ID в sPanel7.Tag
+  // СЃРѕС…СЂР°РЅСЏРµРј TN_ID РІ sPanel7.Tag
   pnlTimenote.Tag := Integer(lvRacePanel.Items[lvRacePanel.ItemIndex].Data);
-  // номера
+  // РЅРѕРјРµСЂР°
   cbTimenotePlatenumber.Clear;
   for i := 0 to RaceNumbers.Count - 1 do cbTimenotePlatenumber.Items.Add(RaceNumbers[i]);
   cbTimenotePlatenumber.Text := lvRacePanel.Items[lvRacePanel.ItemIndex].SubItems.Strings[0];
@@ -1187,12 +1199,12 @@ begin
       Next;
       inc(i);
     end;
-    // race_id храним в sPanel3.Tag
+    // race_id С…СЂР°РЅРёРј РІ sPanel3.Tag
     pnlRace.Tag := Fields[0].AsInteger;
     eRaceName.Text := Fields[1].AsString;
     eRaceTrackLength.Text := Fields[3].AsString;
     eRaceLaps.Text := Fields[2].AsString;
-    // загрузка зачётов
+    // Р·Р°РіСЂСѓР·РєР° Р·Р°С‡С‘С‚РѕРІ
     Close;
     SQL.Text := 'select cg_id,sex,agemin,agemax,laps from comp_groups where race_id='
       + IntToStr(pnlRace.Tag) + ';';
@@ -1233,12 +1245,12 @@ var
   bClear : boolean;
 begin
   if lbEventRaces.ItemIndex <> -1 then begin
-    if RusMessageDialog('Удалить заезд "' + lbEventRaces.Items.Strings[lbEventRaces.ItemIndex]
-        + '"?', mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
+    if RusMessageDialog('РЈРґР°Р»РёС‚СЊ Р·Р°РµР·Рґ "' + lbEventRaces.Items.Strings[lbEventRaces.ItemIndex]
+        + '"?', mtConfirmation, mbYesNo, ['РћРљ', 'РћС‚РјРµРЅР°']) = mryes
     then with TIBSQL.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
-      // поиск RACE_ID для удаления
+      // РїРѕРёСЃРє RACE_ID РґР»СЏ СѓРґР°Р»РµРЅРёСЏ
       with TIBQuery.Create(nil) do try
         Database := DBase;
         Transaction := DBTran;
@@ -1274,11 +1286,11 @@ begin
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // если создать
+    // РµСЃР»Рё СЃРѕР·РґР°С‚СЊ
     if pnlRace.Tag = 0 then SQL.Text := 'insert into races(race_id,event_id,name,laps,track_length) '
       + 'values((select max(race_id) from races) + 1,' + IntToStr(pnlEvent.Tag) + ','''
       + eRaceName.Text + ''',' + eRaceLaps.Text + ',' + eRaceTrackLength.Text +  ');'
-    // если изменить
+    // РµСЃР»Рё РёР·РјРµРЅРёС‚СЊ
     else SQL.Text := 'update races set name=''' + eRaceName.Text + ''',laps='
       + eRaceLaps.Text + ',track_length=' + eRaceTrackLength.Text + ' where race_id=' + IntToStr(pnlRace.Tag) + ';';
     ExecQuery;
@@ -1317,11 +1329,11 @@ var
   i, EVENT_ID : integer;
 begin
   if tsRegistration.Visible then begin
-    // Если прееход с регистрации
+    // Р•СЃР»Рё РїСЂРµРµС…РѕРґ СЃ СЂРµРіРёСЃС‚СЂР°С†РёРё
     EVENT_ID := chlbRaces.Tag;
   end;
   if tsEvent.Visible then begin
-    // Если переход со списка соревнований
+    // Р•СЃР»Рё РїРµСЂРµС…РѕРґ СЃРѕ СЃРїРёСЃРєР° СЃРѕСЂРµРІРЅРѕРІР°РЅРёР№
     with TIBQuery.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
@@ -1335,14 +1347,14 @@ begin
         Next;
         inc(i);
       end;
-      // event_id храним в sPanel2.Tag
+      // event_id С…СЂР°РЅРёРј РІ sPanel2.Tag
       EVENT_ID := Fields[0].AsInteger;
     finally
       Free;
     end;
   end;
   if tsStart.Visible then begin
-    // если с самой себя
+    // РµСЃР»Рё СЃ СЃР°РјРѕР№ СЃРµР±СЏ
     with TIBQuery.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
@@ -1356,19 +1368,19 @@ begin
         Next;
         inc(i);
       end;
-      // event_id храним в sPanel2.Tag
+      // event_id С…СЂР°РЅРёРј РІ sPanel2.Tag
       EVENT_ID := Fields[0].AsInteger;
     finally
       Free;
     end;
   end;
 
-  // сохраняем event_id в sComboBox4.Tag
+  // СЃРѕС…СЂР°РЅСЏРµРј event_id РІ sComboBox4.Tag
   cbRace.Tag := EVENT_ID;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // список мероприятий
+    // СЃРїРёСЃРѕРє РјРµСЂРѕРїСЂРёСЏС‚РёР№
     SQL.Text := 'select event_id,event_date,name from events order by event_date;';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
@@ -1378,12 +1390,12 @@ begin
     i := 0;
     while not(EOF) do begin
       cbEvent.Items.Add(Fields[2].AsString);
-      // выбранное мероприятие
+      // РІС‹Р±СЂР°РЅРЅРѕРµ РјРµСЂРѕРїСЂРёСЏС‚РёРµ
       if Fields[0].AsInteger = EVENT_ID then cbEvent.ItemIndex := i;
       inc(i);
       Next;
     end;
-    // список заездов
+    // СЃРїРёСЃРѕРє Р·Р°РµР·РґРѕРІ
     Close;
     SQL.Text := 'select race_id,laps,track_length,name,status from races where event_id='
       + IntToStr(EVENT_ID) + ';';
@@ -1439,6 +1451,13 @@ begin
   eAthletSearch.SetFocus;
 end;
 
+procedure TMainForm.btnPlatesCountClick(Sender: TObject);
+begin
+  if ePlatesCount.Text <> '' then Config.WriteInteger('General',
+    'PlateNumbers', StrToInt(ePlatesCount.Text));
+  iPlatenumbersCount := Config.ReadInteger('General', 'PlateNumbers', iPLATENUMBERS_COUNT_DEFAULT);
+end;
+
 procedure TMainForm.btnPrintAthletStatsClick(Sender: TObject);
 begin
   frUserDataset.RangeEnd := reCount;
@@ -1463,20 +1482,20 @@ var
   bRacesSelected : boolean;
 begin
   bRacesSelected := false;
-  // сначала смотрим выбраны ли вообще заезды
+  // СЃРЅР°С‡Р°Р»Р° СЃРјРѕС‚СЂРёРј РІС‹Р±СЂР°РЅС‹ Р»Рё РІРѕРѕР±С‰Рµ Р·Р°РµР·РґС‹
   for i := 0 to chlbRaces.Items.Count - 1 do
     if chlbRaces.Checked[i] then bRacesSelected := true;
-  // проверяем заполнение обязательных полей
+  // РїСЂРѕРІРµСЂСЏРµРј Р·Р°РїРѕР»РЅРµРЅРёРµ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹С… РїРѕР»РµР№
   if (eAthletName.Text <> '') and (cbRegisterNumberplate.Text <> '') and bRacesSelected then begin
     EVENT_ID := chlbRaces.Tag;
     with TIBSQL.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
-      // добавляем (выбираем) участника. признак (новый/неновый) - sEdit5.Tag
+      // РґРѕР±Р°РІР»СЏРµРј (РІС‹Р±РёСЂР°РµРј) СѓС‡Р°СЃС‚РЅРёРєР°. РїСЂРёР·РЅР°Рє (РЅРѕРІС‹Р№/РЅРµРЅРѕРІС‹Р№) - sEdit5.Tag
       if eAthletName.Tag = 0 then begin
-        // если новый участник
-        if chbSexMale.Checked then SEX := 'М' else SEX := 'Ж';
-        // получаем ATHLET_ID
+        // РµСЃР»Рё РЅРѕРІС‹Р№ СѓС‡Р°СЃС‚РЅРёРє
+        if chbSexMale.Checked then SEX := 'Рњ' else SEX := 'Р–';
+        // РїРѕР»СѓС‡Р°РµРј ATHLET_ID
         with TIBQuery.Create(nil) do try
           Database := DBase;
           Transaction := DBTran;
@@ -1496,12 +1515,12 @@ begin
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
       end
       else begin
-        // если участник выбран через поиск
+        // РµСЃР»Рё СѓС‡Р°СЃС‚РЅРёРє РІС‹Р±СЂР°РЅ С‡РµСЂРµР· РїРѕРёСЃРє
         ATHLET_ID := eAthletName.Tag;
       end;
-      // выбираем гонки для регистрации
+      // РІС‹Р±РёСЂР°РµРј РіРѕРЅРєРё РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё
       for i := 0 to chlbRaces.Count - 1 do if chlbRaces.Checked[i] then begin
-        // извлекаем RACE_ID
+        // РёР·РІР»РµРєР°РµРј RACE_ID
         with tIBQuery.Create(nil) do try
           Database := DBase;
           Transaction := DBTran;
@@ -1518,9 +1537,9 @@ begin
         finally
           Free;
         end;
-        // регистрируем на гонку
+        // СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј РЅР° РіРѕРЅРєСѓ
         Close;
-        // получаем REG_ID
+        // РїРѕР»СѓС‡Р°РµРј REG_ID
         with TIBQuery.Create(nil) do try
           Database := DBase;
           Transaction := DBTran;
@@ -1553,7 +1572,7 @@ var
   ATHLET_ID : integer;
 begin
   ATHLET_ID := (Sender as TMenuItem).Tag;
-  // сохраняем ATHLET_ID в sEdit5.Tag для последующего избежания добавления нового участника
+  // СЃРѕС…СЂР°РЅСЏРµРј ATHLET_ID РІ sEdit5.Tag РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ РёР·Р±РµР¶Р°РЅРёСЏ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРѕРІРѕРіРѕ СѓС‡Р°СЃС‚РЅРёРєР°
   eAthletName.Tag := ATHLET_ID;
   with TIBQuery.Create(nil) do try
     Database := DBase;
@@ -1567,7 +1586,7 @@ begin
     eTeam.Text := Fields[3].AsString;
     eCity.Text := Fields[4].AsString;
     dtpAthlet.Date := Fields[1].AsDateTime;
-    chbSexMale.Checked := Fields[2].AsString = 'М';
+    chbSexMale.Checked := Fields[2].AsString = 'Рњ';
     chbSexFemale.Checked := not(chbSexMale.Checked);
   finally
     Free;
@@ -1596,7 +1615,7 @@ begin
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     while not(EOF) do begin
-      // поиск среди уже зарегистрированных
+      // РїРѕРёСЃРє СЃСЂРµРґРё СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹С…
       ATHLET_ID := Fields[0].AsInteger;
       with TIBQuery.Create(nil) do try
         Database := DBase;
@@ -1615,7 +1634,7 @@ begin
         mItem := TMenuItem.Create(pmAthletSearch);
         mItem.Caption := Fields[1].AsString + ', '
           + FormatDateTime(strSIMPLE_DATEFORMAT, Fields[2].AsDateTime) + ' (' + Fields[5].AsString + ')';
-        // сохраняем athlet_id в mItem.Tag
+        // СЃРѕС…СЂР°РЅСЏРµРј athlet_id РІ mItem.Tag
         mItem.Tag := ATHLET_ID;
         mItem.OnClick := SelectAthlet;
         pmAthletSearch.Items.Add(mItem);
@@ -1645,7 +1664,7 @@ var
   str : string;
 begin
   btnRaceStart.Enabled := true;
-  // исключаем не прошедших проверку
+  // РёСЃРєР»СЋС‡Р°РµРј РЅРµ РїСЂРѕС€РµРґС€РёС… РїСЂРѕРІРµСЂРєСѓ
   Buffer := TStringList.Create;
   for i := 0 to chlbAthletes.Count - 1 do begin
     if chlbAthletes.Checked[i] then Buffer.Add(RaceNumbers[i]);
@@ -1653,11 +1672,11 @@ begin
   RaceNumbers.Clear;
   for i := 0 to Buffer.Count - 1 do RaceNumbers.Add(Buffer[i]);
   Buffer.Free;
-  // отмечаем гонку как стартовавшую
+  // РѕС‚РјРµС‡Р°РµРј РіРѕРЅРєСѓ РєР°Рє СЃС‚Р°СЂС‚РѕРІР°РІС€СѓСЋ
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // берём race_id из sCheckListBox2.Tag
+    // Р±РµСЂС‘Рј race_id РёР· sCheckListBox2.Tag
     SQL.Text := 'update races set status=''' + strRACE_STATUS_STARTED
       + ''' where race_id=' + IntToStr(chlbAthletes.Tag) + ';';
     ExecQuery;
@@ -1695,7 +1714,7 @@ begin
   end;
   RACE_ID := chlbAthletes.Tag;
   TIME_START := Now();
-  // фигарим в базу номер "0" - признак старта заезда
+  // С„РёРіР°СЂРёРј РІ Р±Р°Р·Сѓ РЅРѕРјРµСЂ "0" - РїСЂРёР·РЅР°Рє СЃС‚Р°СЂС‚Р° Р·Р°РµР·РґР°
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1711,8 +1730,8 @@ begin
   end;
   spRacePanel.Enabled := true;
   btnStpwtchStart.Enabled := false;
-  // выводим сколько осталось кругов
-  // и запихиваем в Tag кнопки ФИНИШ
+  // РІС‹РІРѕРґРёРј СЃРєРѕР»СЊРєРѕ РѕСЃС‚Р°Р»РѕСЃСЊ РєСЂСѓРіРѕРІ
+  // Рё Р·Р°РїРёС…РёРІР°РµРј РІ Tag РєРЅРѕРїРєРё Р¤РРќРРЁ
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1734,10 +1753,10 @@ var
   strSEX, strAGEMIN, strAGEMAX: string;
   Item : TControl;
 begin
-  if RusMessageDialog(strCOMPLETE_RACE, mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
+  if RusMessageDialog(strCOMPLETE_RACE, mtConfirmation, mbYesNo, ['РћРљ', 'РћС‚РјРµРЅР°']) = mryes
   then begin
     Timer.Enabled := false;
-    // забираем RACE_ID из spNumbersPanel.Tag
+    // Р·Р°Р±РёСЂР°РµРј RACE_ID РёР· spNumbersPanel.Tag
     RACE_ID := spNumbersPanel.Tag;
     btnStpwtchStart.Enabled := true;
     Timer.Enabled := false;
@@ -1751,7 +1770,7 @@ begin
     finally
       Free;
     end;
-    // сохраняем RACE_ID в sComboBox6.Tag
+    // СЃРѕС…СЂР°РЅСЏРµРј RACE_ID РІ sComboBox6.Tag
     cbResultsCG.Tag := RACE_ID;
     tsRaceResults.Show;
     btnStpwtchFinish.Enabled := false;
@@ -1762,25 +1781,25 @@ end;
 
 procedure TMainForm.btnDropAllTimenotesClick(Sender: TObject);
 begin
-  // зачитка данных ВСЕХ заездов
+  // Р·Р°С‡РёС‚РєР° РґР°РЅРЅС‹С… Р’РЎР•РҐ Р·Р°РµР·РґРѕРІ
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // все гонки в процессе переводим в нестартованные
+    // РІСЃРµ РіРѕРЅРєРё РІ РїСЂРѕС†РµСЃСЃРµ РїРµСЂРµРІРѕРґРёРј РІ РЅРµСЃС‚Р°СЂС‚РѕРІР°РЅРЅС‹Рµ
     SQL.Text := 'update races set status='''' where status=''' + strRACE_STATUS_STARTED + ''';';
     ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     Close;
-    // все завершённые гонки в переводим в нестартованные
+    // РІСЃРµ Р·Р°РІРµСЂС€С‘РЅРЅС‹Рµ РіРѕРЅРєРё РІ РїРµСЂРµРІРѕРґРёРј РІ РЅРµСЃС‚Р°СЂС‚РѕРІР°РЅРЅС‹Рµ
     SQL.Text := 'update races set status='''' where status=''' + strRACE_STATUS_FINISHED + ''';';
     ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     Close;
-    // вычищаем все временные отметки
+    // РІС‹С‡РёС‰Р°РµРј РІСЃРµ РІСЂРµРјРµРЅРЅС‹Рµ РѕС‚РјРµС‚РєРё
     SQL.Text := 'delete from timenotes;';
     ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
-    // чистка мусора (финт ушами)
+    // С‡РёСЃС‚РєР° РјСѓСЃРѕСЂР° (С„РёРЅС‚ СѓС€Р°РјРё)
     with TIBQuery.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
@@ -1790,7 +1809,7 @@ begin
     finally
       Free;
     end;
-    // конец чистки мусора
+    // РєРѕРЅРµС† С‡РёСЃС‚РєРё РјСѓСЃРѕСЂР°
   finally
     Free;
   end;
@@ -1802,25 +1821,25 @@ var
   strTIMENOTE, StrAbsTime : string;
   bValidData : boolean;
 begin
-  // берём TN_ID из sPanel7.Tag
+  // Р±РµСЂС‘Рј TN_ID РёР· sPanel7.Tag
   TN_ID := pnlTimenote.Tag;
-  // берём RACE_ID из spNumbersPanel.Tag
+  // Р±РµСЂС‘Рј RACE_ID РёР· spNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
-  // проверяем корректность данных
+  // РїСЂРѕРІРµСЂСЏРµРј РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ РґР°РЅРЅС‹С…
   bValidData := false;
   for i := 0 to RaceNumbers.Count - 1 do
     if RaceNumbers.Strings[i] = cbTimenotePlatenumber.Text then bValidData := true;
   strTIMENOTE := eTimenote.Text;
   if (strTIMENOTE[3] <> ':') or (strTIMENOTE[6] <> ':') or (strTIMENOTE[9] <> '.')
   then bValidData := false;
-  // если ОК, пишем в базу
+  // РµСЃР»Рё РћРљ, РїРёС€РµРј РІ Р±Р°Р·Сѓ
   if bValidData then begin
     with TIBSQL.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
-      // признак добавления/изменения - sEdit10.Enabled
+      // РїСЂРёР·РЅР°Рє РґРѕР±Р°РІР»РµРЅРёСЏ/РёР·РјРµРЅРµРЅРёСЏ - sEdit10.Enabled
       if eTimenote.Enabled then begin
-        // вычисляем и пишем абсолютное время (время старта + время отметки )
+        // РІС‹С‡РёСЃР»СЏРµРј Рё РїРёС€РµРј Р°Р±СЃРѕР»СЋС‚РЅРѕРµ РІСЂРµРјСЏ (РІСЂРµРјСЏ СЃС‚Р°СЂС‚Р° + РІСЂРµРјСЏ РѕС‚РјРµС‚РєРё )
         strAbsTime := FormatDateTime(strTIMENOTE_FORMAT, TIME_START + StrToTime(strTIMENOTE, fs));
         SQL.Text := 'insert into timenotes(tn_id,platenumber,race_id,timenote) values('
           + IntToStr(TN_ID) + ',' + cbTimenotePlatenumber.Text + ',' + IntToStr(RACE_ID) + ','''
@@ -1862,7 +1881,7 @@ end;
 procedure TMainForm.btnCGDeleteClick(Sender: TObject);
 begin
   if lvCompGroups.ItemIndex <> -1 then begin
-    if RusMessageDialog(strDELETE_COMP_GROUP, mtConfirmation, mbYesNo, ['ОК', 'Отмена']) = mryes
+    if RusMessageDialog(strDELETE_COMP_GROUP, mtConfirmation, mbYesNo, ['РћРљ', 'РћС‚РјРµРЅР°']) = mryes
     then begin
       with TIBSQL.Create(nil) do try
         Database := DBase;
@@ -1902,7 +1921,7 @@ var
   SEX : string;
 begin
   RACE_ID := pnlRace.Tag;
-  // новый CG_ID
+  // РЅРѕРІС‹Р№ CG_ID
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1914,13 +1933,13 @@ begin
     Free;
   end;
   SEX := '-';
-  if chbCGMale.Checked then SEX := 'М';
-  if chbCGFemale.Checked then SEX := 'Ж';
+  if chbCGMale.Checked then SEX := 'Рњ';
+  if chbCGFemale.Checked then SEX := 'Р–';
   if chbCGAgeMin.Checked then AGEMIN := StrToInt(eCGAgeMin.Text) else AGEMIN := 0;
   if chbCGAgeMax.Checked then AGEMAX := StrToInt(eCGAgeMax.Text) else AGEMAX := 0;
   if eCGLaps.Text <> '' then LAPS := StrToInt(eCGLaps.Text) else LAPS := 0;
 
-  // херачим в базу новую зачётную группу
+  // С…РµСЂР°С‡РёРј РІ Р±Р°Р·Сѓ РЅРѕРІСѓСЋ Р·Р°С‡С‘С‚РЅСѓСЋ РіСЂСѓРїРїСѓ
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1998,12 +2017,12 @@ begin
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // если создать
+    // РµСЃР»Рё СЃРѕР·РґР°С‚СЊ
     if pnlEvent.Tag = 0 then SQL.Text :=
       'insert into events(event_id,event_date,name) values((select max(event_id) from events) + 1,'''
       + FormatDateTime(strSIMPLE_DATEFORMAT, dtpEvent.Date) + ''','''
       + eEventName.Text + ''')'
-    // изменить
+    // РёР·РјРµРЅРёС‚СЊ
     else
       SQL.Text := 'update events set name=''' + eEventName.Text +  ''',event_date='''
         + FormatDateTime(strSIMPLE_DATEFORMAT, dtpEvent.Date) + ''' where event_id='
@@ -2014,7 +2033,7 @@ begin
   finally
     Free;
   end;
-  // обновить список
+  // РѕР±РЅРѕРІРёС‚СЊ СЃРїРёСЃРѕРє
   tsEventShow(Self);
   lbEvents.Enabled := true;
   btnEventNew.Enabled := true;
@@ -2028,12 +2047,12 @@ var
   i, EVENT_ID : integer;
   bClear : boolean;
 begin
-  if MessageDlg('Удалить мероприятие "' + lbEvents.Items.Strings[lbEvents.ItemIndex]
+  if MessageDlg('РЈРґР°Р»РёС‚СЊ РјРµСЂРѕРїСЂРёСЏС‚РёРµ "' + lbEvents.Items.Strings[lbEvents.ItemIndex]
       + '"?', mtConfirmation, [mbyes, mbno], 0) = mryes then with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
     with TIBQuery.Create(nil) do try
-      // поиск EVENT_ID для удаления
+      // РїРѕРёСЃРє EVENT_ID РґР»СЏ СѓРґР°Р»РµРЅРёСЏ
       Database := DBase;
       Transaction := DBTran;
       SQL.Text := 'select event_id,event_date,name from events order by event_date;';
@@ -2047,7 +2066,7 @@ begin
         inc(i);
       end;
       EVENT_ID := Fields[0].AsInteger;
-      // проверка статуса гонок
+      // РїСЂРѕРІРµСЂРєР° СЃС‚Р°С‚СѓСЃР° РіРѕРЅРѕРє
       Close;
       SQL.Text := 'select status from races where event_id=' + IntToStr(EVENT_ID) + ';';
       Open;
@@ -2099,9 +2118,9 @@ begin
     end;
     eEventName.Text := Fields[2].AsString;
     dtpEvent.Date := Fields[1].AsDateTime;
-    // event_id храним в sPanel2.Tag
+    // event_id С…СЂР°РЅРёРј РІ sPanel2.Tag
     pnlEvent.Tag := Fields[0].AsInteger;
-    // выбираем заезды
+    // РІС‹Р±РёСЂР°РµРј Р·Р°РµР·РґС‹
     Close;
     SQL.Text := 'select race_id,name,track_length,laps from races where event_id='
       + IntToStr(pnlEvent.Tag) + ';';
@@ -2110,7 +2129,7 @@ begin
     FetchAll;
     while not(EOF) do begin
       lbEventRaces.Items.Add(Fields[1].AsString + ' (' + IntToStr(Fields[3].AsInteger)
-        + 'кр. по ' + IntToStr(Fields[2].AsInteger) + 'м)');
+        + 'РєСЂ. РїРѕ ' + IntToStr(Fields[2].AsInteger) + 'Рј)');
       Next;
     end;
   finally
@@ -2193,9 +2212,9 @@ begin
       inc(i);
     end;
     EVENT_ID := Fields[0].AsInteger;
-    // сохраним EVENT_ID в sCheckListBox1.Tag
+    // СЃРѕС…СЂР°РЅРёРј EVENT_ID РІ sCheckListBox1.Tag
     chlbRaces.Tag := EVENT_ID;
-    // список заездов
+    // СЃРїРёСЃРѕРє Р·Р°РµР·РґРѕРІ
     Close;
     SQL.Text := 'select race_id,name,track_length,laps from races where event_id='
       + IntToStr(EVENT_ID) + ';';
@@ -2208,9 +2227,9 @@ begin
       chlbRaces.Items.Add(Fields[1].AsString);
       Next;
     end;
-    // список уже зарегистрировавшихся, выдача свободных номеров
+    // СЃРїРёСЃРѕРє СѓР¶Рµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РІС€РёС…СЃСЏ, РІС‹РґР°С‡Р° СЃРІРѕР±РѕРґРЅС‹С… РЅРѕРјРµСЂРѕРІ
     cbRegisterNumberplate.Items.Clear;
-    for i := 1 to iPLATENUMBERS_COUNT do cbRegisterNumberplate.Items.Add(IntToStr(i));
+    for i := 1 to iPlatenumbersCount do cbRegisterNumberplate.Items.Add(IntToStr(i));
     Close;
     SQL.Text := 'select distinct registry.platenumber, athletes.name, athletes.date_born, races.name, races.race_id '
       + 'from registry, athletes, races, events where (registry.race_id = races.race_id) and (races.event_id = events.event_id)'
@@ -2262,7 +2281,7 @@ begin
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
     cbRace.Items.Clear;
-    // схраняем EVENT_ID в sComboBox4.Tag
+    // СЃС…СЂР°РЅСЏРµРј EVENT_ID РІ sComboBox4.Tag
     cbRace.Tag := EVENT_ID;
     while not(EOF) do begin
       cbRace.Items.Add(Fields[3].AsString);
@@ -2292,7 +2311,7 @@ begin
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // ищем race_id
+    // РёС‰РµРј race_id
     SQL.Text := 'select race_id,laps,track_length,name,status from races where event_id='
       + IntToStr(EVENT_ID) + ';';
     Open;
@@ -2306,8 +2325,8 @@ begin
       end;
       Next;
     end;
-    // загружаем участников
-    // параллельно заполняем массив номеров для предстартовой проверки
+    // Р·Р°РіСЂСѓР¶Р°РµРј СѓС‡Р°СЃС‚РЅРёРєРѕРІ
+    // РїР°СЂР°Р»Р»РµР»СЊРЅРѕ Р·Р°РїРѕР»РЅСЏРµРј РјР°СЃСЃРёРІ РЅРѕРјРµСЂРѕРІ РґР»СЏ РїСЂРµРґСЃС‚Р°СЂС‚РѕРІРѕР№ РїСЂРѕРІРµСЂРєРё
     Close;
     SQL.Text := 'select registry.platenumber, athletes.name from registry, athletes '
       + 'where (registry.athlet_id = athletes.athlet_id) and (registry.race_id = '
@@ -2327,7 +2346,7 @@ begin
   finally
     Free;
   end;
-  // проверка статуса гонки
+  // РїСЂРѕРІРµСЂРєР° СЃС‚Р°С‚СѓСЃР° РіРѕРЅРєРё
   if STATUS = strRACE_STATUS_STARTED then begin
     lblRaceStatus.Caption := strREADY_TO_RACE;
     chlbAthletes.Enabled := false;
@@ -2363,7 +2382,7 @@ begin
     Timer.Enabled := false;
     spRacePanel.Hide;
   end;
-  // сохраняем race_id в sCheckListBox2.Tag и spNumbersPanel.Tag
+  // СЃРѕС…СЂР°РЅСЏРµРј race_id РІ sCheckListBox2.Tag Рё spNumbersPanel.Tag
   chlbAthletes.Tag := RACE_ID;
   spNumbersPanel.Tag := RACE_ID;
   cbResultsCG.Tag := RACE_ID;
@@ -2382,25 +2401,25 @@ var
 begin
   lvResults.Hide;
   spbResults.Show;
-  // берём RACE_ID из sComboBox6.Tag
+  // Р±РµСЂС‘Рј RACE_ID РёР· sComboBox6.Tag
   RACE_ID := cbResultsCG.Tag;
   bToApplyFilter := cbResultsCG.ItemIndex > 0;
   lvResults.Items.Clear;
-  // выборка результата гонки. номера с количенством кругов и временем по абсолюту
+  // РІС‹Р±РѕСЂРєР° СЂРµР·СѓР»СЊС‚Р°С‚Р° РіРѕРЅРєРё. РЅРѕРјРµСЂР° СЃ РєРѕР»РёС‡РµРЅСЃС‚РІРѕРј РєСЂСѓРіРѕРІ Рё РІСЂРµРјРµРЅРµРј РїРѕ Р°Р±СЃРѕР»СЋС‚Сѓ
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
-    // время старта
+    // РІСЂРµРјСЏ СЃС‚Р°СЂС‚Р°
     SQL.Text := 'select timenote from timenotes where (platenumber = 0) '
       + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     strTIMESTART := Fields[0].AsString;
-    // параметры фильтрации, если тербуется
+    // РїР°СЂР°РјРµС‚СЂС‹ С„РёР»СЊС‚СЂР°С†РёРё, РµСЃР»Рё С‚РµСЂР±СѓРµС‚СЃСЏ
     if bToApplyFilter then begin
       Close;
-      // изображаем такой-же запрос как и в sComboBox6, пробегаемся по нему до ItemIndex
-      // и находим нужные поля
+      // РёР·РѕР±СЂР°Р¶Р°РµРј С‚Р°РєРѕР№-Р¶Рµ Р·Р°РїСЂРѕСЃ РєР°Рє Рё РІ sComboBox6, РїСЂРѕР±РµРіР°РµРјСЃСЏ РїРѕ РЅРµРјСѓ РґРѕ ItemIndex
+      // Рё РЅР°С…РѕРґРёРј РЅСѓР¶РЅС‹Рµ РїРѕР»СЏ
       SQL.Text := 'select sex,agemin,agemax,laps from comp_groups where race_id='
         + IntToStr(RACE_ID) + ' order by sex,agemin;';
       Open;
@@ -2417,8 +2436,8 @@ begin
       iLAPS := Fields[3].AsInteger;
     end;
     Close;
-    // выборка в абсолюте, либо после определённого количества кругов
-    // по зачёту выбранной подгруппы
+    // РІС‹Р±РѕСЂРєР° РІ Р°Р±СЃРѕР»СЋС‚Рµ, Р»РёР±Рѕ РїРѕСЃР»Рµ РѕРїСЂРµРґРµР»С‘РЅРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° РєСЂСѓРіРѕРІ
+    // РїРѕ Р·Р°С‡С‘С‚Сѓ РІС‹Р±СЂР°РЅРЅРѕР№ РїРѕРґРіСЂСѓРїРїС‹
     if (bToApplyFilter) and (iLAPS <> 0) then SQL.Text := 'select platenumber, count(platenumber), '
       + 'max(timenote) from (select platenumber, lap, timenote from (select tn_id, timenote, '
       + 'platenumber, (select count(*) from timenotes b where (b.tn_id < a.tn_id) and '
@@ -2426,7 +2445,7 @@ begin
       + ')) + 1 as lap from timenotes a where (race_id = ' + IntToStr(RACE_ID) + ')) where lap <= '
       + IntToStr(iLAPS) + ' order by timenote) group by platenumber order by count(platenumber) '
       + 'desc, max(timenote);'
-    // или если абсолют
+    // РёР»Рё РµСЃР»Рё Р°Р±СЃРѕР»СЋС‚
     else SQL.Text := 'select platenumber, count(platenumber), max(timenote) from timenotes '
       + 'where race_id = ' + IntToStr(RACE_ID) + ' group by platenumber order by '
       + 'count(platenumber) desc, max(timenote);';
@@ -2441,7 +2460,7 @@ begin
       PLATENUMBER := Fields[0].AsInteger;
       iAthleteLaps := Fields[1].AsInteger;
       strTIMENOTE := Fields[2].AsString;
-      // Отсекаем признак старта заезда
+      // РћС‚СЃРµРєР°РµРј РїСЂРёР·РЅР°Рє СЃС‚Р°СЂС‚Р° Р·Р°РµР·РґР°
       if PLATENUMBER <> 0 then begin
         with TIBQuery.Create(nil) do try
           Database := DBase;
@@ -2452,17 +2471,17 @@ begin
           Open;
           LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
           bIsFiltered := true;
-          // применяем фильтрацию если необходимо
+          // РїСЂРёРјРµРЅСЏРµРј С„РёР»СЊС‚СЂР°С†РёСЋ РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ
           if bToApplyFilter then begin
-            // возраст по состоянию на 31 декабря текущего года
+            // РІРѕР·СЂР°СЃС‚ РїРѕ СЃРѕСЃС‚РѕСЏРЅРёСЋ РЅР° 31 РґРµРєР°Р±СЂСЏ С‚РµРєСѓС‰РµРіРѕ РіРѕРґР°
             iAGE := YearsBetween(StrToDate('31.12.' + FormatDateTime('yyyy', Now),fs),
               Fields[1].AsDateTime);
             bIsFiltered := iAGEMIN < iAGE;
             bIsFiltered := bIsFiltered and ((iAGEMAX = 0) or (iAGE < iAGEMAX));
-            // пол
+            // РїРѕР»
             bIsFiltered := bIsFiltered and ((strSEX = '') or (strSEX = Fields[2].AsString));
           end;
-          // если прошло фильтрацию либо это абсолют, то выводим
+          // РµСЃР»Рё РїСЂРѕС€Р»Рѕ С„РёР»СЊС‚СЂР°С†РёСЋ Р»РёР±Рѕ СЌС‚Рѕ Р°Р±СЃРѕР»СЋС‚, С‚Рѕ РІС‹РІРѕРґРёРј
           if bIsFiltered then begin
             lItem := lvResults.Items.Add;
             with lItem do begin
@@ -2471,19 +2490,19 @@ begin
               SubItems.Add(IntToStr(PLATENUMBER));
               if iLeaderLaps - iAthleteLaps = 0 then begin
                 if iPlace = 1 then begin
-                  // если первый - время от старта
+                  // РµСЃР»Рё РїРµСЂРІС‹Р№ - РІСЂРµРјСЏ РѕС‚ СЃС‚Р°СЂС‚Р°
                   dtShift := StrToTime(strTIMENOTE, fs) - StrToTime(strTIMESTART, fs);
                   strShift := Copy(FormatDateTime(strTIMENOTE_FORMAT, dtShift),1,11);
                   strTIMELEADER := strTIMENOTE;
                 end
                 else begin
-                  // если не первый - отставание от лидера
+                  // РµСЃР»Рё РЅРµ РїРµСЂРІС‹Р№ - РѕС‚СЃС‚Р°РІР°РЅРёРµ РѕС‚ Р»РёРґРµСЂР°
                   dtShift := StrToTime(strTIMENOTE, fs) - StrToTime(strTIMELEADER, fs);
                   strShift := '+' + Copy(FormatDateTime(strTIMENOTE_FORMAT, dtShift),1,11);
                 end;
                 SubItems.Add(strShift);
               end
-              else SubItems.Add('+' + IntToStr(iLeaderLaps - iAthleteLaps) + ' кр');
+              else SubItems.Add('+' + IntToStr(iLeaderLaps - iAthleteLaps) + ' РєСЂ');
               SubItems.Add(Fields[4].AsString);
               SubItems.Add(Fields[3].AsString);
               inc(iPlace);
@@ -2499,7 +2518,7 @@ begin
   finally
     Free;
   end;
-  // выравнивание ширины колонок
+  // РІС‹СЂР°РІРЅРёРІР°РЅРёРµ С€РёСЂРёРЅС‹ РєРѕР»РѕРЅРѕРє
   lvResults.Columns[0].Width := ColumnHeaderWidth;
   for i := 1 to lvResults.Columns.Count - 2 do begin
     lvResults.Columns[i].Width := ColumnTextWidth
@@ -2583,15 +2602,15 @@ begin
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
       FetchAll;
       while not(EOF) do begin
-        if Fields[0].AsString = 'Ж' then strSEX := 'Женщины';
-        if Fields[0].AsString = 'М' then strSEX := 'Мужчины';
-        if Fields[0].AsString = '-' then strSEX := 'Все';
+        if Fields[0].AsString = 'Р–' then strSEX := 'Р–РµРЅС‰РёРЅС‹';
+        if Fields[0].AsString = 'Рњ' then strSEX := 'РњСѓР¶С‡РёРЅС‹';
+        if Fields[0].AsString = '-' then strSEX := 'Р’СЃРµ';
         if Fields[1].AsInteger = 0 then strAGEMIN := ''
-        else strAGEMIN := ' от ' + IntToStr(Fields[1].AsInteger);
+        else strAGEMIN := ' РѕС‚ ' + IntToStr(Fields[1].AsInteger);
         if Fields[2].AsInteger = 0 then strAGEMAX := ''
-        else strAGEMAX := ' до ' + IntToStr(Fields[2].AsInteger);
+        else strAGEMAX := ' РґРѕ ' + IntToStr(Fields[2].AsInteger);
         if Fields[3].AsInteger = 0 then strLAPS := ''
-        else strLAPS := ' (' + IntToStr(Fields[3].AsInteger) + ' кр)';
+        else strLAPS := ' (' + IntToStr(Fields[3].AsInteger) + ' РєСЂ)';
         Items.Add(strSEX + strAGEMIN + strAGEMAX + strLAPS);
         Next;
       end;
@@ -2624,6 +2643,7 @@ end;
 procedure TMainForm.tsSettingsShow(Sender: TObject);
 begin
   cbLogLevel.ItemIndex := logLevel;
+  ePlatesCount.Text := IntToStr(iPlatenumbersCount);
 end;
 
 procedure TMainForm.tsStartPrepShow(Sender: TObject);
@@ -2658,7 +2678,7 @@ begin
   finally
     Free;
   end;
-  // выравниваие ширины колонок
+  // РІС‹СЂР°РІРЅРёРІР°РёРµ С€РёСЂРёРЅС‹ РєРѕР»РѕРЅРѕРє
   iWidth := 0;
   for i := 0 to lvAthletes.Columns.Count - 2 do begin
     lvAthletes.Columns[i].Width := ColumnHeaderWidth;
