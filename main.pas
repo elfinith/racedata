@@ -9,7 +9,7 @@ uses
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
   sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter, FR_DSet,
-  FR_Class, Math, FR_E_RTF, sDialogs, Printers;
+  FR_Class, Math, FR_E_RTF, sDialogs, Printers, Vlc, sGroupBox, acImage;
 
 const
   arrDIALOG_CAPTIONS: array[0..2] of String = ('Подтверждение', 'ОК', 'Отмена');
@@ -28,6 +28,7 @@ const
   strCONFIG_FILENAME = 'config.ini';
   strDB_CONNECTION_ERROR = 'Ошибка при соединении с БД';
   strDB_FILENAME = 'DBASE.FDB';
+  strDEFAULT_DVR_URL = 'rtsp://192.168.110.156:554/user=view&password=view&channel=1&stream=1.sdp';
   strDEFAULT_SKIN_NAME = 'Clean card (internal)';
   strDELETE_COMP_GROUP = 'Удалить зачётную подгруппу?';
   strDROP_ALL_TIMENOTES = 'ВНИМАНИЕ! Будут удалены данные о ВСЕХ заездах! Продолжить?';
@@ -185,7 +186,6 @@ type
     sSkinManager: TsSkinManager;
     sSkinProvider: TsSkinProvider;
     sSplitter1: TsSplitter;
-    sTimerLabel: TsLabel;
     spNumbersPanel: TsPanel;
     spRace: TsPanel;
     spRacePanel: TsPanel;
@@ -214,6 +214,20 @@ type
     btnCGDelete: TsBitBtn;
     btnCGNew: TsBitBtn;
     lblCGList: TsLabelFX;
+    gbVideoSettings: TsGroupBox;
+    chbEnableSnapshots: TsCheckBox;
+    eDVRUrl: TsEdit;
+    lblDVRUrl: TsLabel;
+    lblSnapshotsDir: TsLabel;
+    pnlDRVTest: TsPanel;
+    btnDVRTestPlay: TsBitBtn;
+    btnDVRTestStop: TsBitBtn;
+    btnDVRTestSnapshot: TsBitBtn;
+    pnlTimerLabel: TsPanel;
+    sTimerLabel: TsLabel;
+    btnDVRIndicator: TsBitBtn;
+    pnlDVRPlayback: TsPanel;
+    eSnapshotsDir: TsDirectoryEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -306,6 +320,13 @@ type
     procedure btnPlatesCountClick(Sender: TObject);
     procedure cbPrintersChange(Sender: TObject);
     procedure tsSettingsShow(Sender: TObject);
+    procedure chbEnableSnapshotsClick(Sender: TObject);
+    procedure btnDVRTestPlayClick(Sender: TObject);
+    procedure btnDVRTestStopClick(Sender: TObject);
+    procedure btnDVRTestSnapshotClick(Sender: TObject);
+    procedure eDVRUrlChange(Sender: TObject);
+    procedure btnDVRIndicatorClick(Sender: TObject);
+    procedure eSnapshotsDirChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -317,6 +338,7 @@ type
     logLevel: Integer;
     strPDFPrinterName: string;
     strLogFilename: string;
+    strSnapshotFileName: string;
     Config: TIniFile;
     bDoRacePanelRefresh, bDoNBRepaintLater: Boolean;
     procedure SelectAthlet(Sender: TObject);
@@ -336,9 +358,18 @@ type
     procedure Execute; override;
   end;
 
+  DVRSnapshotThread = class(TThread)
+  private
+    { Private declarations }
+  protected
+    procedure DoWork;
+    procedure Execute; override;
+  end;
+
 var
   MainForm: TMainForm;
   rpThread: RPUpdThread;
+  dvrThread: DVRSnapshotThread;
   function ScrollBarVisible(Handle: HWnd; Style: Longint): Boolean;
 
 implementation
@@ -356,6 +387,20 @@ begin
   with MainForm do begin
     RefreshRacePanel;
     LogIt(llDEBUG, 'RPUpdThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
+  end;
+end;
+
+procedure DVRSnapshotThread.Execute;
+begin
+  FreeOnTerminate := true;
+  Synchronize(DoWork);
+end;
+
+procedure DVRSnapshotThread.DoWork;
+begin
+  with MainForm do begin
+    GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + strSnapshotFileName);
+    LogIt(llDEBUG, 'DVRSnapshotThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
   end;
 end;
 
@@ -418,6 +463,14 @@ begin
   DBase.DatabaseName := ExtractFilePath(Application.ExeName) + strDB_FILENAME;
   iPlatenumbersCount := Config.ReadInteger('General', 'PlateNumbers', iPLATENUMBERS_COUNT_DEFAULT);
   strPDFPrinterName := Config.ReadString('General', 'PDFPrinter', strNO_PDF_PRINTER_ASSIGNED);
+  chbEnableSnapshots.Checked := Config.ReadBool('DVR', 'Enabled', False);
+  eDVRUrl.Enabled := chbEnableSnapshots.Checked;
+  btnDVRIndicator.Enabled := chbEnableSnapshots.Checked;
+  eSnapshotsDir.Enabled := chbEnableSnapshots.Checked;
+  btnDVRTestPlay.Enabled := chbEnableSnapshots.Checked;
+  eSnapshotsDir.Text := Config.ReadString('DVR', 'SnapshotsDir',
+    ExtractFilePath(Application.ExeName) + 'Snapshots\');
+  eDVRUrl.Text := Config.ReadString('DVR', 'URL', strDEFAULT_DVR_URL);
   try
     DBase.Connected := true;
     DBTran.Active := true;
@@ -643,6 +696,13 @@ begin
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     finally
       Free;
+    end;
+    // фигачим фото
+    if chbEnableSnapshots.Checked then begin
+      strSnapshotFileName := IntToStr(RACE_ID) + '.'  + IntToStr(LAST_TN_ID + 1)
+        + '.' + TFreeButton(Sender).Caption + '.png';
+      dvrThread := DVRSnapshotThread.Create(False);
+      LogIt(llDEBUG, 'DVRSnapshotThread.Create, ThreadID = ' + IntToStr(dvrThread.ThreadID) + #13#10);
     end;
     // если предыдущий поток обновления завершил работу, запускаем новый
     if not(bDoRacePanelRefresh) then begin
@@ -1817,6 +1877,11 @@ begin
     Free;
   end;
   RepaintNumberButtons(Sender);
+  // стартуем видео с камеры, если надо
+  if chbEnableSnapshots.Checked then begin
+    LoadVLCLib;
+    StartDVRPlaybackAt(eDVRUrl.Text, pnlDVRPlayback.Handle);
+  end;
 end;
 
 procedure TMainForm.btnStpwtchFinishClick(Sender: TObject);
@@ -1849,6 +1914,11 @@ begin
     btnStpwtchFinish.Enabled := False;
     // refresh
     cbResultsCGChange(Self);
+    // останавливаем видео с камеры, если надо
+    if chbEnableSnapshots.Checked then begin
+      StopDVRPlayback(vlcMediaPlayer);
+      FreeLibrary(vlclib);
+    end;
   end;
 end;
 
@@ -1892,6 +1962,37 @@ begin
       Free;
     end;
   end;
+end;
+
+procedure TMainForm.btnDVRIndicatorClick(Sender: TObject);
+begin
+  GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + 'UserSnapshot-'
+    + FormatDateTime(strTIMENOTE_FORMAT, Now) + '.png');
+end;
+
+procedure TMainForm.btnDVRTestPlayClick(Sender: TObject);
+begin
+  LoadVLCLib;
+  StartDVRPlaybackAt(eDVRUrl.Text, pnlDRVTest.Handle);
+  btnDVRTestPlay.Enabled := false;
+  btnDVRTestStop.Enabled := true;
+  btnDVRTestSnapshot.Enabled := true;
+end;
+
+procedure TMainForm.btnDVRTestSnapshotClick(Sender: TObject);
+begin
+  CreateDir(eSnapshotsDir.Text);
+  GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + 'TestSnapshot-'
+    + FormatDateTime(strTIMENOTE_FORMAT, Now) + '.png');
+end;
+
+procedure TMainForm.btnDVRTestStopClick(Sender: TObject);
+begin
+  StopDVRPlayback(vlcMediaPlayer);
+  FreeLibrary(vlclib);
+  btnDVRTestPlay.Enabled := true;
+  btnDVRTestStop.Enabled := false;
+  btnDVRTestSnapshot.Enabled := false;
 end;
 
 procedure TMainForm.btnTimenoteOKClick(Sender: TObject);
@@ -2272,6 +2373,15 @@ end;
 procedure TMainForm.chbCGMaleClick(Sender: TObject);
 begin
   chbCGFemale.Checked := not(chbCGMale.Checked);
+end;
+
+procedure TMainForm.chbEnableSnapshotsClick(Sender: TObject);
+begin
+  Config.WriteBool('DVR', 'Enabled', chbEnableSnapshots.Checked);
+  eDVRUrl.Enabled := chbEnableSnapshots.Checked;
+  eSnapshotsDir.Enabled := chbEnableSnapshots.Checked;
+  btnDVRTestPlay.Enabled := chbEnableSnapshots.Checked;
+  btnDVRIndicator.Enabled := chbEnableSnapshots.Checked;
 end;
 
 procedure TMainForm.chbCGFemaleClick(Sender: TObject);
@@ -2659,6 +2769,16 @@ begin
     eAthletSearch.Hide;
     btnAthletSearch.Hide;
   end;
+end;
+
+procedure TMainForm.eDVRUrlChange(Sender: TObject);
+begin
+  Config.WriteString('DVR', 'URL', eDVRUrl.Text);
+end;
+
+procedure TMainForm.eSnapshotsDirChange(Sender: TObject);
+begin
+  Config.WriteString('DVR', 'SnapshotsDir', eSnapshotsDir.Text);
 end;
 
 procedure TMainForm.lbEventsDblClick(Sender: TObject);
