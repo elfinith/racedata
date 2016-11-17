@@ -9,7 +9,7 @@ uses
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
   sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter, FR_DSet,
-  FR_Class, Math, FR_E_RTF, sDialogs, Printers, Vlc, sGroupBox, acImage;
+  FR_Class, Math, FR_E_RTF, sDialogs, Printers, Vlc, sGroupBox, acImage, ShellAPI;
 
 const
   arrDIALOG_CAPTIONS: array[0..2] of String = ('Подтверждение', 'ОК', 'Отмена');
@@ -228,6 +228,8 @@ type
     btnDVRIndicator: TsBitBtn;
     pnlDVRPlayback: TsPanel;
     eSnapshotsDir: TsDirectoryEdit;
+    N2: TMenuItem;
+    miOpenSnapshot: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -273,27 +275,16 @@ type
     procedure chbSexFemaleClick(Sender: TObject);
     procedure chbSexMaleClick(Sender: TObject);
     procedure eAthletSearchChange(Sender: TObject);
-    procedure eAthletSearchKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure eAthletSearchKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure lbEventsDblClick(Sender: TObject);
     procedure lbEventsEnter(Sender: TObject);
-    procedure lvAthRacesSelectItem(Sender: TObject; Item: TListItem;
-      Selected: Boolean);
-    procedure lvAthStatsCustomDrawItem(Sender: TCustomListView;
-      Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
-    procedure lvAthStatsCustomDrawSubItem(Sender: TCustomListView;
-      Item: TListItem; SubItem: Integer; State: TCustomDrawState;
-      var DefaultDraw: Boolean);
-    procedure lvAthletesSelectItem(Sender: TObject; Item: TListItem;
-      Selected: Boolean);
-    procedure lvRacePanelCustomDraw(Sender: TCustomListView;
-      const ARect: TRect; var DefaultDraw: Boolean);
-    procedure lvRacePanelCustomDrawItem(Sender: TCustomListView;
-      Item: TListItem; State: TCustomDrawState;
-      var DefaultDraw: Boolean);
-    procedure lvRacePanelCustomDrawSubItem(Sender: TCustomListView;
-      Item: TListItem; SubItem: Integer; State: TCustomDrawState;
-      var DefaultDraw: Boolean);
+    procedure lvAthRacesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure lvAthStatsCustomDrawItem(Sender: TCustomListView; Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure lvAthStatsCustomDrawSubItem(Sender: TCustomListView; Item: TListItem; SubItem: Integer; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure lvAthletesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure lvRacePanelCustomDraw(Sender: TCustomListView; const ARect: TRect; var DefaultDraw: Boolean);
+    procedure lvRacePanelCustomDrawItem(Sender: TCustomListView; Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure lvRacePanelCustomDrawSubItem(Sender: TCustomListView; Item: TListItem; SubItem: Integer; State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure miRPTimenoteDelClick(Sender: TObject);
     procedure miRPTimenoteRenumClick(Sender: TObject);
     procedure miRagistrationCancelClick(Sender: TObject);
@@ -312,8 +303,7 @@ type
     procedure miRPPrintClick(Sender: TObject);
     procedure frTimenotesGetValue(const ParName: string; var ParValue: Variant);
     procedure btnPrintAthletStatsClick(Sender: TObject);
-    procedure frAthletStatsGetValue(const ParName: string;
-      var ParValue: Variant);
+    procedure frAthletStatsGetValue(const ParName: string; var ParValue: Variant);
     procedure miRPTimenoteAddNowClick(Sender: TObject);
     procedure miRPTimenote1SecPlusClick(Sender: TObject);
     procedure miRPTimenoteAdd1SecMinusClick(Sender: TObject);
@@ -327,6 +317,8 @@ type
     procedure eDVRUrlChange(Sender: TObject);
     procedure btnDVRIndicatorClick(Sender: TObject);
     procedure eSnapshotsDirChange(Sender: TObject);
+    procedure pmRPMenuPopup(Sender: TObject);
+    procedure miOpenSnapshotClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -362,7 +354,6 @@ type
   private
     { Private declarations }
   protected
-    procedure DoWork;
     procedure Execute; override;
   end;
 
@@ -393,13 +384,8 @@ end;
 procedure DVRSnapshotThread.Execute;
 begin
   FreeOnTerminate := true;
-  Synchronize(DoWork);
-end;
-
-procedure DVRSnapshotThread.DoWork;
-begin
   with MainForm do begin
-    GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + strSnapshotFileName);
+    GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + '\' + strSnapshotFileName);
     LogIt(llDEBUG, 'DVRSnapshotThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
   end;
 end;
@@ -469,7 +455,7 @@ begin
   eSnapshotsDir.Enabled := chbEnableSnapshots.Checked;
   btnDVRTestPlay.Enabled := chbEnableSnapshots.Checked;
   eSnapshotsDir.Text := Config.ReadString('DVR', 'SnapshotsDir',
-    ExtractFilePath(Application.ExeName) + 'Snapshots\');
+    ExtractFilePath(Application.ExeName) + 'Snapshots');
   eDVRUrl.Text := Config.ReadString('DVR', 'URL', strDEFAULT_DVR_URL);
   try
     DBase.Connected := true;
@@ -712,6 +698,18 @@ begin
       LogIt(llDEBUG, 'RPUpdThread.Create, ThreadID = ' + IntToStr(rpThread.ThreadID) + #13#10);
     end;
   end;
+end;
+
+procedure TMainForm.pmRPMenuPopup(Sender: TObject);
+var
+  strFileName : string;
+  RACE_ID : integer;
+begin
+  RACE_ID := spNumbersPanel.Tag;
+  strFileName := eSnapshotsDir.Text + '\' + IntToStr(RACE_ID) + '.'
+    + IntToStr(Integer(lvRacePanel.Selected.Data)) + '.'
+    + lvRacePanel.Selected.SubItems.Strings[0] + '.png';
+  miOpenSnapshot.Enabled := FileExists(strFileName);
 end;
 
 procedure TMainForm.RefreshRacePanel;
@@ -1120,6 +1118,18 @@ begin
   with Sender.Canvas do begin
     if Integer(Item.Data) = iBEST_LAP_FLAG then Font.Style := [fsBold];
   end;
+end;
+
+procedure TMainForm.miOpenSnapshotClick(Sender: TObject);
+var
+  strFileName : string;
+  RACE_ID : integer;
+begin
+  RACE_ID := spNumbersPanel.Tag;
+  strFileName := eSnapshotsDir.Text + '\' + IntToStr(RACE_ID) + '.'
+    + IntToStr(Integer(lvRacePanel.Selected.Data)) + '.'
+    + lvRacePanel.Selected.SubItems.Strings[0] + '.png';
+  ShellExecute(0,'Open',pchar(strFileName),nil,nil,1);
 end;
 
 procedure TMainForm.miRagistrationCancelClick(Sender: TObject);
@@ -1966,7 +1976,7 @@ end;
 
 procedure TMainForm.btnDVRIndicatorClick(Sender: TObject);
 begin
-  GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + 'UserSnapshot-'
+  GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + '\UserSnapshot-'
     + FormatDateTime(strTIMENOTE_FORMAT, Now) + '.png');
 end;
 
@@ -1982,7 +1992,7 @@ end;
 procedure TMainForm.btnDVRTestSnapshotClick(Sender: TObject);
 begin
   CreateDir(eSnapshotsDir.Text);
-  GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + 'TestSnapshot-'
+  GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + '\TestSnapshot-'
     + FormatDateTime(strTIMENOTE_FORMAT, Now) + '.png');
 end;
 
