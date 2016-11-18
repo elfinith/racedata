@@ -9,7 +9,8 @@ uses
   sCheckListBox, sCheckBox, sScrollBar, Menus, sSkinProvider, ImgList,
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
   sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter, FR_DSet,
-  FR_Class, Math, FR_E_RTF, sDialogs, Printers, Vlc, sGroupBox, acImage, ShellAPI;
+  FR_Class, Math, FR_E_RTF, sDialogs, Printers, Vlc, sGroupBox, acImage, ShellAPI,
+  ToolWin, sToolBar;
 
 const
   arrDIALOG_CAPTIONS: array[0..2] of String = ('Подтверждение', 'ОК', 'Отмена');
@@ -34,6 +35,7 @@ const
   strDROP_ALL_TIMENOTES = 'ВНИМАНИЕ! Будут удалены данные о ВСЕХ заездах! Продолжить?';
   strEXEC_SQL = 'SQL: ';
   strFINISH = 'ФИНИШ';
+  strFS_VALID_FORMAT = 'hh.mm.ss.zzz';
   strINVALID_TIMENOTE_DATA = 'Неверные данные о временной отметке';
   strLAPSTOGO = ' кругов до финиша';
   strLASTLAP = 'Последний круг';
@@ -54,6 +56,7 @@ const
   strTIMER_CAPTION = '00:00:00.00';
   strUNABLE_TO_DELETE_STARTED_EVENT = 'Невозможно удалить мероприятие с проведёнными заездами';
   strUNABLE_TO_DELETE_STARTED_RACE = 'Невозможно удалить уже начатый заезд';
+  strVIEW_TEST_SNAPSHOT = 'Открыть снимок для просмотра?';
 
   // розовый (св-т)
   clOddLight = TColor($FAF0E6);
@@ -162,7 +165,6 @@ type
     lblTeam: TsLabel;
     lvAthRaces: TsListView;
     lvAthStats: TsListView;
-    lvAthletes: TsListView;
     lvRacePanel: TsListView;
     lvRegistered: TsListView;
     lvResults: TsListView;
@@ -230,6 +232,21 @@ type
     eSnapshotsDir: TsDirectoryEdit;
     N2: TMenuItem;
     miOpenSnapshot: TMenuItem;
+    pmAthletes: TPopupMenu;
+    N3: TMenuItem;
+    pnlAthletes: TsPanel;
+    lvAthletes: TsListView;
+    tbAthletes: TsToolBar;
+    ToolButton1: TToolButton;
+    pnlEditAthlet: TsPanel;
+    eAthName: TsEdit;
+    eAthCity: TsEdit;
+    eAthTeam: TsEdit;
+    deAthBirthdate: TsDateEdit;
+    btnEditAthSave: TsBitBtn;
+    btnEditAthClose: TsBitBtn;
+    chbAthMale: TsCheckBox;
+    chbAthFemale: TsCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -319,6 +336,11 @@ type
     procedure eSnapshotsDirChange(Sender: TObject);
     procedure pmRPMenuPopup(Sender: TObject);
     procedure miOpenSnapshotClick(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure btnEditAthCloseClick(Sender: TObject);
+    procedure chbAthMaleClick(Sender: TObject);
+    procedure chbAthFemaleClick(Sender: TObject);
+    procedure btnEditAthSaveClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -1129,7 +1151,7 @@ begin
   strFileName := eSnapshotsDir.Text + '\' + IntToStr(RACE_ID) + '.'
     + IntToStr(Integer(lvRacePanel.Selected.Data)) + '.'
     + lvRacePanel.Selected.SubItems.Strings[0] + '.png';
-  ShellExecute(0,'Open',pchar(strFileName),nil,nil,1);
+  ShellExecute(0, 'Open', PChar(strFileName), nil, nil, 1);
 end;
 
 procedure TMainForm.miRagistrationCancelClick(Sender: TObject);
@@ -1294,6 +1316,32 @@ begin
   pnlTimenote.Show;
   cbTimenotePlatenumber.SetFocus;
   cbTimenotePlatenumber.DroppedDown := true;
+end;
+
+procedure TMainForm.N3Click(Sender: TObject);
+var
+  ATHLET_ID : integer;
+begin
+  pnlEditAthlet.Show;
+  pnlEditAthlet.Tag := Integer(lvAthletes.Selected.Data);
+  ATHLET_ID := pnlEditAthlet.Tag;
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select name,date_born,sex,city,team from athletes where athlet_id='
+      + IntToStr(ATHLET_ID) + ';';
+    Open;
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    eAthName.Text := Fields[0].AsString;
+    eAthCity.Text := Fields[3].AsString;
+    eAthTeam.Text := Fields[4].AsString;
+    chbAthMale.Checked := Fields[2].AsString = 'М';
+    chbAthFemale.Checked := Fields[2].AsString = 'Ж';
+    deAthBirthdate.Date := Fields[1].AsDateTime;
+  finally
+    Free;
+  end;
+  eAthName.SetFocus;
 end;
 
 procedure TMainForm.btnRaceEditClick(Sender: TObject);
@@ -1600,6 +1648,8 @@ end;
 
 procedure TMainForm.btnSettingsClick(Sender: TObject);
 begin
+  btnStart.Enabled := false;
+  btnRegistration.Enabled := false;
   btnAthletes.Font.Style := [];
   btnEvents.Font.Style := [];
   btnRegistration.Font.Style := [];
@@ -1791,6 +1841,8 @@ end;
 
 procedure TMainForm.btnAthletesClick(Sender: TObject);
 begin
+  btnStart.Enabled := false;
+  btnRegistration.Enabled := false;
   btnAthletes.Font.Style := [fsBold];
   btnEvents.Font.Style := [];
   btnRegistration.Font.Style := [];
@@ -1990,10 +2042,16 @@ begin
 end;
 
 procedure TMainForm.btnDVRTestSnapshotClick(Sender: TObject);
+var
+  strFileName : string;
 begin
   CreateDir(eSnapshotsDir.Text);
-  GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + '\TestSnapshot-'
-    + FormatDateTime(strTIMENOTE_FORMAT, Now) + '.png');
+  strFileName :=
+    eSnapshotsDir.Text + '\TestSnapshot-' + FormatDateTime(strFS_VALID_FORMAT, Now) + '.png';
+  GetSnapshot(vlcMediaPlayer, strFileName);
+  if RusMessageDialog(strVIEW_TEST_SNAPSHOT, mtConfirmation, mbYesNo, arrDIALOG_CAPTIONS) = mryes
+  then
+    ShellExecute(0, 'Open', PChar(strFileName), nil, nil, 1);
 end;
 
 procedure TMainForm.btnDVRTestStopClick(Sender: TObject);
@@ -2341,6 +2399,35 @@ begin
   pnlEventRaces.Show;
 end;
 
+procedure TMainForm.btnEditAthCloseClick(Sender: TObject);
+begin
+  pnlEditAthlet.Hide;
+end;
+
+procedure TMainForm.btnEditAthSaveClick(Sender: TObject);
+var
+  ATHLET_ID : integer;
+  strSEX : string;
+begin
+  ATHLET_ID := pnlEditAthlet.Tag;
+  if chbAthMale.Checked then strSEX := 'М' else strSEX := 'Ж';
+  with TIBSQL.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'update athletes set name=''' + eAthName.Text + ''', team='''
+      + eAthTeam.Text + ''', city=''' + eAthCity.Text + ''', sex=''' + strSEX
+      + ''', date_born=''' + FormatDateTime(strSIMPLE_DATEFORMAT, deAthBirthdate.Date)
+      + ''' where athlet_id=' + IntToStr(ATHLET_ID) + ';';
+    ExecQuery;
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+  finally
+    Free;
+  end;
+  pnlEditAthlet.Hide;
+  //refresh
+  tsAthletes.OnShow(Self);
+end;
+
 procedure TMainForm.btnEventCloseClick(Sender: TObject);
 begin
   pnlEvent.Hide;
@@ -2403,6 +2490,16 @@ procedure TMainForm.chbCGAgeMinClick(Sender: TObject);
 begin
   eCGAgeMin.Enabled := chbCGAgeMin.Checked;
   if chbCGAgeMin.Checked then eCGAgeMin.SetFocus;
+end;
+
+procedure TMainForm.chbAthFemaleClick(Sender: TObject);
+begin
+  chbAthMale.Checked := not(chbAthFemale.Checked);
+end;
+
+procedure TMainForm.chbAthMaleClick(Sender: TObject);
+begin
+  chbAthFemale.Checked := not(chbAthMale.Checked);
 end;
 
 procedure TMainForm.chbCGAgeMaxClick(Sender: TObject);
@@ -2906,7 +3003,7 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text :=
-      'select athlet_id,name,date_born,team,city from athletes order by name;';
+      'select athlet_id,name,date_born,city,team from athletes order by name;';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
@@ -2937,6 +3034,7 @@ begin
   else
     ScrollBarWidth := 0;
   lvAthletes.Width := iWidth + ScrollBarWidth + lvAthletes.Columns.Count;
+  pnlAthletes.Width := iWidth + ScrollBarWidth + lvAthletes.Columns.Count;
 end;
 
 procedure TMainForm.tsEventShow(Sender: TObject);
