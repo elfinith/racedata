@@ -236,8 +236,6 @@ type
     N3: TMenuItem;
     pnlAthletes: TsPanel;
     lvAthletes: TsListView;
-    tbAthletes: TsToolBar;
-    ToolButton1: TToolButton;
     pnlEditAthlet: TsPanel;
     eAthName: TsEdit;
     eAthCity: TsEdit;
@@ -358,7 +356,7 @@ type
     procedure SelectAthlet(Sender: TObject);
     procedure RepaintNumberButtons(Sender: TObject);
     procedure OnPlateNumberClick(Sender: TObject);
-    procedure RefreshRacePanel;
+    procedure RefreshRacePanel(bFullUpdate: boolean);
     procedure LogIt(errLever: Integer; strMessage: string);
     function GetReportHeaderParam(const RACE_ID: Integer; const ParName: string): Variant;
     function FormatTimeNote(dtTimeNote : TDateTime): string;
@@ -398,7 +396,8 @@ end;
 procedure RPUpdThread.DoWork;
 begin
   with MainForm do begin
-    RefreshRacePanel;
+    RefreshRacePanel(False);
+//    RefreshRacePanel(True);
     LogIt(llDEBUG, 'RPUpdThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
   end;
 end;
@@ -734,17 +733,50 @@ begin
   miOpenSnapshot.Enabled := FileExists(strFileName);
 end;
 
-procedure TMainForm.RefreshRacePanel;
+procedure TMainForm.RefreshRacePanel(bFullUpdate : boolean);
 var
   i, j, k, iPosCnt, iLapsOffset, iPanelWidth, ScrollBarWidth, RACE_ID, TN_ID,
-    PLATENUMBER, iLapsCompleted, iLapsToGo: Integer;
+    PLATENUMBER, iLapsCompleted, iLapsToGo : Integer;
   TIMENOTE, RACETIME: TDateTime;
-  strTIME_START: string;
+  strTIME_START, strTIMENOTES_SQL: string;
   lItem: TListItem;
 begin
-  lvRacePanel.Clear;
   // берём RACE_ID из sspNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
+  if (bFullUpdate) or (lvRacePanel.Items.Count = 0) then begin
+    // если полное обновление
+    LogIt(llDEBUG, 'Full RacePanel clean & refresh' + #13#10);
+    lvRacePanel.Clear;
+    strTIMENOTES_SQL :=
+      'select timenotes.tn_id, athletes.name, timenotes.platenumber, '
+      + 'timenotes.timenote from athletes, registry, timenotes where (athletes.athlet_id = '
+      + 'registry.athlet_id) and (registry.platenumber = timenotes.platenumber) and '
+      + '(registry.race_id = timenotes.race_id) and (timenotes.race_id = '
+      + IntToStr(RACE_ID) + ') order by timenotes.timenote;';
+  end
+  else begin
+    // если только добавить
+    LogIt(llDEBUG, 'Partial RacePanel refresh from TN_ID='
+      + IntToStr(Integer(lvRacePanel.Items.Item[lvRacePanel.Items.Count - 1].Data)) + #13#10);
+    strTIMENOTES_SQL :=
+      'select timenotes.tn_id, athletes.name, timenotes.platenumber, '
+      + 'timenotes.timenote from athletes, registry, timenotes where (athletes.athlet_id = '
+      + 'registry.athlet_id) and (registry.platenumber = timenotes.platenumber) and '
+      + '(registry.race_id = timenotes.race_id) and (timenotes.race_id = '
+      + IntToStr(RACE_ID) + ') and (timenotes.tn_id > '
+      + IntToStr(Integer(lvRacePanel.Items.Item[lvRacePanel.Items.Count - 1].Data))
+      + ') order by timenotes.timenote;';
+    // затираем ранее проставленные позиции и отставания в кругах (если такие есть)
+    for i := 0 to lvRacePanel.Items.Count - 1 do begin
+      if lvRacePanel.Items.Item[i].SubItems.Count = 5 then begin
+        lvRacePanel.Items.Item[i].SubItems.Delete(4);
+        lvRacePanel.Items.Item[i].SubItems.Delete(3);
+      end;
+      if lvRacePanel.Items.Item[i].SubItems.Count = 4 then begin
+        lvRacePanel.Items.Item[i].SubItems.Delete(3);
+      end;
+    end;
+  end;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -767,12 +799,7 @@ begin
     end;
     // времена засечек
     Close;
-    SQL.Text :=
-      'select timenotes.tn_id, athletes.name, timenotes.platenumber, '
-      + 'timenotes.timenote from athletes, registry, timenotes where (athletes.athlet_id = '
-      + 'registry.athlet_id) and (registry.platenumber = timenotes.platenumber) and '
-      + '(registry.race_id = timenotes.race_id) and (timenotes.race_id = '
-      + IntToStr(RACE_ID) + ') order by timenotes.timenote;';
+    SQL.Text := strTIMENOTES_SQL;
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     while not(EOF) do begin
@@ -1216,7 +1243,7 @@ begin
   finally
     Free;
   end;
-  RefreshRacePanel;
+  RefreshRacePanel(True);
 end;
 
 procedure TMainForm.miRPTimenote1SecPlusClick(Sender: TObject);
@@ -1884,7 +1911,7 @@ end;
 
 procedure TMainForm.btnRaceStartClick(Sender: TObject);
 begin
-  RefreshRacePanel;
+  RefreshRacePanel(True);
   tsRacePanel.Show;
   spRacePanel.Enabled := true;
   btnStpwtchFinish.Enabled := true;
@@ -2102,7 +2129,7 @@ begin
     finally
       Free;
     end;
-    RefreshRacePanel;
+    RefreshRacePanel(True);
     pnlTimenote.Hide;
   end
   else ShowMessage(strINVALID_TIMENOTE_DATA);
@@ -2609,7 +2636,7 @@ begin
       spRacePanel.Show;
       // refresh
       cbRaceChange(Self);
-      RefreshRacePanel;
+      RefreshRacePanel(True);
     end
     else spRacePanel.Hide;
   finally
@@ -2707,7 +2734,7 @@ begin
   cbResultsCG.Tag := RACE_ID;
   // refresh
   sTimerLabel.Caption := strTIMER_CAPTION;
-  RefreshRacePanel;
+  RefreshRacePanel(True);
 end;
 
 procedure TMainForm.cbResultsCGChange(Sender: TObject);
