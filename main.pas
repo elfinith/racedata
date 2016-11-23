@@ -736,7 +736,7 @@ end;
 procedure TMainForm.RefreshRacePanel(bFullUpdate : boolean);
 var
   i, j, k, iPosCnt, iLapsOffset, iPanelWidth, ScrollBarWidth, RACE_ID, TN_ID,
-    PLATENUMBER, iLapsCompleted, iLapsToGo : Integer;
+    PLATENUMBER, iLapsCompleted, iLapsToGo, iStartRefreshIdx : Integer;
   TIMENOTE, RACETIME: TDateTime;
   strTIME_START, strTIMENOTES_SQL: string;
   lItem: TListItem;
@@ -744,7 +744,7 @@ begin
   // берём RACE_ID из sspNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
   if (bFullUpdate) or (lvRacePanel.Items.Count = 0) then begin
-    // если полное обновление
+    // если полное обновление, выбираем все отметки и проставляеми позиции с начала
     LogIt(llDEBUG, 'Full RacePanel clean & refresh' + #13#10);
     lvRacePanel.Clear;
     strTIMENOTES_SQL :=
@@ -753,9 +753,11 @@ begin
       + 'registry.athlet_id) and (registry.platenumber = timenotes.platenumber) and '
       + '(registry.race_id = timenotes.race_id) and (timenotes.race_id = '
       + IntToStr(RACE_ID) + ') order by timenotes.timenote;';
+    iStartRefreshIdx := 0;
   end
   else begin
-    // если только добавить
+    // если только добавить, то выбираем ещё не добавленные отметки
+    // и проставляем позиции только для них
     LogIt(llDEBUG, 'Partial RacePanel refresh from TN_ID='
       + IntToStr(Integer(lvRacePanel.Items.Item[lvRacePanel.Items.Count - 1].Data)) + #13#10);
     strTIMENOTES_SQL :=
@@ -766,16 +768,7 @@ begin
       + IntToStr(RACE_ID) + ') and (timenotes.tn_id > '
       + IntToStr(Integer(lvRacePanel.Items.Item[lvRacePanel.Items.Count - 1].Data))
       + ') order by timenotes.timenote;';
-    // затираем ранее проставленные позиции и отставания в кругах (если такие есть)
-    for i := 0 to lvRacePanel.Items.Count - 1 do begin
-      if lvRacePanel.Items.Item[i].SubItems.Count = 5 then begin
-        lvRacePanel.Items.Item[i].SubItems.Delete(4);
-        lvRacePanel.Items.Item[i].SubItems.Delete(3);
-      end;
-      if lvRacePanel.Items.Item[i].SubItems.Count = 4 then begin
-        lvRacePanel.Items.Item[i].SubItems.Delete(3);
-      end;
-    end;
+    iStartRefreshIdx := lvRacePanel.Items.Count;
   end;
   with TIBQuery.Create(nil) do try
     Database := DBase;
@@ -836,8 +829,10 @@ begin
     with lvRacePanel.Items do begin
       if Count <> 0 then begin
         iPosCnt := 1;
-        Item[0].SubItems.Add('1');
-        for i := 1 to Count - 1 do begin
+        // проставялем 1-ю позицию только при полном апдейте панели
+        if bFullUpdate then Item[0].SubItems.Add('1');
+        // начинаем пробегать начиная с указанного элемента
+        for i := iStartRefreshIdx to Count - 1 do begin
           iPosCnt := 0;
           iLapsOffset := 0;
           // преебираем всех, кто прошёл ранее
