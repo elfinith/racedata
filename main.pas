@@ -51,6 +51,9 @@ const
   strREADY_TO_RACE = 'Готовы к старту';
   strREQUIRED_FIELDS_MISSING = 'Пропущены обязательные для заполнения поля';
   strSIMPLE_DATEFORMAT = 'dd/mm/yyyy';
+  strSNAPSHOT_DELAY_CALIBRATION = 'Калибровка';
+  strSNAPSHOT_DELAY_START = 'Старт';
+  strSNAPSHOT_DELAY_STOP = 'Стоп';
   strSTART = 'СТАРТ';
   strTIMENOTE_FORMAT = 'hh:mm:ss.zzz';
   strTIMER_CAPTION = '00:00:00.00';
@@ -245,6 +248,9 @@ type
     btnEditAthClose: TsBitBtn;
     chbAthMale: TsCheckBox;
     chbAthFemale: TsCheckBox;
+    lblSnapshotDelay: TsLabel;
+    eSnapshotDelay: TsEdit;
+    btnSnapshotDelay: TsButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -339,6 +345,7 @@ type
     procedure chbAthMaleClick(Sender: TObject);
     procedure chbAthFemaleClick(Sender: TObject);
     procedure btnEditAthSaveClick(Sender: TObject);
+    procedure btnSnapshotDelayClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -346,7 +353,8 @@ type
     fs: TFormatSettings;
     iPlatenumbersCount: Integer;
     RaceNumbers: TStringList;
-    TIME_START: TDateTime;
+    TIME_START, dtSnapshotClbrStart, dtSnapshotClbrStop: TDateTime;
+    iSnapshotDelay : integer;
     logLevel: Integer;
     strPDFPrinterName: string;
     strLogFilename: string;
@@ -406,6 +414,10 @@ procedure DVRSnapshotThread.Execute;
 begin
   FreeOnTerminate := true;
   with MainForm do begin
+    // отработка задержки
+    LogIt(llDEBUG, 'Snapshot delay ' + IntToStr(iSnapshotDelay) + ' ms, ThreadID = ' + IntToStr(ThreadID) + #13#10);
+    Sleep(iSnapshotDelay);
+    LogIt(llDEBUG, 'Snapshot at ' + eSnapshotsDir.Text + '\' + strSnapshotFileName + ', ThreadID = ' + IntToStr(ThreadID) + #13#10);
     GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + '\' + strSnapshotFileName);
     LogIt(llDEBUG, 'DVRSnapshotThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
   end;
@@ -478,6 +490,8 @@ begin
   eSnapshotsDir.Text := Config.ReadString('DVR', 'SnapshotsDir',
     ExtractFilePath(Application.ExeName) + 'Snapshots');
   eDVRUrl.Text := Config.ReadString('DVR', 'URL', strDEFAULT_DVR_URL);
+  iSnapshotDelay := Config.ReadInteger('DVR', 'CameraDelayMS', 0);
+  eSnapshotDelay.Text := IntToStr(iSnapshotDelay);
   try
     DBase.Connected := true;
     DBTran.Active := true;
@@ -706,8 +720,9 @@ begin
     end;
     // фигачим фото
     if chbEnableSnapshots.Checked then begin
-      strSnapshotFileName := IntToStr(RACE_ID) + '.'  + IntToStr(LAST_TN_ID + 1)
-        + '.' + TFreeButton(Sender).Caption + '.png';
+      strSnapshotFileName :=
+        IntToStr(RACE_ID) + '.'  + IntToStr(LAST_TN_ID + 1) + '.'
+        + TFreeButton(Sender).Caption + '.png';
       dvrThread := DVRSnapshotThread.Create(False);
       LogIt(llDEBUG, 'DVRSnapshotThread.Create, ThreadID = ' + IntToStr(dvrThread.ThreadID) + #13#10);
     end;
@@ -743,6 +758,7 @@ var
 begin
   // берём RACE_ID из sspNumbersPanel.Tag
   RACE_ID := spNumbersPanel.Tag;
+  // проверяем режим обновления панели
   if (bFullUpdate) or (lvRacePanel.Items.Count = 0) then begin
     // если полное обновление, выбираем все отметки и проставляеми позиции с начала
     LogIt(llDEBUG, 'Full RacePanel clean & refresh' + #13#10);
@@ -790,8 +806,8 @@ begin
       btnStpwtchStart.Enabled := true;
       btnStpwtchStart.Caption := strSTART;
     end;
-    // времена засечек
     Close;
+    // времена засечек
     SQL.Text := strTIMENOTES_SQL;
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
@@ -1680,6 +1696,24 @@ begin
   tsSettings.Show;
 end;
 
+procedure TMainForm.btnSnapshotDelayClick(Sender: TObject);
+begin
+  if btnSnapshotDelay.Caption = strSNAPSHOT_DELAY_STOP then begin
+    btnSnapshotDelay.Caption := strSNAPSHOT_DELAY_CALIBRATION;
+    dtSnapshotClbrStop := Now;
+    iSnapshotDelay := MilliSecondsBetween(dtSnapshotClbrStop, dtSnapshotClbrStart);
+    eSnapshotDelay.Text := IntToStr(iSnapshotDelay);
+    Config.WriteInteger('DVR', 'CameraDelayMS', iSnapshotDelay);
+  end;
+  if btnSnapshotDelay.Caption = strSNAPSHOT_DELAY_START then begin
+    btnSnapshotDelay.Caption := strSNAPSHOT_DELAY_STOP;
+    dtSnapshotClbrStart := Now;
+  end;
+  if btnSnapshotDelay.Caption = strSNAPSHOT_DELAY_CALIBRATION then begin
+    btnSnapshotDelay.Caption := strSNAPSHOT_DELAY_START;
+  end;
+end;
+
 procedure TMainForm.btnRegisterClick(Sender: TObject);
 var
   i, EVENT_ID, ATHLET_ID, RACE_ID, REG_ID: Integer;
@@ -2061,6 +2095,7 @@ begin
   btnDVRTestPlay.Enabled := false;
   btnDVRTestStop.Enabled := true;
   btnDVRTestSnapshot.Enabled := true;
+  btnSnapshotDelay.Enabled := true;
 end;
 
 procedure TMainForm.btnDVRTestSnapshotClick(Sender: TObject);
@@ -2070,6 +2105,10 @@ begin
   CreateDir(eSnapshotsDir.Text);
   strFileName :=
     eSnapshotsDir.Text + '\TestSnapshot-' + FormatDateTime(strFS_VALID_FORMAT, Now) + '.png';
+  // отработка задержки
+  LogIt(llDEBUG, 'Snapshot delay ' + IntToStr(iSnapshotDelay) + ' ms');
+  Sleep(iSnapshotDelay);
+  LogIt(llDEBUG, 'Snapshot at ' + strFileName);
   GetSnapshot(vlcMediaPlayer, strFileName);
   if RusMessageDialog(strVIEW_TEST_SNAPSHOT, mtConfirmation, mbYesNo, arrDIALOG_CAPTIONS) = mryes
   then
@@ -2083,6 +2122,7 @@ begin
   btnDVRTestPlay.Enabled := true;
   btnDVRTestStop.Enabled := false;
   btnDVRTestSnapshot.Enabled := false;
+  btnSnapshotDelay.Enabled := false;
 end;
 
 procedure TMainForm.btnTimenoteOKClick(Sender: TObject);
