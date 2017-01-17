@@ -61,6 +61,12 @@ const
   strUNABLE_TO_DELETE_STARTED_RACE = 'Невозможно удалить уже начатый заезд';
   strVIEW_TEST_SNAPSHOT = 'Открыть снимок для просмотра?';
 
+  // форматы отображения Имени и Фамилии
+  nfFirstLowerLastLower = 0;
+  nfLastLowerFirstLower = 1;
+  nfFirstLowerLastUPPER = 2;
+  nfLastUPPERFirstLower = 3;
+
   // розовый (св-т)
   clOddLight = TColor($FAF0E6);
   clOddDark = TColor($FFE4E1);
@@ -251,6 +257,9 @@ type
     lblSnapshotDelay: TsLabel;
     eSnapshotDelay: TsEdit;
     btnSnapshotDelay: TsButton;
+    lblAvailableRaces: TsLabel;
+    lblUnalailableRaces: TsLabel;
+    lbUnavailableRaces: TsListBox;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -449,6 +458,56 @@ begin
   Result := aMsgDlg.ShowModal;
 end;
 
+function FormatAthName(NameFormat: byte; strAthName: string) : string;
+var
+  slBuffer: TStringList;
+  str : string;
+begin
+  case NameFormat of
+    nfFirstLowerLastLower : begin
+      FormatAthName := StringReplace(strAthName, '  ' , ' ', [rfReplaceAll, rfIgnoreCase]);
+    end;
+    nfLastLowerFirstLower : begin
+      slBuffer := TStringList.Create;
+      slBuffer.Delimiter := ' ';
+      slBuffer.DelimitedText := StringReplace(strAthName, '  ' , ' ', [rfReplaceAll, rfIgnoreCase]);
+      if slBuffer.Count = 2 then begin
+        str := slBuffer[0];
+        slBuffer[0] := slBuffer[1];
+        slBuffer[1] := str;
+        FormatAthName := slBuffer.DelimitedText;
+      end
+      else FormatAthName := strAthName;
+      slBuffer.Free;
+    end;
+    nfFirstLowerLastUPPER : begin
+      slBuffer := TStringList.Create;
+      slBuffer.Delimiter := ' ';
+      slBuffer.DelimitedText := StringReplace(strAthName, '  ' , '' , [rfReplaceAll, rfIgnoreCase]);
+      if slBuffer.Count = 2 then begin
+        str := slBuffer[1];
+        slBuffer[1] := AnsiUpperCase(str);
+        FormatAthName := slBuffer.DelimitedText;
+      end
+      else FormatAthName := strAthName;
+      slBuffer.Free;
+    end;
+    nfLastUPPERFirstLower : begin
+      slBuffer := TStringList.Create;
+      slBuffer.Delimiter := ' ';
+      slBuffer.DelimitedText := StringReplace(strAthName, '  ' , ' ', [rfReplaceAll, rfIgnoreCase]);
+      if slBuffer.Count = 2 then begin
+        str := slBuffer[0];
+        slBuffer[0] := AnsiUpperCase(slBuffer[1]);
+        slBuffer[1] := str;
+        FormatAthName := slBuffer.DelimitedText;
+      end
+      else FormatAthName := strAthName;
+      slBuffer.Free;
+    end;
+  end;
+end;
+
 procedure TMainForm.LogIt(errLever: Integer; strMessage: string);
 var
   F: TextFile;
@@ -607,7 +666,7 @@ begin
   if ParName = 'event_name' then ParValue := lvAthRaces.Selected.SubItems.Strings[0];
   if ParName = 'race_name' then ParValue := lvAthRaces.Selected.SubItems.Strings[1];
   if ParName = 'comp_group' then ParValue := strABSOLUTE;
-  if ParName = 'athlet' then ParValue := lvAthletes.Selected.Caption;
+  if ParName = 'athlet' then ParValue := FormatAthName(nfLastUPPERFirstLower, lvAthletes.Selected.Caption);
   if ParName = 'lap' then ParValue := lvAthStats.Items[frUserDataset.RecNo].Caption;
   if ParName = 'lap_time' then ParValue :=
     lvAthStats.Items[frUserDataset.RecNo].SubItems.Strings[0];
@@ -636,7 +695,7 @@ begin
   if ParName = 'race_name' then ParValue := cbRace.Text;
   if ParName = 'comp_group' then ParValue := cbResultsCG.Text;
   if ParName = 'place' then ParValue := lvResults.Items[frUserDataset.RecNo].Caption;
-  if ParName = 'athlet' then ParValue := lvResults.Items[frUserDataset.RecNo].SubItems.Strings[0];
+  if ParName = 'athlet' then ParValue := FormatAthName(nfLastUPPERFirstLower, lvResults.Items[frUserDataset.RecNo].SubItems.Strings[0]);
   if ParName = 'platenumber' then ParValue :=
     lvResults.Items[frUserDataset.RecNo].SubItems.Strings[1];
   if ParName = 'time' then ParValue :=
@@ -667,8 +726,8 @@ begin
   if ParName = 'timenote' then ParValue := lvRacePanel.Items[frUserDataset.RecNo].Caption;
   if ParName = 'platenumber' then ParValue :=
     lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[0];
-  if ParName = 'athlet' then ParValue :=
-    lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[1];
+  if ParName = 'athlet' then ParValue := FormatAthName(nfLastUPPERFirstLower,
+    lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[1]);
   if ParName = 'lap' then ParValue :=
     lvRacePanel.Items[frUserDataset.RecNo].SubItems.Strings[2];
   if ParName = 'position' then ParValue :=
@@ -2593,8 +2652,9 @@ begin
     chlbRaces.Tag := EVENT_ID;
     // список заездов
     Close;
-    SQL.Text := 'select race_id,name,track_length,laps from races where event_id='
-      + IntToStr(EVENT_ID) + ';';
+    // выбираем только те заезды, дял которых поле STATUS пустое (т.е. не начатые)
+    SQL.Text := 'select race_id,name,track_length,laps from races where (event_id='
+      + IntToStr(EVENT_ID) + ') and (status = '''');';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
@@ -2602,6 +2662,19 @@ begin
     chlbRaces.Clear;
     while not(EOF) do begin
       chlbRaces.Items.Add(Fields[1].AsString);
+      Next;
+    end;
+    // выбираем недоступные для регистрации заезды
+    Close;
+    SQL.Text := 'select race_id,name,track_length,laps from races where (event_id='
+      + IntToStr(EVENT_ID) + ') and (status <> '''');';
+    Open;
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    FetchAll;
+    First;
+    lbUnavailableRaces.Clear;
+    while not(EOF) do begin
+      lbUnavailableRaces.Items.Add(Fields[1].AsString);
       Next;
     end;
     // список уже зарегистрировавшихся, выдача свободных номеров
