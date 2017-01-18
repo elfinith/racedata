@@ -1553,7 +1553,21 @@ begin
 end;
 
 procedure TMainForm.btnRaceSaveClick(Sender: TObject);
+var
+  RACE_ID : integer;
 begin
+  // если в RACES пусто, берём RACE_ID=1
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select max(race_id) from races';
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
+    if Fields[0].IsNull then RACE_ID := 1 else RACE_ID := Fields[0].AsInteger + 1;
+  finally
+    Free;
+  end;
+  // запись данных
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -1561,7 +1575,7 @@ begin
     if pnlRace.Tag = 0 then
       SQL.Text :=
         'insert into races(race_id,event_id,name,laps,track_length) '
-        + 'values((select max(race_id) from races) + 1,'
+        + 'values(' + IntToStr(RACE_ID) + ','
         + IntToStr(pnlEvent.Tag) + ',''' + eRaceName.Text + ''','
         + eRaceLaps.Text + ',' + eRaceTrackLength.Text + ');'
       // если изменить
@@ -1569,8 +1583,8 @@ begin
       SQL.Text := 'update races set name=''' + eRaceName.Text + ''',laps='
         + eRaceLaps.Text + ',track_length=' + eRaceTrackLength.Text
         + ' where race_id=' + IntToStr(pnlRace.Tag) + ';';
-    ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    ExecQuery;
     pnlRace.Hide;
   finally
     Free;
@@ -2388,14 +2402,28 @@ begin
 end;
 
 procedure TMainForm.btnEventSaveClick(Sender: TObject);
+var
+  EVENT_ID : integer;
 begin
+  // если в EVENTS пусто, берём EVENT_ID=1
+  with TIBQuery.Create(nil) do try
+    Database := DBase;
+    Transaction := DBTran;
+    SQL.Text := 'select max(event_id) from events;';
+    LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
+    if Fields[0].IsNull then EVENT_ID := 1 else EVENT_ID := Fields[0].AsInteger + 1;
+  finally
+    Free;
+  end;
+  // запись данных
   with TIBSQL.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
     // если создать
     if pnlEvent.Tag = 0 then
       SQL.Text :=
-        'insert into events(event_id,event_date,name) values((select max(event_id) from events) + 1,'''
+        'insert into events(event_id,event_date,name) values(' + IntToStr(EVENT_ID) + ','''
         + FormatDateTime(strSIMPLE_DATEFORMAT, dtpEvent.Date) + ''',''' + eEventName.Text + ''')'
       // изменить
     else
@@ -2654,7 +2682,7 @@ begin
     Close;
     // выбираем только те заезды, дял которых поле STATUS пустое (т.е. не начатые)
     SQL.Text := 'select race_id,name,track_length,laps from races where (event_id='
-      + IntToStr(EVENT_ID) + ') and (status = '''');';
+      + IntToStr(EVENT_ID) + ') and ((status = '''') or (status is null));';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
@@ -2667,7 +2695,7 @@ begin
     // выбираем недоступные для регистрации заезды
     Close;
     SQL.Text := 'select race_id,name,track_length,laps from races where (event_id='
-      + IntToStr(EVENT_ID) + ') and (status <> '''');';
+      + IntToStr(EVENT_ID) + ') and (status <> '''') and not(status is null);';
     Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     FetchAll;
