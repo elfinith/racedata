@@ -260,6 +260,8 @@ type
     lblAvailableRaces: TsLabel;
     lblUnalailableRaces: TsLabel;
     lbUnavailableRaces: TsListBox;
+    lblYearsOld: TsLabel;
+    lblYearsOldValue: TsLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -355,6 +357,7 @@ type
     procedure chbAthFemaleClick(Sender: TObject);
     procedure btnEditAthSaveClick(Sender: TObject);
     procedure btnSnapshotDelayClick(Sender: TObject);
+    procedure dtpAthletChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -758,8 +761,8 @@ begin
       Database := DBase;
       Transaction := DBTran;
       SQL.Text := 'select max(tn_id) from timenotes;';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       LAST_TN_ID := Fields[0].AsInteger;
     finally
       Free;
@@ -852,8 +855,8 @@ begin
     SQL.Text :=
       'select timenote from timenotes where (platenumber = 0) '
       + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     if RecordCount > 0 then begin
       btnStpwtchStart.Enabled := False;
       strTIME_START := Fields[0].AsString;
@@ -891,8 +894,8 @@ begin
             'select count(tn_id) from timenotes where ' + '(tn_id < '
             + IntToStr(TN_ID) + ') and (platenumber=' + IntToStr(PLATENUMBER)
             + ') and (race_id=' + IntToStr(RACE_ID) + ');';
-          Open;
           LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+          Open;
           SubItems.Add(IntToStr(Fields[0].AsInteger + 1));
         finally
           Free;
@@ -1087,8 +1090,8 @@ begin
       + ') and (athletes.athlet_id = registry.athlet_id) and (registry.race_id = races.race_id) '
       + 'and (races.event_id = events.event_id) and (races.status = ''' + strRACE_STATUS_FINISHED
       + ''') order by events.event_date, races.race_id;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     while not(EOF) do begin
       lItem := lvAthRaces.Items.Add;
@@ -1269,8 +1272,8 @@ begin
       Transaction := DBTran;
       SQL.Text := 'select race_id from races where (event_id='
         + IntToStr(EVENT_ID) + ') and (name=''' + strRaceName + ''');';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       RACE_ID := Fields[0].AsInteger;
       // извлекаем ATHLET_ID
@@ -1278,8 +1281,8 @@ begin
       SQL.Text :=
         'select athlet_id from athletes where (name=''' + strAthletName
         + ''') and (date_born=''' + strAthletBirthDate + ''');';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       ATHLET_ID := Fields[0].AsInteger;
     finally
@@ -1290,8 +1293,8 @@ begin
       Transaction := DBTran;
       SQL.Text := 'delete from registry where (race_id=' + IntToStr(RACE_ID)
         + ') and (athlet_id=' + IntToStr(ATHLET_ID) + ');';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
     finally
       Free;
     end;
@@ -1325,8 +1328,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select max(tn_id) from timenotes;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     TN_ID := Fields[0].AsInteger + 1;
   finally
     Free;
@@ -1353,8 +1356,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select max(tn_id) from timenotes;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     TN_ID := Fields[0].AsInteger + 1;
   finally
     Free;
@@ -1380,8 +1383,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select max(tn_id) from timenotes;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     TN_ID := Fields[0].AsInteger + 1;
   finally
     Free;
@@ -1427,8 +1430,8 @@ begin
     Transaction := DBTran;
     SQL.Text := 'select name,date_born,sex,city,team from athletes where athlet_id='
       + IntToStr(ATHLET_ID) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     eAthName.Text := Fields[0].AsString;
     eAthCity.Text := Fields[3].AsString;
     eAthTeam.Text := Fields[4].AsString;
@@ -1452,8 +1455,8 @@ begin
     SQL.Text :=
       'select race_id,name,laps,track_length from races where event_id='
       + IntToStr(pnlEvent.Tag) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     i := 0;
@@ -1471,8 +1474,8 @@ begin
     SQL.Text :=
       'select cg_id,sex,agemin,agemax,laps from comp_groups where race_id='
       + IntToStr(pnlRace.Tag) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     lvCompGroups.Clear;
     while not(EOF) do begin
@@ -1505,7 +1508,7 @@ begin
   btnCGNew.Show;
   btnCGDelete.Show;
   lvCompGroups.Show;
-  pnlCGEdit.Show;
+//  pnlCGEdit.Show;
 end;
 
 procedure TMainForm.btnRaceDeleteClick(Sender: TObject);
@@ -1526,8 +1529,8 @@ begin
         SQL.Text :=
           'select race_id,name,laps,track_length,status from races where event_id='
           + IntToStr(pnlEvent.Tag) + ';';
-        Open;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
         FetchAll;
         First;
         i := 0;
@@ -1540,8 +1543,17 @@ begin
       finally
         Free;
       end;
-      SQL.Text := 'delete from races where race_id=' + IntToStr(RACE_ID) + ';';
-      if bClear then ExecQuery
+      if bClear then begin
+        // удаляем зачётные подгруппы
+        SQL.Text := 'delete from comp_groups where race_id=' + IntToStr(RACE_ID) + ';';
+        LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        ExecQuery;
+        // узаляем заезд
+        Close;
+        SQL.Text := 'delete from races where race_id=' + IntToStr(RACE_ID) + ';';
+        LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        ExecQuery;
+      end
       else ShowMessage(strUNABLE_TO_DELETE_STARTED_RACE);
     finally
       Free;
@@ -1629,8 +1641,8 @@ begin
       Transaction := DBTran;
       SQL.Text :=
         'select event_id,event_date,name from events order by event_date;';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       First;
       i := 0;
@@ -1651,8 +1663,8 @@ begin
       Transaction := DBTran;
       SQL.Text :=
         'select event_id,event_date,name from events order by event_date;';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       First;
       i := 0;
@@ -1674,8 +1686,8 @@ begin
     Transaction := DBTran;
     // список мероприятий
     SQL.Text := 'select event_id,event_date,name from events order by event_date;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     cbEvent.Items.Clear;
@@ -1691,8 +1703,8 @@ begin
     Close;
     SQL.Text := 'select race_id,laps,track_length,name,status from races where event_id='
       + IntToStr(EVENT_ID) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     cbRace.Items.Clear;
     while not(EOF) do begin
@@ -1732,6 +1744,7 @@ begin
   eCity.ReadOnly := False;
   eAthletSearch.Hide;
   btnAthletSearch.Hide;
+  lblYearsOldValue.Caption := '';
 end;
 
 procedure TMainForm.btnFindAthletClick(Sender: TObject);
@@ -1814,8 +1827,8 @@ begin
           Database := DBase;
           Transaction := DBTran;
           SQL.Text := 'select max(athlet_id) from athletes;';
-          Open;
           LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+          Open;
           FetchAll;
           ATHLET_ID := Fields[0].AsInteger + 1;
         finally
@@ -1826,8 +1839,8 @@ begin
           + IntToStr(ATHLET_ID) + ',''' + eAthletName.Text + ''','''
           + FormatDateTime(strSIMPLE_DATEFORMAT, dtpAthlet.Date)
           + ''',''' + SEX + ''',''' + eTeam.Text + ''',''' + eCity.Text + ''');';
-        ExecQuery;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        ExecQuery;
       end
       else begin
         // если участник выбран через поиск
@@ -1842,8 +1855,8 @@ begin
           SQL.Text :=
             'select race_id,name,track_length,laps from races where event_id='
             + IntToStr(EVENT_ID) + ';';
-          Open;
           LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+          Open;
           FetchAll;
           First;
           while not(EOF) and (chlbRaces.Items.Strings[i] <> Fields[1].AsString) do begin
@@ -1860,8 +1873,8 @@ begin
           Database := DBase;
           Transaction := DBTran;
           SQL.Text := 'select max(reg_id) from registry;';
-          Open;
           LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+          Open;
           FetchAll;
           REG_ID := Fields[0].AsInteger + 1;
         finally
@@ -1871,8 +1884,8 @@ begin
           'insert into registry(reg_id,platenumber,athlet_id,race_id) values('
           + IntToStr(REG_ID) + ',' + cbRegisterNumberplate.Text + ','
           + IntToStr(ATHLET_ID) + ',' + IntToStr(RACE_ID) + ');';
-        ExecQuery;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        ExecQuery;
       end;
     finally
       Free;
@@ -1897,8 +1910,8 @@ begin
     SQL.Text :=
       'select name,date_born,sex,team,city from athletes where athlet_id='
       + IntToStr(ATHLET_ID) + ' order by name;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     eAthletName.Text := Fields[0].AsString;
     eTeam.Text := Fields[3].AsString;
@@ -1929,8 +1942,8 @@ begin
     SQL.Text :=
       'select athlet_id,name,date_born,sex,team,city from athletes where name like ''%'
       + eAthletSearch.Text + '%'' order by name;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     while not(EOF) do begin
       // поиск среди уже зарегистрированных
@@ -1942,8 +1955,8 @@ begin
           'select * from registry,races where (registry.race_id=races.race_id)'
           + 'and(athlet_id=' + IntToStr(ATHLET_ID)
           + ')and(races.event_id=' + IntToStr(chlbRaces.Tag) + ');';
-        Open;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
         FetchAll;
         isRegistered := RecordCount > 0;
       finally
@@ -2002,8 +2015,8 @@ begin
     // берём race_id из sCheckListBox2.Tag
     SQL.Text := 'update races set status=''' + strRACE_STATUS_STARTED
       + ''' where race_id=' + IntToStr(chlbAthletes.Tag) + ';';
-    ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    ExecQuery;
   finally
     Free;
   end;
@@ -2028,8 +2041,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select max(tn_id) from timenotes;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     LAST_TN_ID := Fields[0].AsInteger;
   finally
     Free;
@@ -2044,8 +2057,8 @@ begin
       'insert into timenotes(tn_id,race_id,platenumber,timenote) values('
       + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID)
       + ',0,''' + FormatDateTime(strTIMENOTE_FORMAT, TIME_START) + ''');';
-    ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    ExecQuery;
     btnStpwtchStart.Enabled := False;
     Timer.Enabled := true;
   finally
@@ -2059,8 +2072,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select laps from races where race_id=' + IntToStr(RACE_ID) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     btnStpwtchFinish.Tag := Fields[0].AsInteger;
     btnStpwtchFinish.Caption := IntToStr(btnStpwtchFinish.Tag) + strLAPSTOGO;
     btnStpwtchFinish.Enabled := true;
@@ -2094,8 +2107,8 @@ begin
       Transaction := DBTran;
       SQL.Text := 'update races set status=''' + strRACE_STATUS_FINISHED
         + ''' where race_id=' + IntToStr(RACE_ID) + ';';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
     finally
       Free;
     end;
@@ -2125,26 +2138,26 @@ begin
       // все гонки в процессе переводим в нестартованные
       SQL.Text := 'update races set status='''' where status='''
         + strRACE_STATUS_STARTED + ''';';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
       Close;
       // все завершённые гонки в переводим в нестартованные
       SQL.Text := 'update races set status='''' where status='''
         + strRACE_STATUS_FINISHED + ''';';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
       Close;
       // вычищаем все временные отметки
       SQL.Text := 'delete from timenotes;';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
       // чистка мусора (финт ушами)
       with TIBQuery.Create(nil) do try
         Database := DBase;
         Transaction := DBTran;
         SQL.Text := 'select count(*) from timenotes;';
-        Open;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
       finally
         Free;
       end;
@@ -2232,8 +2245,8 @@ begin
       else
         SQL.Text := 'update timenotes set platenumber='
           + cbTimenotePlatenumber.Text + ' where TN_ID=' + IntToStr(TN_ID) + ';';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
     finally
       Free;
     end;
@@ -2259,8 +2272,10 @@ begin
   eCGAgeMax.Enabled := False;
   eCGAgeMax.Clear;
   eCGLaps.Text := eRaceLaps.Text;
-  pnlCGEdit.Show;
+  pnlCGEdit.Visible := true;
   btnCGDelete.Enabled := False;
+  btnCGClose.Enabled := true;
+  btnCGSave.Enabled := true;
 end;
 
 procedure TMainForm.btnCGDeleteClick(Sender: TObject);
@@ -2274,8 +2289,8 @@ begin
         Transaction := DBTran;
         SQL.Text := 'delete from comp_groups where cg_id='
           + IntToStr(Integer(lvCompGroups.Items[lvCompGroups.ItemIndex].Data)) + ';';
-        ExecQuery;
         LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        ExecQuery;
       finally
         Free;
       end;
@@ -2312,8 +2327,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select max(cg_id) from comp_groups;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     CG_ID := Fields[0].AsInteger + 1;
   finally
     Free;
@@ -2335,21 +2350,25 @@ begin
       + IntToStr(CG_ID) + ',' + IntToStr(RACE_ID)
       + ',''' + SEX + ''',' + IntToStr(AGEMIN) + ',' + IntToStr(AGEMAX)
       + ',' + IntToStr(LAPS) + ');';
-    ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    ExecQuery;
   finally
     Free;
   end;
-  pnlCGEdit.Hide;
   btnCGDelete.Enabled := true;
+  btnCGClose.Enabled := false;
+  btnCGSave.Enabled := false;
+  pnlCGEdit.Visible := false;
   // refresh
   btnRaceEditClick(Self);
 end;
 
 procedure TMainForm.btnCGCloseClick(Sender: TObject);
 begin
-  pnlCGEdit.Hide;
   btnCGDelete.Enabled := true;
+  btnCGClose.Enabled := false;
+  btnCGSave.Enabled := false;
+  pnlCGEdit.Visible := false;
 end;
 
 procedure TMainForm.btnRaceResultsClick(Sender: TObject);
@@ -2430,8 +2449,8 @@ begin
       SQL.Text := 'update events set name=''' + eEventName.Text +
         ''',event_date=''' + FormatDateTime(strSIMPLE_DATEFORMAT,
         dtpEvent.Date) + ''' where event_id=' + IntToStr(pnlEvent.Tag) + ';';
-    ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    ExecQuery;
     pnlEvent.Hide;
   finally
     Free;
@@ -2461,8 +2480,8 @@ begin
       Transaction := DBTran;
       SQL.Text :=
         'select event_id,event_date,name from events order by event_date;';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       First;
       i := 0;
@@ -2474,8 +2493,8 @@ begin
       // проверка статуса гонок
       Close;
       SQL.Text := 'select status from races where event_id=' + IntToStr(EVENT_ID) + ';';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       bClear := true;
       while not(EOF) do begin
@@ -2488,13 +2507,13 @@ begin
     if bClear then begin
       SQL.Text := 'delete from races where event_id=' + IntToStr(EVENT_ID)
         + ';';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
       Close;
       SQL.Text := 'delete from events where event_id=' + IntToStr(EVENT_ID)
         + ';';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
     end
     else ShowMessage(strUNABLE_TO_DELETE_STARTED_EVENT);
   finally
@@ -2515,8 +2534,8 @@ begin
     Transaction := DBTran;
     SQL.Text :=
       'select event_id,event_date,name from events order by event_date;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     i := 0;
@@ -2533,8 +2552,8 @@ begin
     SQL.Text :=
       'select race_id,name,track_length,laps from races where event_id='
       + IntToStr(pnlEvent.Tag) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     while not(EOF) do begin
       lbEventRaces.Items.Add(Fields[1].AsString + ' ('  + IntToStr(Fields[3].AsInteger)
@@ -2567,8 +2586,8 @@ begin
       + eAthTeam.Text + ''', city=''' + eAthCity.Text + ''', sex=''' + strSEX
       + ''', date_born=''' + FormatDateTime(strSIMPLE_DATEFORMAT, deAthBirthdate.Date)
       + ''' where athlet_id=' + IntToStr(ATHLET_ID) + ';';
-    ExecQuery;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    ExecQuery;
   finally
     Free;
   end;
@@ -2609,6 +2628,12 @@ end;
 procedure TMainForm.chbSexMaleClick(Sender: TObject);
 begin
   chbSexFemale.Checked := not(chbSexMale.Checked);
+end;
+
+procedure TMainForm.dtpAthletChange(Sender: TObject);
+begin
+  lblYearsOldValue.Caption := IntToStr(YearsBetween(StrToDate('31.12.'
+    + FormatDateTime('yyyy', Now), fs), dtpAthlet.Date));
 end;
 
 procedure TMainForm.chbSexFemaleClick(Sender: TObject);
@@ -2666,8 +2691,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select event_id,event_date,name from events order by event_date;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     i := 0;
@@ -2683,8 +2708,8 @@ begin
     // выбираем только те заезды, дял которых поле STATUS пустое (т.е. не начатые)
     SQL.Text := 'select race_id,name,track_length,laps from races where (event_id='
       + IntToStr(EVENT_ID) + ') and ((status = '''') or (status is null));';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     chlbRaces.Clear;
@@ -2696,8 +2721,8 @@ begin
     Close;
     SQL.Text := 'select race_id,name,track_length,laps from races where (event_id='
       + IntToStr(EVENT_ID) + ') and (status <> '''') and not(status is null);';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     lbUnavailableRaces.Clear;
@@ -2714,8 +2739,8 @@ begin
       + 'from registry, athletes, races, events where (registry.race_id = races.race_id) and (races.event_id = events.event_id)'
       + 'and (athletes.athlet_id = registry.athlet_id) and (races.event_id = ' + IntToStr(EVENT_ID)
       + ') order by races.race_id, registry.platenumber;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     lvRegistered.Items.Clear;
     while not(EOF) do begin
@@ -2745,8 +2770,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text := 'select event_id,event_date,name from events order by event_date;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     while not(EOF) do begin
@@ -2757,8 +2782,8 @@ begin
     SQL.Text :=
       'select race_id,laps,track_length,name,status from races where event_id='
       + IntToStr(EVENT_ID) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     cbRace.Items.Clear;
     // схраняем EVENT_ID в sComboBox4.Tag
@@ -2795,8 +2820,8 @@ begin
     SQL.Text :=
       'select race_id,laps,track_length,name,status from races where event_id='
       + IntToStr(EVENT_ID) + ';';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     while not(EOF) do begin
       if cbRace.Text = Fields[3].AsString then begin
@@ -2813,8 +2838,8 @@ begin
       'select registry.platenumber, athletes.name from registry, athletes '
       + 'where (registry.athlet_id = athletes.athlet_id) and (registry.race_id = '
       + IntToStr(RACE_ID) + ') order by registry.platenumber;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     First;
     chlbAthletes.Clear;
@@ -2895,8 +2920,8 @@ begin
     // время старта
     SQL.Text := 'select timenote from timenotes where (platenumber = 0) '
       + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     strTIMESTART := Fields[0].AsString;
     // параметры фильтрации, если тербуется
     if bToApplyFilter then begin
@@ -2905,8 +2930,8 @@ begin
       // и находим нужные поля
       SQL.Text := 'select sex,agemin,agemax,laps from comp_groups where race_id='
         + IntToStr(RACE_ID) + ' order by sex,agemin;';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       i := 1;
       while i < cbResultsCG.ItemIndex do begin
@@ -2934,8 +2959,8 @@ begin
       SQL.Text := 'select platenumber, count(platenumber), max(timenote) from timenotes '
         + 'where race_id = ' + IntToStr(RACE_ID) + ' group by platenumber order by '
         + 'count(platenumber) desc, max(timenote);';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     spbResults.Position := 0;
     spbResults.Max := RecordCount;
@@ -2954,8 +2979,8 @@ begin
             'select name,date_born,sex,team,city from athletes, registry '
             + 'where (registry.athlet_id = athletes.athlet_id) and (registry.platenumber = '
             + IntToStr(PLATENUMBER) + ') and (registry.race_id = ' + IntToStr(RACE_ID) + ')';
-          Open;
           LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+          Open;
           bIsFiltered := true;
           // применяем фильтрацию если необходимо
           if bToApplyFilter then begin
@@ -3100,8 +3125,8 @@ begin
       Transaction := DBTran;
       SQL.Text := 'select sex,agemin,agemax,laps from comp_groups where race_id='
         + IntToStr(RACE_ID) + ' order by sex,agemin;';
-      Open;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
       FetchAll;
       while not(EOF) do begin
         if Fields[0].AsString = 'Ж' then strSEX := 'Женщины';
@@ -3134,8 +3159,8 @@ begin
     Transaction := DBTran;
     SQL.Text :=
       'select event_id,event_date,name from events order by event_date;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     while not(EOF) do begin
       cbEventRegistration.Items.Add(Fields[2].AsString);
@@ -3167,8 +3192,8 @@ begin
     Transaction := DBTran;
     SQL.Text :=
       'select athlet_id,name,date_born,city,team from athletes order by name;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     lvAthletes.Items.Clear;
     while not(EOF) do begin
@@ -3207,8 +3232,8 @@ begin
     Transaction := DBTran;
     SQL.Text :=
       'select event_id,event_date,name from events order by event_date;';
-    Open;
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+    Open;
     FetchAll;
     lbEvents.Clear;
     while not(EOF) do begin
