@@ -907,8 +907,11 @@ begin
     with lvRacePanel.Items do begin
       if Count <> 0 then begin
         iPosCnt := 1;
+
         // проставялем 1-ю позицию только при полном апдейте панели
-        if bFullUpdate then Item[0].SubItems.Add('1');
+     // --- удалил. нахера это было сделано не понятно
+     //   if bFullUpdate then Item[0].SubItems.Add('1');
+
         // начинаем пробегать начиная с указанного элемента
         for i := iStartRefreshIdx to Count - 1 do begin
           iPosCnt := 0;
@@ -2684,8 +2687,9 @@ end;
 
 procedure TMainForm.cbEventRegistrationChange(Sender: TObject);
 var
-  EVENT_ID, i, j: Integer;
+  EVENT_ID, i, j, n: Integer;
   lItem: TListItem;
+  Group: TListGroup;
 begin
   with TIBQuery.Create(nil) do try
     Database := DBase;
@@ -2756,6 +2760,22 @@ begin
         SubItems.Add(Fields[2].AsString);
       end; // with lItem
       Next;
+    end;
+    // группировка списка зарегитрировавшихся по заездам
+    for i := 0 to lvRegistered.Items.Count - 1 do begin
+      Group := nil;
+      lItem := lvRegistered.Items[i];
+      for n := 0 to lvRegistered.Groups.Count - 1
+      do if lvRegistered.Groups[n].Header = lItem.Caption then begin
+        Group := lvRegistered.Groups[n];
+        Break;
+      end;
+      if not Assigned(Group) then begin
+        Group := lvRegistered.Groups.Add;
+        Group.Header := lItem.Caption;
+        Group.GroupID := Ord(Group.Header);
+      end;
+      lItem.GroupID := Group.GroupID;
     end;
   finally
     Free;
