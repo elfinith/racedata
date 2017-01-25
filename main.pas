@@ -10,11 +10,12 @@ uses
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
   sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter, FR_DSet,
   FR_Class, Math, FR_E_RTF, sDialogs, Printers, Vlc, sGroupBox, acImage, ShellAPI,
-  ToolWin, sToolBar;
+  ToolWin, sToolBar, IdHTTP;
 
 const
   arrDIALOG_CAPTIONS: array[0..2] of String = ('Подтверждение', 'ОК', 'Отмена');
   iBEST_LAP_FLAG = 2;
+  iDEFAULT_DASHBOARD_INTERVAL = 5;
   iORDINARY_LAP_FLAG = 1;
   iPLATENUMBERS_COUNT_DEFAULT = 50;
   llDEBUG = 3;
@@ -29,6 +30,7 @@ const
   strCONFIG_FILENAME = 'config.ini';
   strDB_CONNECTION_ERROR = 'Ошибка при соединении с БД';
   strDB_FILENAME = 'DBASE.FDB';
+  strDEFAULT_DASHBOARD = 'http://localhost:3030';
   strDEFAULT_DVR_URL = 'rtsp://192.168.110.156:554/user=view&password=view&channel=1&stream=1.sdp';
   strDEFAULT_SKIN_NAME = 'Clean card (internal)';
   strDELETE_COMP_GROUP = 'Удалить зачётную подгруппу?';
@@ -262,6 +264,12 @@ type
     lbUnavailableRaces: TsListBox;
     lblYearsOld: TsLabel;
     lblYearsOldValue: TsLabel;
+    gbDashboardSettings: TsGroupBox;
+    cbDashboardEnabled: TsCheckBox;
+    eDashboardURL: TsEdit;
+    lblDashboardURL: TsLabel;
+    eDashboardRefreshInterval: TsEdit;
+    lblDashboardRefreshInterval: TsLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -358,6 +366,9 @@ type
     procedure btnEditAthSaveClick(Sender: TObject);
     procedure btnSnapshotDelayClick(Sender: TObject);
     procedure dtpAthletChange(Sender: TObject);
+    procedure cbDashboardEnabledClick(Sender: TObject);
+    procedure eDashboardURLChange(Sender: TObject);
+    procedure eDashboardRefreshIntervalChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -371,6 +382,7 @@ type
     strPDFPrinterName: string;
     strLogFilename: string;
     strSnapshotFileName: string;
+    strDashboardBaseURL : string;
     Config: TIniFile;
     bDoRacePanelRefresh, bDoNBRepaintLater: Boolean;
     procedure SelectAthlet(Sender: TObject);
@@ -397,69 +409,27 @@ type
     procedure Execute; override;
   end;
 
+  DashboardUpdateThread = class(TThread)
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  public
+    RACE_ID : integer;
+    iPostInterval : integer;
+    strURLBase, strAuthToken : string;
+  end;
+
 var
   MainForm: TMainForm;
   rpThread: RPUpdThread;
   dvrThread: DVRSnapshotThread;
+  dashThread : DashboardUpdateThread;
   function ScrollBarVisible(Handle: HWnd; Style: Longint): Boolean;
 
 implementation
 
 {$R *.dfm}
-
-procedure RPUpdThread.Execute;
-begin
-  FreeOnTerminate := true;
-  Synchronize(DoWork);
-end;
-
-procedure RPUpdThread.DoWork;
-begin
-  with MainForm do begin
-    RefreshRacePanel(False);
-//    RefreshRacePanel(True);
-    LogIt(llDEBUG, 'RPUpdThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
-  end;
-end;
-
-procedure DVRSnapshotThread.Execute;
-begin
-  FreeOnTerminate := true;
-  with MainForm do begin
-    // отработка задержки
-    LogIt(llDEBUG, 'Snapshot delay ' + IntToStr(iSnapshotDelay) + ' ms, ThreadID = ' + IntToStr(ThreadID) + #13#10);
-    Sleep(iSnapshotDelay);
-    LogIt(llDEBUG, 'Snapshot at ' + eSnapshotsDir.Text + '\' + strSnapshotFileName + ', ThreadID = ' + IntToStr(ThreadID) + #13#10);
-    GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + '\' + strSnapshotFileName);
-    LogIt(llDEBUG, 'DVRSnapshotThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
-  end;
-end;
-
-function RusMessageDialog(const Msg: string; DlgType: TMsgDlgType;
-  Buttons: TMsgDlgButtons; Captions: array of string): Integer;
-var
-  aMsgDlg: TForm;
-  i: Integer;
-  dlgButton: TButton;
-  CaptionIndex: Integer;
-begin
-  aMsgDlg := CreateMessageDialog(Msg, DlgType, Buttons);
-  aMsgDlg.Caption := Captions[0];
-  CaptionIndex := 1;
-  // перебор по объектам в диалоге
-  for i := 0 to aMsgDlg.ComponentCount - 1 do begin
-    // если кнопка
-    if (aMsgDlg.Components[i] is TButton) then begin
-      dlgButton := TButton(aMsgDlg.Components[i]);
-      if CaptionIndex > High(Captions) then
-        Break;
-      // загружаем новый заголовок из нашего массива заголовков
-      dlgButton.Caption := Captions[CaptionIndex];
-      inc(CaptionIndex);
-    end;
-  end;
-  Result := aMsgDlg.ShowModal;
-end;
 
 function FormatAthName(NameFormat: byte; strAthName: string) : string;
 var
@@ -511,6 +481,194 @@ begin
   end;
 end;
 
+procedure RPUpdThread.Execute;
+begin
+  FreeOnTerminate := true;
+  Synchronize(DoWork);
+end;
+
+procedure RPUpdThread.DoWork;
+begin
+  with MainForm do begin
+    RefreshRacePanel(False);
+//    RefreshRacePanel(True);
+    LogIt(llDEBUG, 'RPUpdThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
+  end;
+end;
+
+procedure DVRSnapshotThread.Execute;
+begin
+  FreeOnTerminate := true;
+  with MainForm do begin
+    // отработка задержки
+    LogIt(llDEBUG, 'Snapshot delay ' + IntToStr(iSnapshotDelay) + ' ms, ThreadID = ' + IntToStr(ThreadID) + #13#10);
+    Sleep(iSnapshotDelay);
+    LogIt(llDEBUG, 'Snapshot at ' + eSnapshotsDir.Text + '\' + strSnapshotFileName + ', ThreadID = ' + IntToStr(ThreadID) + #13#10);
+    GetSnapshot(vlcMediaPlayer, eSnapshotsDir.Text + '\' + strSnapshotFileName);
+    LogIt(llDEBUG, 'DVRSnapshotThread.Free, ThreadID = ' + IntToStr(ThreadID) + #13#10);
+  end;
+end;
+
+procedure DashboardUpdateThread.Execute;
+var
+  http : TIdHttp;
+  strURL, strWidget, strTIMENOTE, strAthName, strShift, strTIMELEADER, strTIMESTART, strBuf : string;
+  slJSON : TStringList;
+  dtShift : TDateTime;
+  iCurrentLap, iPlateNum, iAthleteLaps, iPlace, iLeaderLaps : integer;
+begin
+  iPostInterval := MainForm.Config.ReadInteger('Dashboard', 'Interval', iDEFAULT_DASHBOARD_INTERVAL) * 1000;
+  strURLBase := MainForm.strDashboardBaseURL + '/widgets/';
+  strAuthToken := 'YOUR_AUTH_TOKEN';
+  while not Terminated do
+    begin
+      with TIBQuery.Create(nil) do try
+        Database := MainForm.DBase;
+        Transaction := MainForm.DBTran;
+        // номер круга
+        SQL.Text := 'select count(timenotes.platenumber) from timenotes where race_id='
+          + IntToStr(RACE_ID) + ' group by timenotes.platenumber order by count(timenotes.platenumber) descending;';
+        MainForm.LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
+        iCurrentLap := Fields[0].AsInteger;
+        Close;
+        // время старта
+        SQL.Text := 'select timenote from timenotes where (platenumber = 0) '
+          + 'and (race_id = ' + IntToStr(RACE_ID) + ');';
+        MainForm.LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
+        strTIMESTART := Fields[0].AsString;
+      finally
+        Free;
+      end;
+      http := TIdHttp.Create(nil);
+      http.HandleRedirects := true;
+      http.ReadTimeout := 5000;
+      strWidget := 'current-lap';
+      strURL := strURLBase + strWidget;
+      slJSON := TStringList.Create;
+      slJSON.Text := '{"auth_token" : "' + strAuthToken + '", "current" : "' + IntToStr(iCurrentLap) + '"}';
+      with MainForm do begin
+        LogIt(llDEBUG, 'HTTP(POST) URL : ' + strURL + #13#10);
+        LogIt(llDEBUG, 'HTTP(POST) DATA : ' + slJSON.Text);
+      end;
+      http.Post(strURL, TStringStream.Create(Utf8Encode(slJSON.Text)));
+      slJSON.Free;
+      http.Free;
+
+      // положение на текущем круге
+      with TIBQuery.Create(nil) do try
+        Database := MainForm.DBase;
+        Transaction := MainForm.DBTran;
+        // сначала тупо выбираем отметки
+        SQL.Text := 'select platenumber, count(platenumber), max(timenote) from timenotes '
+          + 'where (race_id = ' + IntToStr(RACE_ID) + ') and (platenumber <> 0)  group by platenumber order by '
+          + 'count(platenumber) desc, max(timenote);';
+        MainForm.LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+        Open;
+        FetchAll;
+        // если есть то пишем
+        if (not(EOF)) and (Fields[0].AsInteger <> 0) then begin
+          iPlace := 1;
+          iLeaderLaps := Fields[1].AsInteger;
+
+          http := TIdHttp.Create(nil);
+          http.HandleRedirects := true;
+          http.ReadTimeout := 5000;
+          strWidget := 'race-table';
+          strURL := strURLBase + strWidget;
+          slJSON := TStringList.Create;
+          slJSON.Text := '{ "auth_token":"' + strAuthToken
+            + '", "hrows": [ '
+            + '{"cols": [ {"value":"Поз."}, {"value":"Участник"}, '
+            + '{"value": "Номер"}, {"value":"Время"}, {"value":"Кругов"} ] } ],   "rows":  [ ';
+          while not(EOF) do begin
+            iPlateNum := Fields[0].AsInteger;
+            iAthleteLaps := Fields[1].AsInteger;
+            strTIMENOTE := Fields[2].AsString;
+            // Отсекаем признак старта заезда
+            if iPlateNum <> 0 then begin
+               with TIBQuery.Create(nil) do try
+                  Database := MainForm.DBase;
+                  Transaction := MainForm.DBTran;
+                  SQL.Text := 'select name,date_born,sex,team,city from athletes, registry '
+                    + 'where (registry.athlet_id = athletes.athlet_id) and (registry.platenumber = '
+                    + IntToStr(iPlateNum) + ') and (registry.race_id = ' + IntToStr(RACE_ID) + ')';
+                  MainForm.LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+                  Open;
+                  strAthName := Fields[0].AsString;
+                  if iLeaderLaps - iAthleteLaps = 0 then begin
+                    if iPlace = 1 then begin
+                      // если первый - время от старта
+                      dtShift := StrToTime(strTIMENOTE, MainForm.fs) - StrToTime(strTIMESTART, MainForm.fs);
+                      strShift := MainForm.FormatTimeNote(dtShift);
+                      strTIMELEADER := strTIMENOTE;
+                    end
+                    else begin
+                      // если не первый - отставание от лидера
+                      dtShift := StrToTime(strTIMENOTE, MainForm.fs) - StrToTime(strTIMELEADER, MainForm.fs);
+                      strShift := '+' + MainForm.FormatTimeNote(dtShift);
+                    end;
+                  end
+                  else strShift := '+' + IntToStr(iLeaderLaps - iAthleteLaps) + ' кр';
+                  slJSON.Text := slJSON.Text + '{"cols": [ {"value":"' + IntToStr(iPlace)
+                    + '"}, {"value":"' + FormatAthName(nfLastUPPERFirstLower, strAthName)
+                    + '"}, {"value": "' + IntToStr(iPlateNum) + '"}, {"value":"'
+                    + strShift + '"}, {"value":"' + IntToStr(iAthleteLaps) + '"} ] },';
+                  inc(iPlace);
+               finally
+                 Free;
+               end;
+            end;
+            Next;
+          end;
+          // удаляем последнюю запятую
+          strBuf := slJSON.Strings[slJSON.Count - 1];
+          slJSON.Strings[slJSON.Count - 1] := Copy(strBuf, 1, Length(strBuf) - 1);
+          // закрываем JSON
+          slJSON.Text := slJSON.Text + ']  }';
+          with MainForm do begin
+            LogIt(llDEBUG, 'HTTP(POST) URL : ' + strURL + #13#10);
+            LogIt(llDEBUG, 'HTTP(POST) DATA : ' + slJSON.Text);
+          end;
+          http.Post(strURL, TStringStream.Create(Utf8Encode(slJSON.Text)));
+          slJSON.Free;
+          http.Free;
+        end;
+      finally
+        Free;
+      end;
+      // ожидание
+      Sleep(iPostInterval);
+    end;
+end;
+
+function RusMessageDialog(const Msg: string; DlgType: TMsgDlgType;
+  Buttons: TMsgDlgButtons; Captions: array of string): Integer;
+var
+  aMsgDlg: TForm;
+  i: Integer;
+  dlgButton: TButton;
+  CaptionIndex: Integer;
+begin
+  aMsgDlg := CreateMessageDialog(Msg, DlgType, Buttons);
+  aMsgDlg.Caption := Captions[0];
+  CaptionIndex := 1;
+  // перебор по объектам в диалоге
+  for i := 0 to aMsgDlg.ComponentCount - 1 do begin
+    // если кнопка
+    if (aMsgDlg.Components[i] is TButton) then begin
+      dlgButton := TButton(aMsgDlg.Components[i]);
+      if CaptionIndex > High(Captions) then
+        Break;
+      // загружаем новый заголовок из нашего массива заголовков
+      dlgButton.Caption := Captions[CaptionIndex];
+      inc(CaptionIndex);
+    end;
+  end;
+  Result := aMsgDlg.ShowModal;
+end;
+
 procedure TMainForm.LogIt(errLever: Integer; strMessage: string);
 var
   F: TextFile;
@@ -554,6 +712,9 @@ begin
   eDVRUrl.Text := Config.ReadString('DVR', 'URL', strDEFAULT_DVR_URL);
   iSnapshotDelay := Config.ReadInteger('DVR', 'CameraDelayMS', 0);
   eSnapshotDelay.Text := IntToStr(iSnapshotDelay);
+  cbDashboardEnabled.Checked := Config.ReadBool('Dashboard', 'Enabled', false);
+  strDashboardBaseURL := Config.ReadString('Dashboard','URL', strDEFAULT_DASHBOARD);
+  eDashboardURL.Text := strDashboardBaseURL;
   try
     DBase.Connected := true;
     DBTran.Active := true;
@@ -2089,6 +2250,11 @@ begin
     LoadVLCLib;
     StartDVRPlaybackAt(eDVRUrl.Text, pnlDVRPlayback.Handle);
   end;
+  // отсылка на табло
+  if cbDashboardEnabled.Checked then begin
+    dashThread := DashboardUpdateThread.Create(False);
+    dashThread.RACE_ID := RACE_ID;
+  end;
 end;
 
 procedure TMainForm.btnStpwtchFinishClick(Sender: TObject);
@@ -2125,6 +2291,12 @@ begin
     if chbEnableSnapshots.Checked then begin
       StopDVRPlayback(vlcMediaPlayer);
       FreeLibrary(vlclib);
+    end;
+    // остановка обновления табло
+    if cbDashboardEnabled.Checked then begin
+      dashThread.Terminate;
+      dashThread.WaitFor;
+      dashThread.Free;
     end;
   end;
 end;
@@ -2782,6 +2954,11 @@ begin
   end;
 end;
 
+procedure TMainForm.cbDashboardEnabledClick(Sender: TObject);
+begin
+  Config.WriteBool('Dashboard', 'Enabled', cbDashboardEnabled.Checked);
+end;
+
 procedure TMainForm.cbEventChange(Sender: TObject);
 var
   EVENT_ID: Integer;
@@ -3084,6 +3261,17 @@ begin
     eAthletSearch.Hide;
     btnAthletSearch.Hide;
   end;
+end;
+
+procedure TMainForm.eDashboardRefreshIntervalChange(Sender: TObject);
+begin
+  Config.WriteInteger('Dashboard', 'Interval', StrToInt(eDashboardRefreshInterval.Text));
+end;
+
+procedure TMainForm.eDashboardURLChange(Sender: TObject);
+begin
+  Config.WriteString('Dashboard', 'URL', eDashboardURL.Text);
+  strDashboardBaseURL := eDashboardURL.Text;
 end;
 
 procedure TMainForm.eDVRUrlChange(Sender: TObject);
