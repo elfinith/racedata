@@ -16,6 +16,7 @@ const
   arrDIALOG_CAPTIONS: array[0..2] of String = ('Подтверждение', 'ОК', 'Отмена');
   iBEST_LAP_FLAG = 2;
   iDEFAULT_DASHBOARD_INTERVAL = 5;
+  iHTTP_READ_TIMEOUT = 5000;
   iORDINARY_LAP_FLAG = 1;
   iPLATENUMBERS_COUNT_DEFAULT = 50;
   llDEBUG = 3;
@@ -28,6 +29,8 @@ const
   strCOMPLETE_RACE = 'Завершить гонку и перейти к итоговой таблице?';
   strCOMP_GROUP_NOT_SELECTED = 'Не выбрана зачётная подгруппа';
   strCONFIG_FILENAME = 'config.ini';
+  strDASHBOARD_AUTH_TOKEN = 'YOUR_AUTH_TOKEN';
+  strDASHBOARD_WIDGETS_ROUTE_URL =  '/widgets/';
   strDB_CONNECTION_ERROR = 'Ошибка при соединении с БД';
   strDB_FILENAME = 'DBASE.FDB';
   strDEFAULT_DASHBOARD = 'http://localhost:3030';
@@ -38,6 +41,8 @@ const
   strEXEC_SQL = 'SQL: ';
   strFINISH = 'ФИНИШ';
   strFS_VALID_FORMAT = 'hh.mm.ss.zzz';
+  strHTTP_POST_URL = 'HTTP(POST) URL : ';
+  strHTTP_POST_DATA = 'HTTP(POST) DATA : ';
   strINVALID_TIMENOTE_DATA = 'Неверные данные о временной отметке';
   strLAPSTOGO = ' кругов до финиша';
   strLASTLAP = 'Последний круг';
@@ -374,6 +379,7 @@ type
   public
     { Public declarations }
     fs: TFormatSettings;
+    bDashboardToUpdate : boolean;
     iPlatenumbersCount: Integer;
     RaceNumbers: TStringList;
     TIME_START, dtSnapshotClbrStart, dtSnapshotClbrStop: TDateTime;
@@ -390,6 +396,7 @@ type
     procedure OnPlateNumberClick(Sender: TObject);
     procedure RefreshRacePanel(bFullUpdate: boolean);
     procedure LogIt(errLever: Integer; strMessage: string);
+    procedure SendToDashboard(const WidgetName : string; const JSON : WideString);
     function GetReportHeaderParam(const RACE_ID: Integer; const ParName: string): Variant;
     function FormatTimeNote(dtTimeNote : TDateTime): string;
   end;
@@ -518,10 +525,11 @@ var
   iCurrentLap, iPlateNum, iAthleteLaps, iPlace, iLeaderLaps : integer;
 begin
   iPostInterval := MainForm.Config.ReadInteger('Dashboard', 'Interval', iDEFAULT_DASHBOARD_INTERVAL) * 1000;
-  strURLBase := MainForm.strDashboardBaseURL + '/widgets/';
-  strAuthToken := 'YOUR_AUTH_TOKEN';
-  while not Terminated do
-    begin
+  strURLBase := MainForm.strDashboardBaseURL + strDASHBOARD_WIDGETS_ROUTE_URL;
+  strAuthToken := strDASHBOARD_AUTH_TOKEN;
+  while not Terminated do begin
+    // если требуется обновлять табло (поступили новые временные отметки)
+    if MainForm.bDashboardToUpdate then begin
       with TIBQuery.Create(nil) do try
         Database := MainForm.DBase;
         Transaction := MainForm.DBTran;
@@ -543,14 +551,14 @@ begin
       end;
       http := TIdHttp.Create(nil);
       http.HandleRedirects := true;
-      http.ReadTimeout := 5000;
+      http.ReadTimeout := iHTTP_READ_TIMEOUT;
       strWidget := 'current-lap';
       strURL := strURLBase + strWidget;
       slJSON := TStringList.Create;
       slJSON.Text := '{"auth_token" : "' + strAuthToken + '", "current" : "' + IntToStr(iCurrentLap) + '"}';
       with MainForm do begin
-        LogIt(llDEBUG, 'HTTP(POST) URL : ' + strURL + #13#10);
-        LogIt(llDEBUG, 'HTTP(POST) DATA : ' + slJSON.Text);
+        LogIt(llDEBUG, strHTTP_POST_URL + strURL + #13#10);
+        LogIt(llDEBUG, strHTTP_POST_DATA + slJSON.Text);
       end;
       http.Post(strURL, TStringStream.Create(Utf8Encode(slJSON.Text)));
       slJSON.Free;
@@ -574,13 +582,12 @@ begin
 
           http := TIdHttp.Create(nil);
           http.HandleRedirects := true;
-          http.ReadTimeout := 5000;
+          http.ReadTimeout := iHTTP_READ_TIMEOUT;
           strWidget := 'race-table';
           strURL := strURLBase + strWidget;
           slJSON := TStringList.Create;
           slJSON.Text := '{ "auth_token":"' + strAuthToken
-            + '", "hrows": [ '
-            + '{"cols": [ {"value":"Поз."}, {"value":"Участник"}, '
+            + '", "hrows": [ {"cols": [ {"value":"Поз."}, {"value":"Участник"}, '
             + '{"value": "Номер"}, {"value":"Время"}, {"value":"Кругов"} ] } ],   "rows":  [ ';
           while not(EOF) do begin
             iPlateNum := Fields[0].AsInteger;
@@ -628,8 +635,8 @@ begin
           // закрываем JSON
           slJSON.Text := slJSON.Text + ']  }';
           with MainForm do begin
-            LogIt(llDEBUG, 'HTTP(POST) URL : ' + strURL + #13#10);
-            LogIt(llDEBUG, 'HTTP(POST) DATA : ' + slJSON.Text);
+            LogIt(llDEBUG, strHTTP_POST_URL + strURL + #13#10);
+            LogIt(llDEBUG, strHTTP_POST_DATA + slJSON.Text);
           end;
           http.Post(strURL, TStringStream.Create(Utf8Encode(slJSON.Text)));
           slJSON.Free;
@@ -638,9 +645,12 @@ begin
       finally
         Free;
       end;
-      // ожидание
-      Sleep(iPostInterval);
-    end;
+      // сбрасываем флаг поступления новых данных на табло
+      MainForm.bDashboardToUpdate := false;
+    end; // if MainForm.bDashboardToUpdate
+    // ожидание
+    Sleep(iPostInterval);
+  end;
 end;
 
 function RusMessageDialog(const Msg: string; DlgType: TMsgDlgType;
@@ -667,6 +677,30 @@ begin
     end;
   end;
   Result := aMsgDlg.ShowModal;
+end;
+
+procedure TMainForm.SendToDashboard(const WidgetName : string; const JSON : WideString);
+var
+  strURL, strURLBase : string;
+begin
+  strURLBase := strDashboardBaseURL + strDASHBOARD_WIDGETS_ROUTE_URL;
+  with TIdHttp.Create(nil) do try
+    HandleRedirects := true;
+    ReadTimeout := iHTTP_READ_TIMEOUT;
+    strURL := strURLBase + WidgetName;
+    LogIt(llDEBUG, strHTTP_POST_URL + strURL + #13#10);
+    LogIt(llDEBUG, strHTTP_POST_DATA + JSON + #13#10);
+    try
+      Post(strURL, TStringStream.Create(Utf8Encode(JSON)));
+    except
+      on E : Exception do begin
+        ShowMessage(E.Message);
+        LogIt(llERROR, E.Message + #13#10);
+      end;
+    end;
+  finally
+    Free;
+  end;
 end;
 
 procedure TMainForm.LogIt(errLever: Integer; strMessage: string);
@@ -941,6 +975,8 @@ begin
     finally
       Free;
     end;
+    // выставляем флаг поступления новых данных на табло
+    bDashboardToUpdate := true;
     // фигачим фото
     if chbEnableSnapshots.Checked then begin
       strSnapshotFileName :=
@@ -1480,6 +1516,8 @@ begin
   finally
     Free;
   end;
+  // выставляем ялаг поступления новых данных на табло
+  bDashboardToUpdate := true;
   RefreshRacePanel(True);
 end;
 
@@ -2199,7 +2237,8 @@ end;
 
 procedure TMainForm.btnStpwtchStartClick(Sender: TObject);
 var
-  RACE_ID, LAST_TN_ID: Integer;
+  RACE_ID, LAST_TN_ID, i: Integer;
+  StrCompGroups, strRACE_LAPS, strLAPS : string;
 begin
   with TIBQuery.Create(nil) do try
     Database := DBase;
@@ -2252,6 +2291,48 @@ begin
   end;
   // отсылка на табло
   if cbDashboardEnabled.Checked then begin
+    // Составляем перечень подгрупп
+    strCompGroups := '';
+    with TIBQuery.Create(nil) do try
+      Database := DBase;
+      Transaction := DBTran;
+      SQL.Text := 'select laps from races where race_id='
+        + IntToStr(RACE_ID) + ';';
+      Open;
+      strRACE_LAPS := Fields[0].AsString;
+      Close;
+      SQL.Text := 'select sex,agemin,agemax,laps from comp_groups where race_id='
+        + IntToStr(RACE_ID) + ' order by sex,agemin;';
+      LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      Open;
+      while not(EOF) do begin
+        if Fields[3].IsNull then strLAPS := strRACE_LAPS else strLAPS := Fields[3].AsString;
+        if (Fields[1].AsString = '0') and (Fields[2].AsString = '0') then begin
+          strCompGroups := strCompGroups + ' ' + Fields[0].AsString + ':'
+            + strLAPS + 'кр';
+        end;
+        if (Fields[1].AsString = '0') and (Fields[2].AsString <> '0') then begin
+          strCompGroups := strCompGroups + ' ' + Fields[0].AsString + '(<'
+            + Fields[2].AsString + '):' + strLAPS + 'кр';
+        end;
+        if (Fields[1].AsString <> '0') and (Fields[2].AsString = '0') then begin
+          strCompGroups := strCompGroups + ' ' + Fields[0].AsString + '(>'
+            + Fields[1].AsString + '):' + strLAPS + 'кр';
+        end;
+        if (Fields[1].AsString <> '0') and (Fields[2].AsString <> '0') then begin
+          strCompGroups := strCompGroups + ' ' + Fields[0].AsString + '('
+            + Fields[1].AsString + '-' + Fields[2].AsString + '):' + strLAPS + 'кр';
+        end;
+        Next;
+      end;
+    finally
+      Free;
+    end;
+    // Отправка заголовка
+    SendToDashboard('caption', '{"auth_token" : "' + strDASHBOARD_AUTH_TOKEN
+      + '", "title" : "' + cbEvent.Text + '", "text" : "' + cbRace.Text + '", "moreinfo" : "'
+      + strCompGroups + '"}');
+    // запуск потока периодической отправки данных на табло
     dashThread := DashboardUpdateThread.Create(False);
     dashThread.RACE_ID := RACE_ID;
   end;
@@ -2281,12 +2362,6 @@ begin
     finally
       Free;
     end;
-    // сохраняем RACE_ID в sComboBox6.Tag
-    cbResultsCG.Tag := RACE_ID;
-    tsRaceResults.Show;
-    btnStpwtchFinish.Enabled := False;
-    // refresh
-    cbResultsCGChange(Self);
     // останавливаем видео с камеры, если надо
     if chbEnableSnapshots.Checked then begin
       StopDVRPlayback(vlcMediaPlayer);
@@ -2298,6 +2373,12 @@ begin
       dashThread.WaitFor;
       dashThread.Free;
     end;
+    // сохраняем RACE_ID в sComboBox6.Tag
+    cbResultsCG.Tag := RACE_ID;
+    tsRaceResults.Show;
+    btnStpwtchFinish.Enabled := False;
+    // refresh
+    cbResultsCGChange(Self);
   end;
 end;
 
@@ -2427,6 +2508,8 @@ begin
     end;
     RefreshRacePanel(True);
     pnlTimenote.Hide;
+    // выставляем ялаг поступления новых данных на табло
+    bDashboardToUpdate := true;
   end
   else ShowMessage(strINVALID_TIMENOTE_DATA);
 end;
