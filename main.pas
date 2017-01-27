@@ -519,7 +519,7 @@ end;
 procedure DashboardUpdateThread.Execute;
 var
   http : TIdHttp;
-  strURL, strWidget, strTIMENOTE, strAthName, strShift, strTIMELEADER, strTIMESTART, strBuf : string;
+  strTIMENOTE, strAthName, strShift, strTIMELEADER, strTIMESTART, strBuf : string;
   slJSON : TStringList;
   dtShift : TDateTime;
   iCurrentLap, iPlateNum, iAthleteLaps, iPlace, iLeaderLaps : integer;
@@ -549,20 +549,8 @@ begin
       finally
         Free;
       end;
-      http := TIdHttp.Create(nil);
-      http.HandleRedirects := true;
-      http.ReadTimeout := iHTTP_READ_TIMEOUT;
-      strWidget := 'current-lap';
-      strURL := strURLBase + strWidget;
-      slJSON := TStringList.Create;
-      slJSON.Text := '{"auth_token" : "' + strAuthToken + '", "current" : "' + IntToStr(iCurrentLap) + '"}';
-      with MainForm do begin
-        LogIt(llDEBUG, strHTTP_POST_URL + strURL + #13#10);
-        LogIt(llDEBUG, strHTTP_POST_DATA + slJSON.Text);
-      end;
-      http.Post(strURL, TStringStream.Create(Utf8Encode(slJSON.Text)));
-      slJSON.Free;
-      http.Free;
+      MainForm.SendToDashboard('current-lap', '{"auth_token" : "'
+        + strAuthToken + '", "current" : "' + IntToStr(iCurrentLap) + '"}');
 
       // положение на текущем круге
       with TIBQuery.Create(nil) do try
@@ -579,12 +567,7 @@ begin
         if (not(EOF)) and (Fields[0].AsInteger <> 0) then begin
           iPlace := 1;
           iLeaderLaps := Fields[1].AsInteger;
-
-          http := TIdHttp.Create(nil);
-          http.HandleRedirects := true;
-          http.ReadTimeout := iHTTP_READ_TIMEOUT;
-          strWidget := 'race-table';
-          strURL := strURLBase + strWidget;
+          // готовим JSON для отправки
           slJSON := TStringList.Create;
           slJSON.Text := '{ "auth_token":"' + strAuthToken
             + '", "hrows": [ {"cols": [ {"value":"Поз."}, {"value":"Участник"}, '
@@ -634,17 +617,17 @@ begin
           slJSON.Strings[slJSON.Count - 1] := Copy(strBuf, 1, Length(strBuf) - 1);
           // закрываем JSON
           slJSON.Text := slJSON.Text + ']  }';
-          with MainForm do begin
-            LogIt(llDEBUG, strHTTP_POST_URL + strURL + #13#10);
-            LogIt(llDEBUG, strHTTP_POST_DATA + slJSON.Text);
-          end;
-          http.Post(strURL, TStringStream.Create(Utf8Encode(slJSON.Text)));
+          // отсылаем на табло
+          MainForm.SendToDashboard('race-table', slJSON.Text);
           slJSON.Free;
-          http.Free;
         end;
       finally
         Free;
       end;
+      // время заезда
+      MainForm.SendToDashboard('race-time', '{"auth_token" : "'
+        + strAuthToken + '", "current" : "'
+        + Copy(MainForm.sTimerLabel.Caption, 1, Length(MainForm.sTimerLabel.Caption) - 3) + '"}');
       // сбрасываем флаг поступления новых данных на табло
       MainForm.bDashboardToUpdate := false;
     end; // if MainForm.bDashboardToUpdate
@@ -694,7 +677,6 @@ begin
       Post(strURL, TStringStream.Create(Utf8Encode(JSON)));
     except
       on E : Exception do begin
-        ShowMessage(E.Message);
         LogIt(llERROR, E.Message + #13#10);
       end;
     end;
@@ -2330,8 +2312,9 @@ begin
     end;
     // Отправка заголовка
     SendToDashboard('caption', '{"auth_token" : "' + strDASHBOARD_AUTH_TOKEN
-      + '", "title" : "' + cbEvent.Text + '", "text" : "' + cbRace.Text + '", "moreinfo" : "'
-      + strCompGroups + '"}');
+      + '", "title" : "' + cbEvent.Text + '", "text" : "' + cbRace.Text + '"}');
+    SendToDashboard('race-table', '{"auth_token" : "' + strDASHBOARD_AUTH_TOKEN
+      + '", "title" : "' + StrCompGroups + '"}');
     // запуск потока периодической отправки данных на табло
     dashThread := DashboardUpdateThread.Create(False);
     dashThread.RACE_ID := RACE_ID;
@@ -2368,10 +2351,10 @@ begin
       FreeLibrary(vlclib);
     end;
     // остановка обновления табло
-    if cbDashboardEnabled.Checked then begin
-      dashThread.Terminate;
-      dashThread.WaitFor;
-      dashThread.Free;
+    if cbDashboardEnabled.Checked then with dashThread do begin
+      Terminate;
+      WaitFor;
+      Free;
     end;
     // сохраняем RACE_ID в sComboBox6.Tag
     cbResultsCG.Tag := RACE_ID;
