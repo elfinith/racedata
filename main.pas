@@ -374,6 +374,10 @@ type
     procedure cbDashboardEnabledClick(Sender: TObject);
     procedure eDashboardURLChange(Sender: TObject);
     procedure eDashboardRefreshIntervalChange(Sender: TObject);
+    procedure lvCompGroupsSelectItem(Sender: TObject; Item: TListItem;
+      Selected: Boolean);
+    procedure lvCompGroupsExit(Sender: TObject);
+    procedure lbEventRacesClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -1424,6 +1428,17 @@ begin
   end;
 end;
 
+procedure TMainForm.lvCompGroupsExit(Sender: TObject);
+begin
+  btnCGDelete.Enabled := false;
+end;
+
+procedure TMainForm.lvCompGroupsSelectItem(Sender: TObject; Item: TListItem;
+  Selected: Boolean);
+begin
+  btnCGDelete.Enabled := true;
+end;
+
 procedure TMainForm.miOpenSnapshotClick(Sender: TObject);
 var
   strFileName : string;
@@ -2124,8 +2139,8 @@ begin
     Database := DBase;
     Transaction := DBTran;
     SQL.Text :=
-      'select athlet_id,name,date_born,sex,team,city from athletes where name like ''%'
-      + eAthletSearch.Text + '%'' order by name;';
+      'select athlet_id,name,date_born,sex,team,city from athletes where UPPER(name) like UPPER(''%'
+      + eAthletSearch.Text + '%'') order by name;';
     LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
     Open;
     FetchAll;
@@ -2517,6 +2532,9 @@ begin
   btnCGDelete.Enabled := False;
   btnCGClose.Enabled := true;
   btnCGSave.Enabled := true;
+  btnCGNew.Enabled := false;
+  btnRaceClose.Enabled := false;
+  btnRaceSave.Enabled := false;
 end;
 
 procedure TMainForm.btnCGDeleteClick(Sender: TObject);
@@ -2600,6 +2618,9 @@ begin
   btnCGClose.Enabled := false;
   btnCGSave.Enabled := false;
   pnlCGEdit.Visible := false;
+  btnCGNew.Enabled := true;
+  btnRaceClose.Enabled := true;
+  btnRaceSave.Enabled := true;
   // refresh
   btnRaceEditClick(Self);
 end;
@@ -2610,6 +2631,9 @@ begin
   btnCGClose.Enabled := false;
   btnCGSave.Enabled := false;
   pnlCGEdit.Visible := false;
+  btnCGNew.Enabled := true;
+  btnRaceClose.Enabled := true;
+  btnRaceSave.Enabled := true;
 end;
 
 procedure TMainForm.btnRaceResultsClick(Sender: TObject);
@@ -2806,6 +2830,8 @@ begin
   end;
   pnlEvent.Show;
   pnlEventRaces.Show;
+  btnRaceEdit.Enabled := false;
+  btnRaceDelete.Enabled := false;
 end;
 
 procedure TMainForm.btnEditAthCloseClick(Sender: TObject);
@@ -2856,6 +2882,8 @@ begin
   pnlRace.Show;
   btnEventSave.Enabled := False;
   btnEventClose.Enabled := False;
+  btnRaceEdit.Enabled := false;
+  btnRaceDelete.Enabled := false;
   lvCompGroups.Clear;
   eRaceName.SetFocus;
   // пока не создан заезд, прячем создание подгрупп
@@ -3348,6 +3376,12 @@ end;
 procedure TMainForm.eSnapshotsDirChange(Sender: TObject);
 begin
   Config.WriteString('DVR', 'SnapshotsDir', eSnapshotsDir.Text);
+end;
+
+procedure TMainForm.lbEventRacesClick(Sender: TObject);
+begin
+  btnRaceEdit.Enabled := true;
+  btnRaceDelete.Enabled := true;
 end;
 
 procedure TMainForm.lbEventsDblClick(Sender: TObject);
