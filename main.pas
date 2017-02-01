@@ -2328,7 +2328,8 @@ begin
     // Отправка заголовка
     SendToDashboard('caption', '{"auth_token" : "' + strDASHBOARD_AUTH_TOKEN
       + '", "title" : "' + cbEvent.Text + '", "text" : "' + cbRace.Text + '"}');
-    SendToDashboard('race-table', '{"auth_token" : "' + strDASHBOARD_AUTH_TOKEN
+    // Отправка футера
+    SendToDashboard('comp-groups', '{"auth_token" : "' + strDASHBOARD_AUTH_TOKEN
       + '", "title" : "' + StrCompGroups + '"}');
     // запуск потока периодической отправки данных на табло
     dashThread := DashboardUpdateThread.Create(False);
