@@ -938,6 +938,8 @@ begin
   if not(btnStpwtchStart.Enabled) then begin
     PLATENUMBER := StrToInt(TFreeButton(Sender).Caption);
     RACE_ID := TFreeButton(Sender).Tag;
+    DBTran.Commit;
+    DBTran.StartTransaction;
     with TIBQuery.Create(nil) do try
       Database := DBase;
       Transaction := DBTran;
@@ -956,11 +958,13 @@ begin
         + IntToStr(LAST_TN_ID + 1) + ',' + IntToStr(RACE_ID) + ','
         + IntToStr(PLATENUMBER) + ',''' + FormatDateTime(strTIMENOTE_FORMAT, Now())
         + ''');';
-      ExecQuery;
       LogIt(llDEBUG, strEXEC_SQL + SQL.Text);
+      ExecQuery;
     finally
       Free;
     end;
+    DBTran.Commit;
+    DBTran.StartTransaction;
     // выставляем флаг поступления новых данных на табло
     bDashboardToUpdate := true;
     // фигачим фото
@@ -2219,6 +2223,8 @@ begin
   finally
     Free;
   end;
+  DBTran.Commit;
+  DBTran.StartTransaction;
   chlbAthletes.Enabled := False;
   lblRaceStatus.Caption := strREADY_TO_RACE;
 end;
@@ -2237,6 +2243,8 @@ var
   RACE_ID, LAST_TN_ID, i: Integer;
   StrCompGroups, strRACE_LAPS, strLAPS : string;
 begin
+  DBTran.Commit;
+  DBTran.StartTransaction;
   with TIBQuery.Create(nil) do try
     Database := DBase;
     Transaction := DBTran;
@@ -2280,6 +2288,8 @@ begin
   finally
     Free;
   end;
+  DBTran.Commit;
+  DBTran.StartTransaction;
   RepaintNumberButtons(Sender);
   // стартуем видео с камеры, если надо
   if chbEnableSnapshots.Checked then begin
@@ -2361,6 +2371,8 @@ begin
     finally
       Free;
     end;
+    DBTran.Commit;
+    DBTran.StartTransaction;
     // останавливаем видео с камеры, если надо
     if chbEnableSnapshots.Checked then begin
       StopDVRPlayback(vlcMediaPlayer);
