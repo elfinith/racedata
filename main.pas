@@ -10,7 +10,7 @@ uses
   FreeButton, acTitleBar, DateUtils, SPageControl, sListView, Mask, sMaskEdit,
   sCustomComboEdit, sToolEdit, acProgressBar, IniFiles, sSplitter, FR_DSet,
   FR_Class, Math, FR_E_RTF, sDialogs, Printers, Vlc, sGroupBox, acImage, ShellAPI,
-  ToolWin, sToolBar, IdHTTP;
+  ToolWin, sToolBar, IdHTTP, MMSystem;
 
 const
   arrDIALOG_CAPTIONS: array[0..2] of String = ('Подтверждение', 'ОК', 'Отмена');
@@ -35,6 +35,7 @@ const
   strDB_FILENAME = 'DBASE.FDB';
   strDEFAULT_DASHBOARD = 'http://localhost:3030';
   strDEFAULT_DVR_URL = 'rtsp://192.168.110.156:554/user=view&password=view&channel=1&stream=1.sdp';
+  strDEFAULT_FINAL_LAP_SOUND = '\sound\final-lap.wav';
   strDEFAULT_SKIN_NAME = 'Clean card (internal)';
   strDELETE_COMP_GROUP = 'Удалить зачётную подгруппу?';
   strDROP_ALL_TIMENOTES = 'ВНИМАНИЕ! Будут удалены данные о ВСЕХ заездах! Продолжить?';
@@ -275,6 +276,10 @@ type
     lblDashboardURL: TsLabel;
     eDashboardRefreshInterval: TsEdit;
     lblDashboardRefreshInterval: TsLabel;
+    gbAudioSettings: TsGroupBox;
+    cbFinalLapSound: TsCheckBox;
+    eFinalLapSound: TsFilenameEdit;
+    sLabel1: TsLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
@@ -378,6 +383,8 @@ type
       Selected: Boolean);
     procedure lvCompGroupsExit(Sender: TObject);
     procedure lbEventRacesClick(Sender: TObject);
+    procedure eFinalLapSoundChange(Sender: TObject);
+    procedure cbFinalLapSoundClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -735,6 +742,8 @@ begin
   cbDashboardEnabled.Checked := Config.ReadBool('Dashboard', 'Enabled', false);
   strDashboardBaseURL := Config.ReadString('Dashboard','URL', strDEFAULT_DASHBOARD);
   eDashboardURL.Text := strDashboardBaseURL;
+  cbFinalLapSound.Checked := Config.ReadBool('Sound', 'FinalLapEnabled', false);
+  eFinalLapSound.FileName := Config.ReadString('Sound', 'FinalLapSound', strDEFAULT_FINAL_LAP_SOUND);
   try
     DBase.Connected := true;
     DBTran.Active := true;
@@ -1141,7 +1150,12 @@ begin
   iLapsToGo := btnStpwtchFinish.Tag - iLapsCompleted;
   if iLapsToGo > 1 then btnStpwtchFinish.Caption :=
     IntToStr(btnStpwtchFinish.Tag - iLapsCompleted) + strLAPSTOGO;
-  if iLapsToGo = 1 then btnStpwtchFinish.Caption := strLASTLAP;
+  if iLapsToGo = 1 then begin
+    btnStpwtchFinish.Caption := strLASTLAP;
+
+    if cbFinalLapSound.Checked then sndPlaySound(PWideChar(eFinalLapSound.FileName), SND_ASYNC);
+  end;
+
   if iLapsToGo < 1 then btnStpwtchFinish.Caption := strFINISH;
   // снимаем флаг процесса обновления
   bDoRacePanelRefresh := False;
@@ -3061,6 +3075,11 @@ begin
   end;
 end;
 
+procedure TMainForm.cbFinalLapSoundClick(Sender: TObject);
+begin
+  Config.WriteBool('Sound', 'FinalLapEnabled', cbFinalLapSound.Checked);
+end;
+
 procedure TMainForm.cbDashboardEnabledClick(Sender: TObject);
 begin
   Config.WriteBool('Dashboard', 'Enabled', cbDashboardEnabled.Checked);
@@ -3384,6 +3403,11 @@ end;
 procedure TMainForm.eDVRUrlChange(Sender: TObject);
 begin
   Config.WriteString('DVR', 'URL', eDVRUrl.Text);
+end;
+
+procedure TMainForm.eFinalLapSoundChange(Sender: TObject);
+begin
+  Config.WriteString('Sound', 'FinalLapSound', eFinalLapSound.FileName);
 end;
 
 procedure TMainForm.eSnapshotsDirChange(Sender: TObject);
